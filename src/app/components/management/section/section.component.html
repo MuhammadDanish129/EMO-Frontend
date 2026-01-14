@@ -1,0 +1,281 @@
+<!-- SINGLE SWITCH: table vs form -->
+<ng-container *ngIf="!showForm; else formView">
+
+  <!-- Toolbar -->
+  <div class="box-header justify-between">
+    <div class="box-title">Sections</div>
+    <div class="flex">
+      <button
+        type="button"
+        class="ti-btn !py-1 !px-2 !text-[0.75rem] !text-white !font-medium bg-primary"
+        (click)="addSectionClick()">
+        <i class="ri-add-line font-semibold align-middle me-1"></i>
+        Add Section
+      </button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card bg-white shadow rounded-lg p-4">
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="text-lg font-semibold"></h2>
+
+      <div class="flex items-center space-x-2">
+        <input
+          type="text"
+          placeholder="Search..."
+          [value]="searchText"
+
+          class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring focus:ring-primary-300"
+        />
+        <button class="ti-btn ti-btn-primary ti-btn-sm" (click)="applySearch()">
+          <i class="ri-search-line"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table whitespace-nowrap table-bordered min-w-full border border-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="text-start">Section Name</th>
+            <th class="text-start">Unit</th>
+            <th class="text-start">Usage</th>
+            <th class="text-start">Floor</th>
+            <th class="text-start">Area (sq ft)</th>
+            <th class="text-start">Status</th>
+            <th class="text-start">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of filteredSections; trackBy: trackById" class="border border-gray-200">
+            <td><p class="mb-0 font-semibold">{{ s.sectionName }}</p></td>
+            <td><a href="javascript:void(0);" class="font-semibold text-primary">{{ s.unitName }}</a></td>
+            <td>{{ s.usageType }}</td>
+            <td>{{ s.floorNumber }}</td>
+            <td>{{ s.areaSqFt }}</td>
+            <td><span class="badge" [ngClass]="s.statusClass">{{ s.status }}</span></td>
+            <td class="space-x-1">
+              <button type="button" class="ti-btn ti-btn-info ti-btn-icon ti-btn-sm me-1" (click)="openView(s)">
+                <i class="ri-eye-line"></i>
+              </button>
+              <button type="button" class="ti-btn ti-btn-primary ti-btn-icon ti-btn-sm me-1" (click)="editSection(s)">
+                <i class="ri-edit-line"></i>
+              </button>
+              <button type="button" class="ti-btn ti-btn-danger ti-btn-icon ti-btn-sm" (click)="deleteSection(s.id)">
+                <i class="ri-delete-bin-5-line"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</ng-container>
+
+<!-- FORM VIEW -->
+<ng-template #formView>
+  <div class="box-header justify-between">
+    <div class="box-title">
+      {{ isEditing ? ('Edit Section #' + editingId) : 'Add Section' }}
+    </div>
+    <div class="flex">
+      <button type="button" class="ti-btn !py-1 !px-2 !text-[0.75rem] !font-medium bg-secondary text-white"
+              (click)="cancelForm()">
+        <i class="ri-database-2-line font-semibold align-middle me-1"></i>
+        Data View
+      </button>
+    </div>
+  </div>
+
+  <div class="stepper-container">
+    <mat-stepper [linear]="isLinear" #stepper>
+
+      <!-- STEP 1: Section Info -->
+      <mat-step [stepControl]="sectionInfoForm">
+        <form [formGroup]="sectionInfoForm">
+          <ng-template matStepLabel>Section info</ng-template>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Section name</mat-label>
+            <input matInput formControlName="sectionName" required>
+            <mat-error *ngIf="sectionInfoForm.get('sectionName')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Usage</mat-label>
+            <mat-select formControlName="usageType" required>
+              <mat-option value="storage">Storage</mat-option>
+              <mat-option value="office">Office</mat-option>
+              <mat-option value="retail">Retail</mat-option>
+              <mat-option value="production">Production</mat-option>
+              <mat-option value="other">Other</mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Section code (optional)</mat-label>
+            <input matInput formControlName="sectionCode">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3"></textarea>
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-stroked-button color="primary" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 2: Floor & Area -->
+      <mat-step [stepControl]="structureForm">
+        <form [formGroup]="structureForm">
+          <ng-template matStepLabel>Floor & Area</ng-template>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Floor no.</mat-label>
+            <input matInput type="number" formControlName="floorNumber" required>
+            <mat-error *ngIf="structureForm.get('floorNumber')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Area (sq ft)</mat-label>
+            <input matInput type="number" min="0" formControlName="areaSqFt" required>
+            <mat-error *ngIf="structureForm.get('areaSqFt')?.hasError('min')">Must be ≥ 0</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Capacity (optional)</mat-label>
+            <input matInput type="number" min="0" formControlName="capacity">
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-stroked-button color="primary" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 3: Operations -->
+      <mat-step [stepControl]="opsForm">
+        <form [formGroup]="opsForm">
+          <ng-template matStepLabel>Operations</ng-template>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status" required>
+              <mat-option value="Active">Active</mat-option>
+              <mat-option value="Maintenance">Under Maintenance</mat-option>
+              <mat-option value="Inactive">Inactive</mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Occupancy</mat-label>
+            <mat-select formControlName="occupancyStatus" required>
+              <mat-option value="occupied">Occupied</mat-option>
+              <mat-option value="vacant">Vacant</mat-option>
+              <mat-option value="partial">Partially Occupied</mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Supervisor</mat-label>
+            <input matInput formControlName="supervisorName">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Contact</mat-label>
+            <input matInput type="tel" formControlName="contactNumber" placeholder="+92 3xx xxx xxxx">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Notes</mat-label>
+            <textarea matInput rows="3" formControlName="notes"></textarea>
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-stroked-button color="primary" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 4: Assign Unit -->
+      <mat-step [stepControl]="assignForm">
+        <form [formGroup]="assignForm">
+          <ng-template matStepLabel>Assign unit</ng-template>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Unit</mat-label>
+            <mat-select formControlName="unitId" required>
+              <mat-option *ngFor="let u of units" [value]="u.id">
+                {{ u.unitName }} — {{ u.facilityName }}
+              </mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Sub‑meter ID (optional)</mat-label>
+            <input matInput formControlName="subMeterId">
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-stroked-button color="primary" matStepperNext>Review</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 5: Review & Submit -->
+      <mat-step>
+        <ng-template matStepLabel>Review & submit</ng-template>
+
+        <div class="review-grid">
+          <div>
+            <h3>Section Info</h3>
+            <p><strong>Name:</strong> {{ sectionInfoForm.value.sectionName }}</p>
+            <p><strong>Usage:</strong> {{ sectionInfoForm.value.usageType }}</p>
+            <p><strong>Code:</strong> {{ sectionInfoForm.value.sectionCode }}</p>
+            <p><strong>Description:</strong> {{ sectionInfoForm.value.description }}</p>
+          </div>
+
+          <div>
+            <h3>Floor & Area</h3>
+            <p><strong>Floor:</strong> {{ structureForm.value.floorNumber }}</p>
+            <p><strong>Area:</strong> {{ structureForm.value.areaSqFt }} sq ft</p>
+            <p><strong>Capacity:</strong> {{ structureForm.value.capacity }}</p>
+          </div>
+
+          <div>
+            <h3>Operations</h3>
+            <p><strong>Status:</strong> {{ opsForm.value.status }}</p>
+            <p><strong>Occupancy:</strong> {{ opsForm.value.occupancyStatus }}</p>
+            <p><strong>Supervisor:</strong> {{ opsForm.value.supervisorName }}</p>
+            <p><strong>Phone:</strong> {{ opsForm.value.contactNumber }}</p>
+
+            <h3>Unit</h3>
+            <p><strong>Unit:</strong> {{ getUnitName(assignForm.value.unitId) }}</p>
+            <p><strong>Sub‑meter:</strong> {{ assignForm.value.subMeterId }}</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-raised-button color="primary" (click)="submit()">
+            {{ isEditing ? 'Update' : 'Submit' }}
+          </button>
+          <button mat-stroked-button (click)="stepper.reset()">Reset</button>
+        </div>
+      </mat-step>
+
+    </mat-stepper>
+  </div>
+</ng-template>

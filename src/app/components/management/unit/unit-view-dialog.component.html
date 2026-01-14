@@ -1,0 +1,163 @@
+<style>
+  .dlg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .75rem 1rem;
+    border-radius: 6px 6px 0 0;
+    background: linear-gradient(90deg, #3f51b5, #5c6bc0);
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 600;
+    gap: .75rem;
+  }
+
+  .status-chip {
+    padding: 0.25rem 0.65rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.3);
+    white-space: nowrap;
+  }
+
+  fieldset {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: .75rem 1rem 1rem;
+    margin-top: 1rem;
+  }
+
+  legend {
+    padding: 0 8px;
+    font-size: 1.05rem;
+    font-weight: 700;
+  }
+
+  .kv-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr 180px 1fr;
+    column-gap: 16px;
+    row-gap: 6px;
+    align-items: baseline;
+  }
+
+  .kv-label {
+    color: #555;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+    /* border-bottom: 1px solid #eee; */
+    padding: 4px 0;
+  }
+
+  .kv-value {
+    color: #222;
+    word-break: break-word;
+    /* border-bottom: 1px solid #eee; */
+    padding: 4px 0;
+  }
+
+  @media (max-width:720px) {
+    .kv-grid {
+      grid-template-columns: 160px 1fr;
+    }
+  }
+</style>
+
+<h2 mat-dialog-title class="dlg-header">
+  <span>Unit #{{ data.id }} – {{ data.unitName }}</span>
+  <span class="status-chip" [ngClass]="{
+    'bg-success/70 text-success': data.status === 'Active',
+    'bg-danger/70 text-danger': data.status === 'Inactive',
+  }">{{ data.status }}</span>
+</h2>
+
+<mat-divider></mat-divider>
+
+<mat-dialog-content>
+
+  <fieldset>
+    <legend>Unit Info</legend>
+    <div class="kv-grid">
+      <div class="kv-label">Name:</div>
+      <div class="kv-value">{{ data.unitName }}</div>
+      <div class="kv-label">Type:</div>
+      <div class="kv-value">{{ data.details?.unitInfo?.unitType }}</div>
+      <div class="kv-label">Description:</div>
+      <div class="kv-value">{{ data.details?.unitInfo?.description }}</div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Structure</legend>
+    <div class="kv-grid">
+      <div class="kv-label">Building #:</div>
+      <div class="kv-value">{{ data.buildingNumber }}</div>
+      <div class="kv-label">Floors:</div>
+      <div class="kv-value">{{ data.floorCount }}</div>
+      <div class="kv-label">Sections:</div>
+      <div class="kv-value">{{ data.details?.structure?.sectionCount }}</div>
+      <div class="kv-label">Total area:</div>
+      <div class="kv-value">{{ data.details?.structure?.totalAreaSqFt }}</div>
+      <div class="kv-label">Year built:</div>
+      <div class="kv-value">{{ data.details?.structure?.yearBuilt }}</div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Location</legend>
+    <div class="kv-grid">
+      <div class="kv-label">Address 1:</div>
+      <div class="kv-value">{{ data.details?.location?.addressLine1 }}</div>
+      <div class="kv-label">Address 2:</div>
+      <div class="kv-value">{{ data.details?.location?.addressLine2 }}</div>
+      <div class="kv-label">City:</div>
+      <div class="kv-value">{{ data.city }}</div>
+      <div class="kv-label">State:</div>
+      <div class="kv-value">{{ data.details?.location?.state }}</div>
+      <div class="kv-label">Postal Code:</div>
+      <div class="kv-value">{{ data.details?.location?.postalCode }}</div>
+      <div class="kv-label">Country:</div>
+      <div class="kv-value">{{ data.details?.location?.country }}</div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Operations</legend>
+    <div class="kv-grid">
+      <div class="kv-label">Status:</div>
+      <div class="kv-value">{{ data.status }}</div>
+      <div class="kv-label">Occupancy:</div>
+      <div class="kv-value">{{ data.details?.operations?.occupancyStatus }}</div>
+      <div class="kv-label">Manager:</div>
+      <div class="kv-value">{{ data.details?.operations?.managerName }}</div>
+      <div class="kv-label">Phone:</div>
+      <div class="kv-value">{{ data.details?.operations?.contactNumber }}</div>
+      <div class="kv-label">Parking:</div>
+      <div class="kv-value">{{ data.details?.operations?.hasParking ? 'Yes':'No' }}</div>
+      <div class="kv-label">Fire cert #:</div>
+      <div class="kv-value">{{ data.details?.operations?.fireSafetyCertificateNumber }}</div>
+      <div class="kv-label">Notes:</div>
+      <div class="kv-value">{{ data.details?.operations?.notes }}</div>
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend>Facility</legend>
+    <div class="kv-grid">
+      <div class="kv-label">Facility:</div>
+      <div class="kv-value">{{ data.facilityName }}</div>
+      <div class="kv-label">Energy meter:</div>
+      <div class="kv-value">{{ data.details?.facility?.energyMeterId }}</div>
+    </div>
+  </fieldset>
+
+</mat-dialog-content>
+
+<mat-divider></mat-divider>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button mat-dialog-close>Close</button>
+</mat-dialog-actions>

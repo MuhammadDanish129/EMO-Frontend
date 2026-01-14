@@ -1,0 +1,167 @@
+<!-- TABLE VIEW -->
+<ng-container *ngIf="!showForm">
+
+  <!-- HEADER CARD -->
+  <div class="my-4">
+    <div class="flex items-center justify-between
+         rounded-xl
+         bg-[linear-gradient(to_right,rgb(var(--primary)),rgb(var(--secondary)))]
+         p-5 shadow-lg">
+
+
+      <h2 class="text-white text-xl font-semibold tracking-wide">
+        Facility Management
+      </h2>
+
+      <button type="button" class="flex items-center gap-2 rounded-lg
+               bg-white/90 px-4 py-2
+               text-sm font-semibold text-indigo-600
+               hover:bg-white transition" (click)="addFacilityClick()">
+        <i class="las la-plus-circle text-lg"></i>
+        Add Facility
+      </button>
+    </div>
+  </div>
+
+  <!-- TABLE CARD -->
+  <div class="rounded-xl bg-white shadow-md">
+
+    <!-- SEARCH BAR -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-4 border-b">
+      <p class="text-sm text-gray-500">
+        Total Facilities:
+        <span class="font-semibold text-gray-700">
+          {{ filteredFacilities.length }}
+        </span>
+      </p>
+
+      <div class="relative w-64 group">
+
+        <!-- SEARCH ICON -->
+        <i class="las la-search
+           absolute left-3 top-1/2 -translate-y-1/2
+           text-gray-400
+           transition
+           group-focus-within:text-[rgb(var(--primary))]">
+        </i>
+
+        <!-- SEARCH INPUT -->
+        <input type="text" [(ngModel)]="searchText" (ngModelChange)="searchFacilities()"
+          placeholder="Search facilities..." class="w-full
+           pl-9 pr-3 py-2
+           rounded-lg
+           border-2 border-red
+           bg-white
+           text-sm" />
+      </div>
+
+
+
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead class="bg-[rgb(var(--light))] text-sm text-[rgb(var(--gray))]">
+          <tr>
+            <th class="px-4 py-3 text-left">Client</th>
+            <th class="px-4 py-3 text-left">Facility ID</th>
+            <th class="px-4 py-3 text-left">Start Date</th>
+            <th class="px-4 py-3 text-left">Employees</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-left">City</th>
+            <th class="px-4 py-3 text-center">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody class="text-sm">
+          <tr *ngFor="let fac of pagedFacilities; trackBy: trackById" class="border-b hover:bg-gray-50 transition">
+
+            <td class="px-4 py-3">
+              <p class="font-semibold text-[rgb(var(--secondary))] ">{{ fac.businessName }}</p>
+              <p class="text-xs text-gray-500">{{ fac.ownerName }}</p>
+            </td>
+
+            <td class="px-4 py-3 text-indigo-600 font-medium">
+              {{ fac.id }}
+            </td>
+
+            <td class="px-4 py-3">{{ fac.startDate }}</td>
+            <td class="px-4 py-3">{{ fac.employees }}</td>
+
+            <td class="px-4 py-3">
+              <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="fac.statusClass">
+                {{ fac.status }}
+              </span>
+            </td>
+
+            <td class="px-4 py-3">{{ fac.city }}</td>
+
+            <td class="px-4 py-3">
+              <div class="flex justify-center gap-2">
+                <button class="rounded-lg bg-sky-100 p-2 text-sky-600 hover:bg-sky-200" (click)="openView(fac)">
+                  <i class="las la-eye text-lg"></i>
+                </button>
+
+                <button class="rounded-lg bg-indigo-100 p-2 text-indigo-600 hover:bg-indigo-200" (click)="edit(fac)">
+                  <i class="las la-edit text-lg"></i>
+                </button>
+
+                <button class="rounded-lg bg-red-100 p-2 text-red-600 hover:bg-red-200"
+                  (click)="deleteFacility(fac.id)">
+                  <i class="las la-trash text-lg"></i>
+                </button>
+              </div>
+            </td>
+
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="flex flex-col md:flex-row items-center justify-between
+             gap-3 px-4 py-3 border-t">
+
+      <p class="text-sm text-gray-500">
+        Showing
+        <span class="font-semibold text-gray-700">
+          {{ pageIndex * pageSize + 1 }}
+        </span>
+        –
+        <span class="font-semibold text-gray-700">
+          {{ pageEnd }}
+
+        </span>
+        of
+        <span class="font-semibold text-gray-700">
+          {{ filteredFacilities.length }}
+        </span>
+      </p>
+
+      <div class="flex items-center gap-1">
+        <button (click)="prevPage()" [disabled]="pageIndex === 0" class="px-3 py-2 rounded-lg border text-sm
+                 disabled:opacity-40">
+          Prev
+        </button>
+
+        <button *ngFor="let p of pages" (click)="goToPage(p)" class="px-3 py-2 rounded-lg border text-sm transition"
+          [ngClass]="
+    p === pageIndex
+      ? 'bg-[rgb(var(--primary))] text-white border-[rgb(var(--primary))]'
+      : 'border-gray-300 text-gray-700 hover:bg-gray-100'
+  ">
+          {{ p + 1 }}
+        </button>
+
+
+        <button (click)="nextPage()" [disabled]="(pageIndex + 1) * pageSize >= filteredFacilities.length" class="px-3 py-2 rounded-lg border text-sm
+                 disabled:opacity-40">
+          Next
+        </button>
+      </div>
+    </div>
+
+  </div>
+</ng-container>

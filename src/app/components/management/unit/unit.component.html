@@ -1,0 +1,346 @@
+<!-- SINGLE SWITCH: table vs form -->
+<ng-container *ngIf="!showForm; else formView">
+
+  <!-- Toolbar -->
+  <div class="box-header justify-between">
+    <div class="box-title">Units</div>
+    <div class="flex">
+      <button
+        type="button"
+        class="ti-btn !py-1 !px-2 !text-[0.75rem] !text-white !font-medium bg-primary"
+        (click)="addUnitClick()">
+        <i class="ri-add-line font-semibold align-middle me-1"></i>
+        Add Unit
+      </button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card bg-white shadow rounded-lg p-4">
+    <div class="flex justify-between items-center mb-3">
+        <h2 class="text-lg font-semibold"></h2>
+
+        <div class="flex items-center space-x-2">
+          <input
+            type="text"
+            placeholder="Search..."
+
+            class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring focus:ring-primary-300"
+          />
+          <button
+            class="ti-btn ti-btn-primary ti-btn-sm"
+            (click)="searchUnits()">
+            <i class="ri-search-line"></i>
+          </button>
+        </div>
+      </div>
+    <div class="table-responsive">
+      <table class="table whitespace-nowrap table-bordered min-w-full border border-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="text-start">Unit Name</th>
+            <th class="text-start">Facility</th>
+            <th class="text-start">Floors</th>
+            <th class="text-start">Building Number</th>
+            <th class="text-start">Status</th>
+            <th class="text-start">City</th>
+            <th class="text-start">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of units; trackBy: trackById" class="border border-gray-200">
+            <td><p class="mb-0 font-semibold">{{ u.unitName }}</p></td>
+            <td><a href="javascript:void(0);" class="font-semibold text-primary">{{ u.facilityName }}</a></td>
+            <td>{{ u.floorCount }}</td>
+            <td>{{ u.buildingNumber }}</td>
+            <td><span class="badge" [ngClass]="u.statusClass">{{ u.status }}</span></td>
+            <td>{{ u.city }}</td>
+            <td class="space-x-1">
+              <button type="button" class="ti-btn ti-btn-info ti-btn-icon ti-btn-sm me-1" (click)="openView(u)">
+                <i class="ri-eye-line"></i>
+              </button>
+              <button type="button" class="ti-btn ti-btn-primary ti-btn-icon ti-btn-sm me-1" (click)="editUnit(u)">
+                <i class="ri-edit-line"></i>
+              </button>
+              <button type="button" class="ti-btn ti-btn-danger ti-btn-icon ti-btn-sm" (click)="deleteUnit(u.id)">
+                <i class="ri-delete-bin-5-line"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</ng-container>
+
+<!-- FORM VIEW -->
+<ng-template #formView>
+  <div class="box-header justify-between">
+    <div class="box-title">
+      {{ isEditing ? ('Edit Unit #' + editingId) : 'Add Unit' }}
+    </div>
+    <div class="flex">
+      <button type="button" class="ti-btn !py-1 !px-2 !text-[0.75rem] !font-medium bg-secondary text-white"
+              (click)="cancelForm()">
+        <i class="ri-database-2-line font-semibold align-middle me-1"></i>
+        Data View
+      </button>
+    </div>
+  </div>
+
+  <div class="stepper-container">
+    <mat-stepper [linear]="isLinear" #stepper>
+
+      <!-- STEP 1: Unit Info -->
+      <mat-step [stepControl]="unitInfoForm">
+        <form [formGroup]="unitInfoForm">
+          <ng-template matStepLabel>Unit info</ng-template>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Unit name</mat-label>
+            <input matInput formControlName="unitName" required>
+            <mat-error *ngIf="unitInfoForm.get('unitName')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Unit type</mat-label>
+            <mat-select formControlName="unitType" required>
+              <mat-option value="residential">Residential</mat-option>
+              <mat-option value="commercial">Commercial</mat-option>
+              <mat-option value="office">Office</mat-option>
+              <mat-option value="mixed">Mixed Use</mat-option>
+              <mat-option value="industrial">Industrial</mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3"></textarea>
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-stroked-button color="primary" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 2: Structure -->
+      <mat-step [stepControl]="structureForm">
+        <form [formGroup]="structureForm">
+          <ng-template matStepLabel>Structure</ng-template>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Building number / code</mat-label>
+            <input matInput formControlName="buildingNumber">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Floors</mat-label>
+            <input matInput type="number" min="0" formControlName="floorCount" required>
+            <mat-error *ngIf="structureForm.get('floorCount')?.hasError('min')">Must be ≥ 0</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Sections</mat-label>
+            <input matInput type="number" min="0" formControlName="sectionCount" required>
+            <mat-error *ngIf="structureForm.get('sectionCount')?.hasError('min')">Must be ≥ 0</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Total area (sq ft)</mat-label>
+            <input matInput type="number" min="0" formControlName="totalAreaSqFt">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Year built</mat-label>
+            <input matInput type="number" min="1800" formControlName="yearBuilt">
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-stroked-button color="primary" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 3: Location -->
+      <mat-step [stepControl]="locationForm">
+        <form [formGroup]="locationForm">
+          <ng-template matStepLabel>Location</ng-template>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Address line 1</mat-label>
+            <input matInput formControlName="addressLine1" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Address line 2</mat-label>
+            <input matInput formControlName="addressLine2">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>City</mat-label>
+            <input matInput formControlName="city" required>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>State / Province</mat-label>
+            <input matInput formControlName="state">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Postal code</mat-label>
+            <input matInput formControlName="postalCode">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Country</mat-label>
+            <input matInput formControlName="country" required>
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-stroked-button color="primary" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 4: Operations -->
+      <mat-step [stepControl]="opsForm">
+        <form [formGroup]="opsForm">
+          <ng-template matStepLabel>Operations</ng-template>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status" required>
+              <mat-option value="Active">Active</mat-option>
+              <mat-option value="Maintenance">Under Maintenance</mat-option>
+              <mat-option value="Inactive">Closed</mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Occupancy</mat-label>
+            <mat-select formControlName="occupancyStatus" required>
+              <mat-option value="occupied">Occupied</mat-option>
+              <mat-option value="vacant">Vacant</mat-option>
+              <mat-option value="partial">Partially Occupied</mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Manager name</mat-label>
+            <input matInput formControlName="managerName">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="half-width">
+            <mat-label>Contact number</mat-label>
+            <input matInput type="tel" formControlName="contactNumber" placeholder="+92 3xx xxx xxxx">
+          </mat-form-field>
+
+          <mat-checkbox formControlName="hasParking">Has parking</mat-checkbox>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Fire safety certificate #</mat-label>
+            <input matInput formControlName="fireSafetyCertificateNumber">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Notes</mat-label>
+            <textarea matInput rows="3" formControlName="notes"></textarea>
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-stroked-button color="primary" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 5: Assign Facility -->
+      <mat-step [stepControl]="facilityForm">
+        <form [formGroup]="facilityForm">
+          <ng-template matStepLabel>Assign facility</ng-template>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Facility</mat-label>
+            <mat-select formControlName="facilityId" required>
+              <mat-option *ngFor="let f of facilities" [value]="f.id">
+                {{ f.businessName }} ({{ f.city }})
+              </mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Energy meter ID (optional)</mat-label>
+            <input matInput formControlName="energyMeterId">
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-stroked-button color="primary" matStepperNext>Review</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 6: Review & Submit -->
+      <mat-step>
+        <ng-template matStepLabel>Review & submit</ng-template>
+
+        <div class="review-grid">
+          <div>
+            <h3>Unit Info</h3>
+            <p><strong>Name:</strong> {{ unitInfoForm.value.unitName }}</p>
+            <p><strong>Type:</strong> {{ unitInfoForm.value.unitType }}</p>
+            <p><strong>Description:</strong> {{ unitInfoForm.value.description }}</p>
+
+            <h3>Structure</h3>
+            <p><strong>Building #:</strong> {{ structureForm.value.buildingNumber }}</p>
+            <p><strong>Floors:</strong> {{ structureForm.value.floorCount }}</p>
+            <p><strong>Sections:</strong> {{ structureForm.value.sectionCount }}</p>
+            <p><strong>Total area:</strong> {{ structureForm.value.totalAreaSqFt }} sq ft</p>
+            <p><strong>Year built:</strong> {{ structureForm.value.yearBuilt }}</p>
+          </div>
+
+          <div>
+            <h3>Location</h3>
+            <p><strong>Address 1:</strong> {{ locationForm.value.addressLine1 }}</p>
+            <p><strong>Address 2:</strong> {{ locationForm.value.addressLine2 }}</p>
+            <p><strong>City:</strong> {{ locationForm.value.city }}</p>
+            <p><strong>State:</strong> {{ locationForm.value.state }}</p>
+            <p><strong>Postal:</strong> {{ locationForm.value.postalCode }}</p>
+            <p><strong>Country:</strong> {{ locationForm.value.country }}</p>
+          </div>
+
+          <div>
+            <h3>Operations</h3>
+            <p><strong>Status:</strong> {{ opsForm.value.status }}</p>
+            <p><strong>Occupancy:</strong> {{ opsForm.value.occupancyStatus }}</p>
+            <p><strong>Manager:</strong> {{ opsForm.value.managerName }}</p>
+            <p><strong>Phone:</strong> {{ opsForm.value.contactNumber }}</p>
+            <p><strong>Parking:</strong> {{ opsForm.value.hasParking ? 'Yes' : 'No' }}</p>
+            <p><strong>Fire cert #:</strong> {{ opsForm.value.fireSafetyCertificateNumber }}</p>
+
+            <h3>Facility</h3>
+            <p><strong>Facility:</strong> {{ getFacilityName(facilityForm.value.facilityId) }}</p>
+            <p><strong>Energy meter:</strong> {{ facilityForm.value.energyMeterId }}</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-raised-button color="primary" (click)="submit()">
+            {{ isEditing ? 'Update' : 'Submit' }}
+          </button>
+          <button mat-stroked-button (click)="stepper.reset()">Reset</button>
+        </div>
+      </mat-step>
+
+    </mat-stepper>
+  </div>
+</ng-template>

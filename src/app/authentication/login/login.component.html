@@ -1,0 +1,98 @@
+<div class="grid grid-cols-12 authentication mx-0 min-h-screen text-defaulttextcolor text-defaultsize">
+
+  <!-- Left Side (Form) -->
+  <div class="xxl:col-span-7 xl:col-span-7 lg:col-span-6 col-span-12 flex items-center justify-center px-4">
+    <div class="w-full max-w-[600px]">
+      <div class="p-[3rem]">
+        <div class="mb-4">
+          <a aria-label="anchor" routerLink="/dashboard/crm">
+            <img src="./assets/images/brand-logos/desktop-logo.png" alt="" class="w-10">
+          </a>
+        </div>
+        <p class="h5 font-semibold mb-2">Sign In</p>
+
+        <form [formGroup]="loginForm" (ngSubmit)="signIn()">
+          <div class="grid grid-cols-12 gap-y-4">
+
+            <!-- Username Field -->
+            <div class="xl:col-span-12 col-span-12 mt-0">
+              <label for="signin-username" class="form-label text-default">User Name</label>
+              <input type="text" class="form-control form-control-lg w-full !rounded-md"
+                     id="signin-username" placeholder="user name" formControlName="username" />
+            </div>
+
+            <!-- Password Field -->
+            <div class="xl:col-span-12 col-span-12 mb-4">
+              <label for="signin-password" class="form-label text-default block">
+                Password
+                <a class="float-right text-danger">Forget password ?</a>
+              </label>
+              <div class="input-group">
+                <input class="form-control form-control-lg !rounded-e-none" id="signin-password"
+                       placeholder="password" [type]="showPassword ? 'text' : 'password'"
+                       formControlName="password" autocomplete="off" />
+                <button aria-label="button" type="button"
+                        class="ti-btn ti-btn-light !rounded-s-none !mb-0"
+                        (click)="toggleVisibility()">
+                  <i class="ri-eye-{{toggleClass}} align-middle"></i>
+                </button>
+              </div>
+              <div class="mt-2">
+                <div class="form-check !ps-0">
+                  <input class="form-check-input" type="checkbox" id="defaultCheck1">
+                  <label class="form-check-label text-[#8c9097] dark:text-white/50 font-normal" for="defaultCheck1">
+                    Remember password ?
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sign In Button -->
+            <div class="xl:col-span-12 col-span-12 grid mt-2">
+              <button type="submit" class="ti-btn ti-btn-lg bg-primary text-white !font-medium dark:border-defaultborder/10">
+                Sign In
+              </button>
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Side (Carousel with Background Image) -->
+  <div class="xxl:col-span-5 xl:col-span-5 lg:col-span-5 col-span-12 xl:block hidden px-0">
+    <div class="authentication-cover">
+        <div class="aunthentication-cover-content rounded">
+            <div class="swiper keyboard-control authentication">
+                <owl-carousel-o [options]="customOptions" [dir]="customOptions.rtl ? 'rtl' : 'ltr'" >
+                    @for(slide of slidesStore; track $index){
+
+                      <ng-container>
+                        <ng-template carouselSlide >
+                          <div class="swiper-wrapper">
+                            <div class="swiper-slide">
+                              <div class="text-white text-center p-[3rem] flex items-center justify-center">
+                                <div>
+                                  <div class="mb-[3rem]">
+                                    <img [src]="slide.img" alt="" class="authentication-image">
+                                  </div>
+                                  <h6 class="font-semibold text-[1rem]">Signin</h6>
+                                  <p class="font-normal text-[.875rem] opacity-[0.7]">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa eligendi expedita aliquam quaerat nulla voluptas facilis. Porro rem voluptates possimus, ad, autem quae culpa architecto, quam labore blanditiis at ratione.</p>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </ng-template>
+                      </ng-container>
+                    }
+                  </owl-carousel-o>
+
+
+                <div class="swiper-pagination"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>

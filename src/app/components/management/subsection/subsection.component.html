@@ -1,0 +1,301 @@
+<!-- SINGLE SWITCH: table vs form -->
+<ng-container *ngIf="!showForm; else formView">
+
+  <!-- Toolbar -->
+  <div class="box-header justify-between">
+    <div class="box-title">Sub‑Sections</div>
+    <div class="flex">
+      <button
+        type="button"
+        class="ti-btn !py-1 !px-2 !text-[0.75rem] !text-white !font-medium bg-primary"
+        (click)="addSubSectionClick()">
+        <i class="ri-add-line font-semibold align-middle me-1"></i>
+        Add Sub‑Section
+      </button>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="card bg-white shadow rounded-lg p-4">
+    <div class="flex justify-between items-center mb-3">
+      <h2 class="text-lg font-semibold"></h2>
+
+      <div class="flex items-center space-x-2">
+        <input
+          type="text"
+          placeholder="Search..."
+          [value]="searchText"
+
+          class="border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring focus:ring-primary-300"
+        />
+        <button class="ti-btn ti-btn-primary ti-btn-sm" (click)="applySearch()">
+          <i class="ri-search-line"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table whitespace-nowrap table-bordered min-w-full border border-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="text-start">Sub‑Section Name</th>
+            <th class="text-start">Section</th>
+            <th class="text-start">Type</th>
+            <th class="text-start">Occupied (sq ft)</th>
+            <th class="text-start">Service (sq ft)</th>
+            <th class="text-start">Status</th>
+            <th class="text-start">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of filteredSubSections; trackBy: trackById" class="border border-gray-200">
+            <td><p class="mb-0 font-semibold">{{ r.subSectionName }}</p></td>
+            <td><a href="javascript:void(0);" class="font-semibold text-primary">{{ r.sectionName }}</a></td>
+            <td>{{ r.spaceType }}</td>
+            <td>{{ r.occupiedAreaSqFt }}</td>
+            <td>{{ r.serviceAreaSqFt }}</td>
+            <td><span class="badge" [ngClass]="r.statusClass">{{ r.status }}</span></td>
+            <td class="space-x-1">
+              <button type="button" class="ti-btn ti-btn-info ti-btn-icon ti-btn-sm me-1" (click)="openView(r)">
+                <i class="ri-eye-line"></i>
+              </button>
+              <button type="button" class="ti-btn ti-btn-primary ti-btn-icon ti-btn-sm me-1" (click)="editSubSection(r)">
+                <i class="ri-edit-line"></i>
+              </button>
+              <button type="button" class="ti-btn ti-btn-danger ti-btn-icon ti-btn-sm" (click)="deleteSubSection(r.id)">
+                <i class="ri-delete-bin-5-line"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</ng-container>
+
+<!-- FORM VIEW -->
+<ng-template #formView>
+  <div class="box-header justify-between">
+    <div class="box-title">
+      {{ isEditing ? ('Edit Sub‑Section #' + editingId) : 'Add Sub‑Section' }}
+    </div>
+    <div class="flex">
+      <button type="button" class="ti-btn !py-1 !px-2 !text-[0.75rem] !font-medium bg-secondary text-white"
+              (click)="cancelForm()">
+        <i class="ri-database-2-line font-semibold align-middle me-1"></i>
+        Data View
+      </button>
+    </div>
+  </div>
+
+  <div class="stepper-container justify-between">
+    <mat-stepper [linear]="isLinear" #stepper>
+
+      <!-- STEP 1: Info -->
+      <mat-step [stepControl]="infoForm">
+        <form [formGroup]="infoForm">
+          <ng-template matStepLabel>Info</ng-template>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Sub‑Section name</mat-label>
+            <input matInput formControlName="subSectionName" required>
+            <mat-error *ngIf="infoForm.get('subSectionName')?.hasError('required')">Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-1/2 pr-2">
+            <mat-label>Type</mat-label>
+            <mat-select formControlName="spaceType" required>
+              <mat-option value="office">Office</mat-option>
+              <mat-option value="shop">Shop</mat-option>
+              <mat-option value="storage">Storage</mat-option>
+              <mat-option value="room">Room</mat-option>
+              <mat-option value="production">Production</mat-option>
+              <mat-option value="other">Other</mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-1/2 pl-2">
+            <mat-label>Code (optional)</mat-label>
+            <input matInput formControlName="subSectionCode">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="3"></textarea>
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-stroked-button color="primary" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 2: Areas -->
+      <mat-step [stepControl]="areaForm">
+        <form [formGroup]="areaForm">
+          <ng-template matStepLabel>Areas</ng-template>
+
+          <mat-form-field appearance="fill" class="w-1/2 pr-2">
+            <mat-label>Occupied area (sq ft)</mat-label>
+            <input matInput type="number" min="0" formControlName="occupiedAreaSqFt" required>
+            <mat-error *ngIf="areaForm.get('occupiedAreaSqFt')?.hasError('min')">Must be ≥ 0</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-1/2 pl-2">
+            <mat-label>Service area (sq ft)</mat-label>
+            <input matInput type="number" min="0" formControlName="serviceAreaSqFt" required>
+            <mat-error *ngIf="areaForm.get('serviceAreaSqFt')?.hasError('min')">Must be ≥ 0</mat-error>
+          </mat-form-field>
+
+          <div class="full-width mt-2 text-sm">
+            <strong>Total area:</strong> {{ totalArea }} sq ft
+          </div>
+
+          <div class="actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-stroked-button color="primary" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 3: Operations & Assignee -->
+      <mat-step [stepControl]="opsForm">
+        <form [formGroup]="opsForm">
+          <ng-template matStepLabel>Operations</ng-template>
+
+          <mat-form-field appearance="fill" class="width-1/2 pr-2">
+            <mat-label>Status</mat-label>
+            <mat-select formControlName="status" required>
+              <mat-option value="Active">Active</mat-option>
+              <mat-option value="Maintenance">Under Maintenance</mat-option>
+              <mat-option value="Inactive">Inactive</mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-1/4 pl-2">
+            <mat-label>Occupancy</mat-label>
+            <mat-select formControlName="occupancyStatus" required>
+              <mat-option value="occupied">Occupied</mat-option>
+              <mat-option value="vacant">Vacant</mat-option>
+              <mat-option value="partial">Partially Occupied</mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-1/4 pl-2">
+            <mat-label>Assignee type</mat-label>
+            <mat-select formControlName="assigneeType">
+              <mat-option value="none">None</mat-option>
+              <mat-option value="person">Person</mat-option>
+              <mat-option value="tenant">Tenant</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-1/4 pl-2" *ngIf="opsForm.value.assigneeType === 'person'">
+            <mat-label>Person name</mat-label>
+            <input matInput formControlName="personName">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="w-1/4 pl-2" *ngIf="opsForm.value.assigneeType === 'tenant'">
+            <mat-label>Tenant name</mat-label>
+            <input matInput formControlName="tenantName">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Contact</mat-label>
+            <input matInput type="tel" formControlName="contactNumber" placeholder="+92 3xx xxx xxxx">
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Notes</mat-label>
+            <textarea matInput rows="3" formControlName="notes"></textarea>
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-stroked-button color="primary" matStepperNext>Next</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 4: Assign Section -->
+      <mat-step [stepControl]="assignForm">
+        <form [formGroup]="assignForm">
+          <ng-template matStepLabel>Assign section</ng-template>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Section</mat-label>
+            <mat-select formControlName="sectionId" required>
+              <mat-option *ngFor="let s of sections" [value]="s.id">
+                {{ s.sectionName }} — {{ s.unitName }}
+              </mat-option>
+            </mat-select>
+            <mat-error>Required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Sub‑meter ID (optional)</mat-label>
+            <input matInput formControlName="subMeterId">
+          </mat-form-field>
+
+          <div class="actions">
+            <button mat-button matStepperPrevious>Back</button>
+            <button mat-stroked-button color="primary" matStepperNext>Review</button>
+          </div>
+        </form>
+      </mat-step>
+
+      <!-- STEP 5: Review & Submit -->
+      <mat-step>
+        <ng-template matStepLabel>Review & submit</ng-template>
+
+        <div class="review-grid">
+          <div>
+            <h3>Info</h3>
+            <p><strong>Name:</strong> {{ infoForm.value.subSectionName }}</p>
+            <p><strong>Type:</strong> {{ infoForm.value.spaceType }}</p>
+            <p><strong>Code:</strong> {{ infoForm.value.subSectionCode }}</p>
+            <p><strong>Description:</strong> {{ infoForm.value.description }}</p>
+          </div>
+
+          <div>
+            <h3>Areas</h3>
+            <p><strong>Occupied:</strong> {{ areaForm.value.occupiedAreaSqFt }} sq ft</p>
+            <p><strong>Service:</strong> {{ areaForm.value.serviceAreaSqFt }} sq ft</p>
+            <p><strong>Total:</strong> {{ totalArea }} sq ft</p>
+          </div>
+
+          <div>
+            <h3>Operations</h3>
+            <p><strong>Status:</strong> {{ opsForm.value.status }}</p>
+            <p><strong>Occupancy:</strong> {{ opsForm.value.occupancyStatus }}</p>
+            <p><strong>Assignee:</strong>
+              <ng-container [ngSwitch]="opsForm.value.assigneeType">
+                <span *ngSwitchCase="'person'">Person — {{ opsForm.value.personName }}</span>
+                <span *ngSwitchCase="'tenant'">Tenant — {{ opsForm.value.tenantName }}</span>
+                <span *ngSwitchDefault>None</span>
+              </ng-container>
+            </p>
+            <p><strong>Phone:</strong> {{ opsForm.value.contactNumber }}</p>
+
+            <h3>Section</h3>
+            <p><strong>Section:</strong> {{ getSectionName(assignForm.value.sectionId) }}</p>
+            <p><strong>Sub‑meter:</strong> {{ assignForm.value.subMeterId }}</p>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button mat-button matStepperPrevious>Back</button>
+          <button mat-raised-button color="primary" (click)="submit()">
+            {{ isEditing ? 'Update' : 'Submit' }}
+          </button>
+          <button mat-stroked-button (click)="stepper.reset()">Reset</button>
+        </div>
+      </mat-step>
+
+    </mat-stepper>
+  </div>
+</ng-template>
