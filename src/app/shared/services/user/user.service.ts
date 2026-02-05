@@ -32,6 +32,10 @@ export class UserService {
     return Promise.resolve(null);
   }
 
+  get avatar$(): string{
+    return localStorage.getItem('userAvatar') ?? '';
+  }
+
   /**
    * Setter for user (encrypting the user data before storing)
    *

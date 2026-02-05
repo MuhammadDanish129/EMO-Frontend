@@ -1,0 +1,347 @@
+<div class="w-full rounded-t-xl bg-[rgb(var(--light))] shadow-xl max-h-[90vh] flex flex-col">
+
+  <!-- ================= HEADER ================= -->
+  <div class="flex items-center justify-between px-6 py-3 bg-[rgb(var(--primary))]">
+    <span class="text-sm font-semibold text-white">
+      {{ isEditMode ? 'Edit Business' : 'Add Business' }}
+    </span>
+
+    <button
+      type="button"
+      class="rounded-lg p-2 text-white/80 bg-white/10"
+      (click)="close()"
+    >
+      <i class="las la-times"></i>
+    </button>
+  </div>
+
+  <div class="px-1 py-1 overflow-y-auto">
+
+    <!-- ================= CUSTOM STEPPER ================= -->
+    <div class="yx-stepper">
+
+      <!-- Step Header -->
+      <div class="flex items-center justify-between px-6 pt-4">
+
+        <!-- STEP 1 -->
+        <div class="flex items-center gap-3 cursor-pointer"
+             (click)="currentStep = 0">
+
+          <div class="h-10 w-10 rounded-full flex items-center justify-center transition"
+               [class.bg-[rgb(var(--primary))]]="currentStep >= 0"
+               [class.text-white]="currentStep >= 0"
+               [class.bg-[rgb(var(--gray-200))]]="currentStep < 0">
+
+            <i class="las la-building text-lg"></i>
+          </div>
+
+          <span class="text-sm font-semibold"
+                [class.text-[rgb(var(--primary))]]="currentStep >= 0">
+            Business Info
+          </span>
+        </div>
+
+        <!-- Line -->
+        <div class="flex-1 h-[2px] mx-4 bg-[rgb(var(--gray-200))] relative">
+          <div class="absolute left-0 top-0 h-full bg-[rgb(var(--primary))] transition-all"
+               [style.width.%]="currentStep >= 1 ? 100 : 0">
+          </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="flex items-center gap-3 cursor-pointer"
+             (click)="currentStep = 1">
+
+          <div class="h-10 w-10 rounded-full flex items-center justify-center transition"
+               [class.bg-[rgb(var(--primary))]]="currentStep >= 1"
+               [class.text-white]="currentStep >= 1"
+               [class.bg-[rgb(var(--gray-200))]]="currentStep < 1">
+
+            <i class="las la-user-shield text-lg"></i>
+          </div>
+
+          <span class="text-sm font-semibold"
+                [class.text-[rgb(var(--primary))]]="currentStep >= 1">
+            Business Admin
+          </span>
+        </div>
+
+      </div>
+
+      <!-- ================= STEP CONTENT ================= -->
+      <div class="mt-4">
+
+        <!-- ================= STEP 1 ================= -->
+        <ng-container *ngIf="currentStep === 0">
+
+          <div class="rounded-lg border border-[rgb(var(--gray-200))] p-5 space-y-4">
+
+            <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide">
+              Business Information
+            </p>
+
+            <div class="yx-field">
+              <label class="yx-label">Business Name *</label>
+              <input
+                class="yx-input w-full"
+                [(ngModel)]="model.businessName"
+              />
+            </div>
+             <div class="yx-field">
+              <label class="yx-label">Business Email *</label>
+              <input
+                class="yx-input w-full"
+                [(ngModel)]="model.businessEmail"
+              />
+            </div>
+             <div class="yx-field">
+              <label class="yx-label">Business Contact *</label>
+              <input
+                class="yx-input w-full"
+                [(ngModel)]="model.businessContact"
+              />
+            </div>
+             <!-- ================= STATUS ================= -->
+            <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
+              <div>
+                <p class="text-sm font-medium">Active Status</p>
+                <p class="text-xs text-muted">Inactive users cannot login</p>
+              </div>
+
+              <mat-slide-toggle color="primary"
+                                [(ngModel)]="model.businessIsActive"
+                                [disabled]="model.isControlsDisabled">
+              </mat-slide-toggle>
+            </div>
+          </div>
+
+          <div class="flex justify-end mt-6">
+            <button
+              class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white"
+              (click)="currentStep = 1">
+              Next
+            </button>
+          </div>
+
+        </ng-container>
+
+        <!-- ================= STEP 2 ================= -->
+        <ng-container *ngIf="currentStep === 1">
+
+          <div class="px-6 py-2 overflow-y-auto space-y-3">
+
+            <!-- ================= IMAGE UPLOADER ================= -->
+            <div class="rounded-lg border border-[rgb(var(--gray-200))] p-5">
+              <div class="flex flex-col items-center gap-3">
+                <div class="relative h-36 w-36 rounded-full border-2 border-dashed
+                         border-[rgb(var(--primary-300))]
+                         flex items-center justify-center cursor-pointer"
+                     (dragover)="onDragOver($event)"
+                     (drop)="onDrop($event)"
+                     (click)="fileInput.click()">
+
+                  <img *ngIf="model.avatarPreview"
+                       [src]="model.avatarPreview"
+                       class="h-full w-full rounded-full object-cover" />
+
+                  <div *ngIf="!model.avatarPreview" class="text-center">
+                    <i class="las la-cloud-upload-alt text-3xl text-[rgb(var(--primary))]"></i>
+                    <p class="text-xs mt-1 text-muted">Drag or Click</p>
+                  </div>
+
+                  <button *ngIf="model.avatarPreview"
+                          type="button"
+                          class="absolute -top-2 -right-2 h-7 w-7 rounded-full
+                                 bg-[rgb(var(--danger))] text-white flex items-center justify-center"
+                          (click)="removeImage(); $event.stopPropagation()">
+                    <i class="las la-times text-sm"></i>
+                  </button>
+
+                  <input #fileInput type="file" hidden accept="image/*" (change)="onFileInput($event)" />
+                </div>
+
+                <p class="text-xs text-muted">Upload user profile picture</p>
+              </div>
+            </div>
+
+            <!-- ================= BASIC INFORMATION ================= -->
+            <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]"
+                 [class.border-[rgb(var(--danger))]]="fieldErrors.name || fieldErrors.username || fieldErrors.phone">
+
+              <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+                Basic Information
+              </p>
+
+              <div class="yx-field">
+                <label class="yx-label">Full Name <span class="text-[rgb(var(--red-500))]">*</span></label>
+                <input class="yx-input w-full"
+                       [(ngModel)]="model.name"
+                       (ngModelChange)="fieldErrors.name = null"
+                       [class.border-[rgb(var(--danger))]]="fieldErrors.name" />
+
+                <p *ngIf="fieldErrors.name"
+                   class="text-xs mt-1 text-[rgb(var(--danger))]">
+                  Full name is required
+                </p>
+              </div>
+
+              <div class="yx-field">
+                <label class="yx-label">Username <span class="text-[rgb(var(--red-500))]">*</span></label>
+                <input class="yx-input w-full"
+                       [(ngModel)]="model.userName"
+                       (ngModelChange)="fieldErrors.username = null"
+                       [disabled]="isEditMode"
+                       [class.opacity-60]="isEditMode"
+                       [class.border-[rgb(var(--danger))]]="fieldErrors.username" />
+
+                <p *ngIf="fieldErrors.username"
+                   class="text-xs mt-1 text-[rgb(var(--danger))]">
+                  Username is required
+                </p>
+              </div>
+
+              <div class="yx-field">
+                <label class="yx-label">
+                  Phone <span class="text-muted">(optional)</span>
+                </label>
+
+                <input class="yx-input w-full" [(ngModel)]="model.phone" />
+              </div>
+
+            </div>
+
+            <!-- ================= SECURITY ================= -->
+       
+            <!-- Password -->
+      <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]" [class.border-[rgb(var(--danger))]]="
+        fieldErrors.password || fieldErrors.confirmPassword
+      " [class.border-gray-200]="
+        !(fieldErrors.password || fieldErrors.confirmPassword)
+      ">
+
+      <p class="text-[rgb(var(--primary))]  font-semibold uppercase tracking-wide text-muted">
+        Security
+      </p>
+
+      <div *ngIf="isEditMode" class="flex items-start gap-2 text-xs text-[rgb(var(--primary))]">
+        <i class="las la-info-circle mt-[1px]"></i>
+        <span>
+          If you do not want to change the password, leave this field empty.
+        </span>
+      </div>
+
+      <!-- Password -->
+      <div class="yx-field">
+        <label class="yx-label">Password <span class="text-[rgb(var(--red-500))]"> *</span></label>
+
+        <div class="relative">
+          <input [type]="showPassword ? 'text' : 'password'" class="yx-input w-full pr-10" [(ngModel)]="model.password"
+            (ngModelChange)="fieldErrors.password = null" [class.border-[rgb(var(--danger))]]="fieldErrors.password" />
+
+          <button type="button" class="absolute inset-y-0 right-3 text-muted" (click)="togglePassword()">
+            <i class="las" [ngClass]="showPassword ? 'la-eye-slash' : 'la-eye'"></i>
+          </button>
+        </div>
+
+        <!-- RULES -->
+        <ul class="mt-2 text-xs space-y-1 text-[rgb(var(--primary))]">
+          <li>• 6–10 characters long</li>
+          <li>• At least 1 uppercase letter (A–Z)</li>
+          <li>• At least 1 number (0–9)</li>
+          <li>
+            • At least 1 special character
+            ({{ '@ # $ % ^ * ( ) _ - = + ~ `' }})
+          </li>
+        </ul>
+
+        <p *ngIf="fieldErrors.password" class="text-xs mt-2 text-[rgb(var(--danger))]">
+          {{ fieldErrors.password }}
+        </p>
+      </div>
+
+      <!-- Confirm Password -->
+      <div *ngIf="model.password.length > 0" class="yx-field animate-confirm">
+
+        <label class="yx-label">Confirm Password <span class="text-[rgb(var(--red-500))]"> *</span></label>
+
+        <div class="relative">
+          <input [type]="showConfirmPassword ? 'text' : 'password'" class="yx-input w-full pr-10"
+            [(ngModel)]="model.confirmPassword" (ngModelChange)="fieldErrors.confirmPassword = null"
+            [class.border-[rgb(var(--danger))]]="fieldErrors.confirmPassword" />
+
+          <button type="button" class="absolute inset-y-0 right-3 text-muted" (click)="toggleConfirmPassword()">
+            <i class="las" [ngClass]="showConfirmPassword ? 'la-eye-slash' : 'la-eye'"></i>
+          </button>
+        </div>
+
+        <p *ngIf="fieldErrors.confirmPassword" class="text-xs mt-1 text-[rgb(var(--danger))]">
+          {{ fieldErrors.confirmPassword }}
+        </p>
+      </div>
+    </div>
+
+            <!-- ================= ROLE ================= -->
+            <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]"
+                 [class.border-[rgb(var(--danger))]]="fieldErrors.gender || fieldErrors.subUserType">
+
+              <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+                Role & Access
+              </p>
+
+              <yx-select label="Gender"
+                         [items]="genders"
+                         labelKey="genderName"
+                         valueKey="genderId"
+                         placeholder="Select Gender"
+                         [(value)]="model.fkGender"
+                         (valueChange)="fieldErrors.gender = null">
+              </yx-select>
+
+              <yx-select label="Sub User Type"
+                         [items]="subUserTypes"
+                         labelKey="subUserTypeName"
+                         valueKey="subUserTypeId"
+                         placeholder="Select Sub User Type"
+                         [(value)]="model.fkSubUserType"
+                         (valueChange)="fieldErrors.subUserType = null"
+                         [disabled]="model.isControlsDisabled">
+              </yx-select>
+
+            </div>
+
+            <!-- ================= STATUS ================= -->
+            <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
+              <div>
+                <p class="text-sm font-medium">Active Status</p>
+                <p class="text-xs text-muted">Inactive users cannot login</p>
+              </div>
+
+              <mat-slide-toggle color="primary"
+                                [(ngModel)]="model.isActive"
+                                [disabled]="model.isControlsDisabled">
+              </mat-slide-toggle>
+            </div>
+
+          </div>
+
+          <div class="flex justify-between mt-6 px-6 pb-4">
+            <button class="border border-[rgb(var(--gray-200))] rounded-lg px-4 py-2"
+                    (click)="currentStep = 0">
+              Back
+            </button>
+
+            <button class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white"
+                    (click)="submitAll()">
+              Save All
+            </button>
+          </div>
+
+        </ng-container>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

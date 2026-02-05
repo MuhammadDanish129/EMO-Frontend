@@ -6,32 +6,23 @@ export const management: Routes = [
   {
     path: '', children: [
       {
-        path: 'facility',
-        loadComponent: () =>
-          import('./facility/facility.component').then((m) => m.FacilityComponent),
-        providers: [provideNativeDateAdapter()]
-      },
-      {
         path: 'user-type',
         loadComponent: () =>
           import('./usertype/usertype.component').then((m) => m.UsertypeComponent),
         providers: [provideNativeDateAdapter()]
       },
       {
-        path: 'unit',
+        path: 'sub-user-type',
         loadComponent: () =>
-          import('./unit/unit.component').then((m) => m.UnitComponent),
+          import('./sub-user-type/sub-user-type.component').then((m) => m.SubUserTypeComponent),
+        providers: [provideNativeDateAdapter()]
       },
       {
-        path: 'section',
+        path: 'user',
         loadComponent: () =>
-          import('./section/section.component').then((m) => m.SectionComponent),
-      },
-      {
-        path: 'subsection',
-        loadComponent: () =>
-          import('./subsection/subsection.component').then((m) => m.SubSectionComponent),
-      },
+          import('./user/user.component').then((m) => m.UserComponent),
+        providers: [provideNativeDateAdapter()]
+      }
 
 
     ]

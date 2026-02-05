@@ -45,6 +45,36 @@ export const App_Route: Route[] = [
     ],
 
   },
+    {
+    path: 'core',
+    component: ContentLayoutComponent,
+    canActivate: [AuthGuard],         // Protects all children
+    canActivateChild: [AuthGuard],    // Optional: additional protection
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('./components/core/core.route').then((m) => m.core),
+        // canLoad: [AuthGuard],         // Ensures lazy-loaded module is protected
+      },
+    ],
+
+  },
+  {
+    path: 'device',
+    component: ContentLayoutComponent,
+    canActivate: [AuthGuard],         // Protects all children
+    canActivateChild: [AuthGuard],    // Optional: additional protection
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('./components/device/device.routes').then((m) => m.device),
+        // canLoad: [AuthGuard],         // Ensures lazy-loaded module is protected
+      },
+    ],
+
+  },
 
   // Optional: fallback route
   {

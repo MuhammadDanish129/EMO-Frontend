@@ -1,0 +1,246 @@
+<!-- PAGE HEADER -->
+<div class="-mt-2 mb-4">
+  <div class="px-6 py-4 bg-[rgb(var(--primary))]">
+    <div class="flex flex-col gap-4 pt-3
+             md:flex-row md:items-center md:justify-between">
+
+      <!-- TITLE -->
+      <div>
+        <h1 class="text-white text-2xl font-semibold tracking-wide">
+          Business Management
+        </h1>
+        <p class="mt-0.5 text-sm text-white/80 max-w-2xl">
+          Manage Businesses linked with their respective user.
+        </p>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="flex flex-col gap-2
+               sm:flex-row sm:gap-3 md:items-center">
+
+        <!-- <button
+          class="flex items-center justify-center gap-2 rounded-lg
+                 bg-white/20 px-4 py-2
+                 text-sm font-semibold text-white
+                 hover:bg-white/30 transition"
+          (click)="openHierarchy()">
+          <i class="las la-sitemap text-lg"></i>
+          Hierarchy
+        </button> -->
+
+        <button class="flex items-center justify-center gap-2 rounded-lg
+                 bg-white/95 px-4 py-2
+                 text-sm font-semibold
+                 text-[rgb(var(--primary))]" [routerLink]="['/core/add-business']">
+          <i class="las la-plus-circle text-lg"></i>
+          Add Business
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CARD -->
+<div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5">
+
+  <!-- SEARCH -->
+  <div class="flex flex-col gap-2 p-4 border-b
+           sm:flex-row sm:items-center sm:justify-between">
+
+    <p class="text-sm text-[rgb(var(--primary))]">
+      Total Businesses:
+      <span class="font-semibold text-[rgb(var(--primary))]">
+        {{ filteredBusinesses.length }}
+      </span>
+    </p>
+
+    <input type="text" [(ngModel)]="searchText" (ngModelChange)="searchBusinesses()" placeholder="Search Businesses.."
+      class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
+             border-[rgb(var(--input-border))]" />
+  </div>
+
+  <!-- ================= MOBILE CARDS ================= -->
+  <div class="block md:hidden p-4 space-y-3">
+
+    <!-- LOADING -->
+    <div *ngIf="isLoading" class="py-14 text-center">
+      <div class="flex flex-col items-center gap-3">
+        <div class="h-10 w-10 animate-spin rounded-full
+                 border-4 border-gray-200
+                 border-t-[rgb(var(--primary))]">
+        </div>
+        <p class="text-sm font-medium text-gray-500">
+          Loading Businesses...
+        </p>
+      </div>
+    </div>
+
+    <!-- DATA -->
+    <div *ngFor="let st of pagedBusinesses; let i = index"
+      class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
+
+      <div class="flex items-start justify-between gap-3">
+
+        <div>
+          <div class="font-semibold text-indigo-600 text-sm">
+            {{ st.businessName }}
+          </div>
+          <div class="text-xs text-gray-500">
+            {{ st.userName }}
+          </div>
+        </div>
+
+        <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="st.isActive
+            ? 'bg-success/10 text-success'
+            : 'bg-danger/10 text-danger'">
+          {{ st.isActive ? 'Active' : 'Inactive' }}
+        </span>
+
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="mt-4 flex justify-end gap-2 border-t pt-3">
+        <button class="rounded-lg p-2
+                 bg-[rgb(var(--indigo-100))]
+                 text-[rgb(var(--indigo-600))]" (click)="edit(st)">
+          <i class="las la-edit text-lg"></i>
+        </button>
+
+        <button class="rounded-lg p-2
+                 bg-[rgb(var(--red-100))]
+                 text-[rgb(var(--red-600))]" (click)="delete(st.fkUser)">
+          <i class="las la-trash text-lg"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- EMPTY -->
+    <div *ngIf="!isLoading && pagedBusinesses.length === 0" class="py-16 text-center">
+      <p class="text-sm font-semibold">
+        No sub user types found
+      </p>
+      <p class="text-xs text-gray-400 mt-1">
+        Try adjusting your search or add a new business.
+      </p>
+      <!-- <button class="mt-4 inline-flex items-center gap-2
+               rounded-lg px-4 py-2 text-xs font-semibold
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--primary-700))]" (click)="addBusiness()">
+        <i class="las la-plus-circle text-sm"></i>
+        Add Business
+      </button> -->
+    </div>
+
+  </div>
+
+  <!-- ================= DESKTOP TABLE ================= -->
+  <div class="hidden md:block overflow-x-auto">
+    <table class="min-w-full bg-[rgb(var(--light))]">
+
+      <thead class="bg-[rgb(var(--gray-200))] text-sm text-[rgb(var(--gray-500))]">
+        <tr>
+          <th class="px-4 py-3 text-left">Sr #</th>
+          <th class="px-4 py-3 text-left">Business</th>
+          <th class="px-4 py-3 text-left">Status</th>
+          <th class="px-4 py-3 text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody class="text-sm">
+
+        <!-- LOADING -->
+        <tr *ngIf="isLoading">
+          <td colspan="4" class="px-6 py-14 text-center">
+            <div class="flex flex-col items-center gap-3">
+              <div class="h-10 w-10 animate-spin rounded-full
+                       border-4 border-gray-200
+                       border-t-[rgb(var(--primary))]">
+              </div>
+              <p class="text-sm font-medium text-gray-500">
+                Loading Businesses...
+              </p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- DATA -->
+        <tr *ngFor="let st of pagedBusinesses; let i = index"
+          class="border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]">
+
+          <td class="px-4 py-3 font-medium">
+            {{ pageIndex * pageSize + i + 1 }}
+          </td>
+
+          <td class="px-4 py-3">
+            <div class="flex flex-col">
+              <span class="font-semibold text-indigo-600">
+                {{ st.businessName }}
+              </span>
+              <span class="text-xs text-[rgb(var(--primary))]">
+                {{ st.userName }}
+              </span>
+            </div>
+          </td>
+
+          <td class="px-4 py-3">
+            <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="st.isActive
+                ? 'bg-success/10 text-success'
+                : 'bg-danger/10 text-danger'">
+              {{ st.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+
+          <td class="px-3 py-3 text-center">
+            <div class="flex justify-center gap-2">
+              <button class="rounded-lg p-2
+                       bg-[rgb(var(--indigo-100))]
+                       text-[rgb(var(--indigo-600))]" (click)="edit(st)">
+                <i class="las la-edit text-lg"></i>
+              </button>
+
+              <button class="rounded-lg p-2
+                       bg-[rgb(var(--red-100))]
+                       text-[rgb(var(--red-600))]" (click)="delete(st.businessId)">
+                <i class="las la-trash text-lg"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+
+        <!-- EMPTY -->
+        <tr *ngIf="!isLoading && pagedBusinesses.length === 0">
+          <td colspan="4" class="px-6 py-16 text-center">
+            No Busineses found
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGINATION -->
+  <div class="flex items-center justify-between px-4 py-3 border-t">
+    <p class="text-sm text-gray-500">
+      Showing {{ pageIndex * pageSize + 1 }} – {{ pageEnd }}
+      of {{ filteredBusinesses.length }}
+    </p>
+
+    <div class="flex gap-1">
+      <button (click)="prevPage()" [disabled]="pageIndex === 0" class="px-3 py-2 rounded-lg border text-sm">
+        Prev
+      </button>
+
+      <button *ngFor="let p of pages" (click)="goToPage(p)" class="px-3 py-2 rounded-lg border text-sm" [ngClass]="p === pageIndex
+          ? 'bg-[rgb(var(--primary))] text-white'
+          : 'hover:bg-gray-100'">
+        {{ p + 1 }}
+      </button>
+
+      <button (click)="nextPage()" [disabled]="(pageIndex + 1) * pageSize >= filteredBusinesses.length"
+        class="px-3 py-2 rounded-lg border text-sm">
+        Next
+      </button>
+    </div>
+  </div>
+
+</div>

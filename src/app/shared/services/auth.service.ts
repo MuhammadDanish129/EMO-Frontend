@@ -23,33 +23,59 @@ export class AuthService {
   ) { }
 
   login(username: string, password: string): Observable<boolean> {
-    return this.http
-      .post<any>(this.authUrl, {
-        username,
-        password,
-      })
-      .pipe(
-        switchMap((response) => {
-          console.log(response.data)
-          return from(this.cryptoService.encrypt(response.data)).pipe(
-            tap((encryptedData) => {
-              this.accessToken = response.data.userToken;
-              localStorage.setItem(this.sessionKey, encryptedData);
-            }),
-            map(() => true)
+  return this.http
+    .post<any>(this.authUrl, { username, password })
+    .pipe(
+      switchMap((response) => {
+
+        const securePayload = {
+          userId: response.data.userId,
+          name: response.data.name,
+          username: response.data.username,
+          userToken: response.data.userToken,
+          fkSubUserType: response.data.fkSubUserType,
+          subUserTypeLevel: response.data.subUserTypeLevel,
+          subUserTypeName: response.data.subUserTypeName,
+          fkUserType: response.data.fkUserType,
+          fkGender: response.data.fkGender,
+          genderName: response.data.genderName,
+          isActive: response.data.isActive,
+          fkBusiness: response.data.fkBusiness,
+          businessName:response.data.businessName,
+          userTypeLevel: response.data.userTypeLevel,
+          fkHandler:response.data.fkHandler,
+          handlerName:response.data.handlerName
+        };
+
+        // store avatar separately (NOT encrypted)
+        if (response.data.imageBase64) {
+          localStorage.setItem(
+            'userAvatar',
+            response.data.imageBase64
           );
-        }),
-        catchError((err) => {
-          console.error('Login failed', err);
-          return of(false);
-        })
-      );
-  }
+        }
+
+        return from(this.cryptoService.encrypt(securePayload)).pipe(
+          tap((encryptedData) => {
+            this.accessToken = response.data.userToken;
+            localStorage.setItem(this.sessionKey, encryptedData);
+          }),
+          map(() => true)
+        );
+      }),
+      catchError((err) => {
+        console.error('Login failed', err);
+        return of(false);
+      })
+    );
+}
+
 
   signOutLocal(): Observable<any> {
     // Remove the access token from the local storage
     localStorage.removeItem(this.sessionKey);
     localStorage.removeItem('otherInfo');
+    this.router.navigate(['/sign-in']);
     // Return the observable
     return of(true);
   }

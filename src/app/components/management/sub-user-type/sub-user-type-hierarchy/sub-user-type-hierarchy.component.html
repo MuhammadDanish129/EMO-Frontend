@@ -1,0 +1,121 @@
+<!-- MODAL CONTAINER -->
+<div class="w-full max-w-3xl rounded-t-xl bg-[rgb(var(--light))] shadow-xl">
+
+  <!-- HEADER -->
+  <div class="flex items-center justify-between
+              px-6 py-3
+              bg-[rgb(var(--primary))]
+              shadow-md">
+
+    <span class="text-sm font-semibold tracking-wide text-white">
+      Sub User Type Hierarchy
+    </span>
+
+    <button
+      class="rounded-lg p-2
+             text-white/80
+             bg-white/10
+             hover:bg-white/20
+             transition"
+      (click)="close()">
+      <i class="las la-times text-lg"></i>
+    </button>
+  </div>
+
+  <!-- BODY -->
+  <div class="px-6 py-5 space-y-4">
+
+    <p class="text-sm text-[rgb(var(--default-text-color)]">
+      Drag and reorder sub user types.
+      <br />
+      <span class="text-xs">
+        Root always stays on top.
+      </span>
+    </p>
+
+    <!-- DRAG CONTAINER -->
+    <div
+      cdkDropList
+      (cdkDropListDropped)="drop($event)"
+      class="rounded-lg border p-4
+             bg-[rgb(var(--gray-50))]
+             border-[rgb(var(--default-border))]
+             space-y-2">
+
+      <!-- DRAG ITEM -->
+      <div
+        *ngFor="let st of subUserTypes; let i = index"
+        cdkDrag
+        [cdkDragDisabled]="i === 0"
+        class="flex items-center gap-3 rounded-md bg-[rgb(var(--light))] px-3 py-2
+               select-none border"
+        [style.marginLeft.px]="i * 20"
+        [ngClass]="{
+          'cursor-not-allowed border-[rgb(var(--primary))] opacity-60': i === 0,
+          'cursor-move border-[rgb(var(--default-border))]': i !== 0
+        }">
+
+        <!-- DRAG HANDLE -->
+        <i
+          class="las la-grip-vertical text-lg"
+          [ngClass]="i === 0
+            ? 'text-[rgb(var(--primary))]'
+            : 'text-stone-600'">
+        </i>
+
+        <!-- NAME + SUBTITLE -->
+        <div class="flex flex-col">
+          <span class="text-sm font-semibold text-indigo-600">
+            {{ st.subUserTypeName }}
+            <span
+              *ngIf="i === 0"
+              class="ml-2 text-[10px] font-semibold text-[rgb(var(--primary))]">
+              ROOT
+            </span>
+          </span>
+
+          <span class="text-xs text-gray-500">
+            {{ st.userTypeName }}
+          </span>
+        </div>
+
+        <!-- STATUS -->
+        <span
+          class="ml-auto text-xs px-2 py-0.5 rounded-full"
+          [ngClass]="st.isActive
+            ? 'bg-success/10 text-success'
+            : 'bg-danger/10 text-danger'">
+          {{ st.isActive ? 'Active' : 'Inactive' }}
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="flex items-center justify-end gap-3
+              px-6 py-4 border-t
+              border-[rgb(var(--default-border))]">
+
+    <button
+      class="rounded-lg px-4 py-2 text-sm font-medium
+             border border-[rgb(var(--gray-300))]
+             hover:bg-[rgb(var(--gray-100))]"
+      (click)="close()">
+      Cancel
+    </button>
+
+    <button
+      class="rounded-lg px-5 py-2 text-sm font-semibold
+             bg-[rgb(var(--primary-600))]
+             text-white
+             hover:bg-[rgb(var(--primary-700))]"
+      (click)="save()">
+      Save Hierarchy
+    </button>
+
+  </div>
+
+</div>

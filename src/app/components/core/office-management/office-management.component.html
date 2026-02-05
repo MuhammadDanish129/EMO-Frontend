@@ -1,0 +1,230 @@
+<!-- PAGE HEADER -->
+<div class="-mt-2 mb-4">
+  <div class="px-6 py-4 bg-[rgb(var(--primary))]">
+    <div class="flex flex-col gap-4 pt-3
+         md:flex-row md:items-center md:justify-between">
+
+      <div>
+        <h1 class="text-white text-2xl font-semibold tracking-wide">
+          Office Management
+        </h1>
+        <p class="mt-0.5 text-sm text-white/80 max-w-2xl">
+          Manage offices linked with selected section.
+        </p>
+      </div>
+
+      <div class="flex">
+        <button
+          class="flex items-center gap-2 rounded-lg
+          bg-white/95 px-4 py-2 text-sm font-semibold
+          text-[rgb(var(--primary))]"
+          (click)="addOffice()">
+
+          <i class="las la-plus-circle text-lg"></i>
+          Add Office
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+<!-- CARD -->
+<div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5">
+
+  <!-- SEARCH + COUNT -->
+  <div class="flex flex-col gap-2 p-4 border-b
+         sm:flex-row sm:items-center sm:justify-between">
+
+    <p class="text-sm text-[rgb(var(--primary))]">
+      Total Offices:
+      <span class="font-semibold">
+        {{ filteredOffices.length }}
+      </span>
+    </p>
+
+    <input
+      type="text"
+      [(ngModel)]="searchText"
+      (ngModelChange)="searchOffices()"
+      placeholder="Search Offices.."
+      class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
+      border-[rgb(var(--input-border))]" />
+  </div>
+
+
+  <!-- ================= MOBILE ================= -->
+  <div class="block md:hidden p-4 space-y-3">
+
+    <!-- LOADING -->
+    <div *ngIf="isLoading" class="py-14 text-center">
+      <div class="flex flex-col items-center gap-3">
+        <div class="h-10 w-10 animate-spin rounded-full
+         border-4 border-gray-200
+         border-t-[rgb(var(--primary))]"></div>
+
+        <p class="text-sm text-gray-500">
+          Loading Offices...
+        </p>
+      </div>
+    </div>
+
+
+    <!-- DATA -->
+    <div *ngFor="let o of pagedOffices"
+      class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
+
+      <div class="flex items-start justify-between">
+
+        <div>
+          <div class="font-semibold text-indigo-600 text-sm">
+            {{ o.officeName }}
+          </div>
+          <!-- <div class="text-xs text-[rgb(var(--text-muted))]">
+            {{ o.sectionName }}
+          </div> -->
+        </div>
+
+        <span class="rounded-full px-3 py-1 text-xs font-semibold"
+          [ngClass]="o.isActive
+            ? 'bg-success/10 text-success'
+            : 'bg-danger/10 text-danger'">
+
+          {{ o.isActive ? 'Active' : 'Inactive' }}
+        </span>
+
+      </div>
+
+      <!-- OCCUPIED -->
+      <div class="mt-2">
+        <span class="rounded-full px-3 py-1 text-xs font-semibold"
+          [ngClass]="o.isOcuppied
+            ? 'bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))]'
+            : 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-700))]'">
+
+          {{ o.isOcuppied ? 'Occupied' : 'Available' }}
+        </span>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="mt-4 flex justify-end gap-2 border-t pt-3">
+
+        <button class="rounded-lg p-2
+          bg-[rgb(var(--indigo-100))]
+          text-[rgb(var(--indigo-600))]"
+          (click)="edit(o)">
+          <i class="las la-edit text-lg"></i>
+        </button>
+
+        <button class="rounded-lg p-2
+          bg-[rgb(var(--red-100))]
+          text-[rgb(var(--red-600))]"
+          (click)="delete(o.officeId)">
+          <i class="las la-trash text-lg"></i>
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================= DESKTOP TABLE ================= -->
+  <div class="hidden md:block overflow-x-auto">
+
+    <table class="min-w-full bg-[rgb(var(--light))]">
+
+      <thead class="bg-[rgb(var(--gray-200))] text-sm text-[rgb(var(--gray-500))]">
+        <tr>
+          <th class="px-4 py-3 text-left">Sr #</th>
+          <th class="px-4 py-3 text-left">Office</th>
+          <!-- <th class="px-4 py-3 text-left">Section</th> -->
+          <th class="px-4 py-3 text-left">Occupied</th>
+          <th class="px-4 py-3 text-left">Status</th>
+          <th class="px-4 py-3 text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+
+        <tr *ngIf="isLoading">
+          <td colspan="6" class="px-6 py-14 text-center">
+            Loading Offices...
+          </td>
+        </tr>
+
+        <tr *ngFor="let o of pagedOffices; let i = index"
+          class="border-b hover:bg-[rgb(var(--primary-100))]">
+
+          <td class="px-4 py-3 font-medium">
+            {{ pageIndex * pageSize + i + 1 }}
+          </td>
+
+          <td class="px-4 py-3 font-semibold text-indigo-600">
+            {{ o.officeName }}
+          </td>
+
+          <!-- <td class="px-4 py-3">
+            {{ o.sectionName }}
+          </td> -->
+
+          <!-- OCCUPIED -->
+          <td class="px-4 py-3">
+            <span class="rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="o.isOcuppied
+                ? 'bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))]'
+                : 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-700))]'">
+
+              {{ o.isOcuppied ? 'Occupied' : 'Available' }}
+            </span>
+          </td>
+
+          <!-- ACTIVE -->
+          <td class="px-4 py-3">
+            <span class="rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="o.isActive
+                ? 'bg-success/10 text-success'
+                : 'bg-danger/10 text-danger'">
+
+              {{ o.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+
+          <!-- ACTIONS -->
+          <td class="px-3 py-3 text-center">
+            <div class="flex justify-center gap-2">
+
+              <button
+                matTooltip="Edit Office"
+                class="rounded-lg p-2
+                bg-[rgb(var(--indigo-100))]
+                text-[rgb(var(--indigo-600))]
+                hover:bg-[rgb(var(--indigo-200))]"
+                (click)="edit(o)">
+                <i class="las la-edit text-lg"></i>
+              </button>
+
+              <button
+                matTooltip="Delete Office"
+                class="rounded-lg p-2
+                bg-[rgb(var(--red-100))]
+                text-[rgb(var(--red-600))]
+                hover:bg-[rgb(var(--red-200))]"
+                (click)="delete(o.officeId)">
+                <i class="las la-trash text-lg"></i>
+              </button>
+
+            </div>
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</div>

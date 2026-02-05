@@ -1,37 +1,177 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { NgApexchartsModule } from 'ng-apexcharts';
+import {
+  ApexAxisChartSeries,
+  ApexChart,
+  ChartComponent,
+  ApexDataLabels,
+  ApexPlotOptions,
+  ApexYAxis,
+  ApexTitleSubtitle,
+  ApexXAxis,
+  ApexFill,
+  NgApexchartsModule,
+  ApexLegend,
+  ApexGrid,
+  ApexTooltip,
+} from 'ng-apexcharts';
 import { SharedModule } from '../../../shared/shared.module';
 import { NgChartsModule } from 'ng2-charts';
+import { User } from '../../../shared/services/user/user.type';
+import { UserService } from '../../../shared/services/user/user.service';
+
+
+export type ChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  dataLabels: ApexDataLabels;
+  plotOptions: ApexPlotOptions;
+  yaxis: ApexYAxis;
+  xaxis: ApexXAxis;
+  fill: ApexFill;
+  legend: ApexLegend;
+  colors: string[];
+  grid: ApexGrid;
+  tooltip: ApexTooltip;
+};
 @Component({
   selector: 'app-crm',
   standalone: true,
-  imports: [RouterModule,NgApexchartsModule,SharedModule,NgChartsModule],
+  imports: [RouterModule, NgApexchartsModule, SharedModule, NgChartsModule],
   templateUrl: './crm.component.html',
   styleUrl: './crm.component.scss'
 })
 
 export class CrmComponent {
+
+  @ViewChild('chart') chart!: ChartComponent;
+  public chartOptions: Partial<ChartOptions> | any;
   optionsCircle1: any;
   optionsCircle: any;
-  chartOptions1:any
-  chartOptions2:any
-  chartOptions3:any
-  chartOptions4:any
-  chartOptions5:any
-  chartOptions7:any
+  chartOptions1: any;
+  chartOptions2: any;
+  chartOptions3: any;
+  chartOptions4: any;
+  chartOptions5: any;
+  chartOptions7: any;
+   monthlyTargetKwh = 2000;      // threshold set by user
+  currentUsageKwh = 1340;       // this month’s consumption
+  usagePercent = 0;
 
-  constructor() {
+  currentUser: User | null = null;
+
+  constructor(private userService: UserService,) {
+    
+    this.usagePercent = (this.currentUsageKwh / this.monthlyTargetKwh) * 100;
+    this.chartOptions = {
+      // ABSOLUTE ENERGY VALUES PER MONTH (example data, in kWh)
+      series: [
+        {
+          name: 'HVAC',
+          data: [1200, 1150, 1300, 1400, 1500, 1480, 1600, 1580, 1520, 1490, 1550, 1620]
+        },
+        {
+          name: 'Lighting',
+          data: [600, 620, 640, 650, 660, 670, 680, 700, 720, 740, 750, 760]
+        },
+        {
+          name: 'Miscellaneous',
+          data: [300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410]
+        },
+        {
+          name: 'Computation',
+          data: [450, 460, 470, 480, 490, 500, 510, 520, 530, 540, 550, 560]
+        }
+      ],
+
+      chart: {
+        type: 'bar',
+        height: 345,
+        stacked: true           // normal stacked (NOT 100%)
+        // no stackType: '100%'
+      },
+
+      grid: {
+        borderColor: '#f5f4f4',
+        strokeDashArray: 5,
+        yaxis: { lines: { show: true } }
+      },
+
+      colors: [
+        'rgb(132, 90, 223)',        // HVAC
+        'rgba(132, 90, 223, 0.7)',  // Lighting
+        'rgba(132, 90, 223, 0.4)',  // Misc
+        '#ebeff5'                   // Computation
+      ],
+
+      plotOptions: {
+        bar: {
+          columnWidth: '35%',
+          borderRadius: 4
+        }
+      },
+
+      dataLabels: { enabled: false },
+
+      legend: {
+        show: true,
+        position: 'top'
+      },
+
+      xaxis: {
+        categories: [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ],
+        labels: {
+          style: { fontSize: '11px' }
+        }
+      },
+
+      yaxis: {
+        labels: {
+          formatter: (val: number) => `${val} kWh`
+        },
+        title: {
+          text: 'Total Energy Consumption (kWh)'
+        }
+      },
+
+      fill: {
+        opacity: 1
+      },
+
+      // TOOLTIP: show kWh + percentage per device type for that month
+      tooltip: {
+        shared: true,
+        intersect: false,
+        y: {
+          formatter: (value: number, opts: any) => {
+            const series = opts.series as number[][];
+            const dataPointIndex = opts.dataPointIndex as number;
+
+            const total = series.reduce(
+              (sum: number, s: number[]) => sum + (s[dataPointIndex] ?? 0),
+              0
+            );
+
+            const percent = total ? (value / total) * 100 : 0;
+
+            return `${value.toFixed(0)} kWh (${percent.toFixed(1)}%)`;
+          }
+        }
+      }
+    };
     this.optionsCircle1 = {
       series: [32, 27, 25, 16],
-      colors: ["rgb(132, 90, 223)", "rgb(35, 183, 229)",  "rgb(245, 184, 73)", "rgb(38, 191, 148)",],
+      colors: ["rgb(132, 90, 223)", "rgb(35, 183, 229)", "rgb(245, 184, 73)", "rgb(38, 191, 148)",],
       chart: {
         events: {
-          mounted: (chart:any) => {
+          mounted: (chart: any) => {
             chart.windowResizeHandler();
           }
         },
-        height: 300,
+        height: 252,
         type: 'donut',
         dropShadow: {
           enabled: false,
@@ -48,30 +188,30 @@ export class CrmComponent {
       plotOptions: {
 
         pie: {
-            expandOnClick: false,
-            donut: {
-                size: '80%',
-                labels: {
-                    show: false,
-                    name: {
-                        show: true,
-                        fontSize: '20px',
-                        color: '#495057',
-                        offsetY: -4
-                    },
-                    value: {
-                        show: true,
-                        fontSize: '18px',
-                        offsetY: 8,
-                        formatter: function (val: string) {
-                            return val + "%";
-                        }
-                    },
-
+          expandOnClick: false,
+          donut: {
+            size: '80%',
+            labels: {
+              show: false,
+              name: {
+                show: true,
+                fontSize: '20px',
+                color: '#495057',
+                offsetY: -4
+              },
+              value: {
+                show: true,
+                fontSize: '18px',
+                offsetY: 8,
+                formatter: function (val: string) {
+                  return val + "%";
                 }
+              },
+
             }
+          }
         }
-    },
+      },
 
       legend: {
         show: false,
@@ -86,14 +226,14 @@ export class CrmComponent {
       },
 
     };
-    this.optionsCircle={
+    this.optionsCircle = {
       chart: {
         height: 127,
         width: 100,
         type: 'radialBar',
       },
 
-      series: [48],
+      series: [67],
       // colors: ['#fff'],
       plotOptions: {
         radialBar: {
@@ -123,532 +263,536 @@ export class CrmComponent {
         lineCap: 'round',
       },
       labels: ['Status'],
-      colors:['#fff']
+      colors: ['#fff']
     }
     this.chartOptions1 = {
 
       series: [{
         name: 'Value',
         data: [20, 14, 19, 10, 23, 20, 22, 9, 12]
-    }],
-    colors: ["rgb(132, 90, 223)"],
-    chart: {
+      }],
+      colors: ["rgb(132, 90, 223)"],
+      chart: {
         type: 'line',
         height: 30,
         width: 100,
         sparkline: {
-            enabled: true
+          enabled: true
         },
 
-    },
-    stroke: {
+      },
+      stroke: {
         show: true,
         curve: 'smooth',
         lineCap: 'butt',
         width: 1.5,
         dashArray: 0,
-    },
-    fill: {
+      },
+      fill: {
         type: 'gradient',
         gradient: {
-            opacityFrom: 0.9,
-            opacityTo: 0.9,
-            stops: [0, 98],
+          opacityFrom: 0.9,
+          opacityTo: 0.9,
+          stops: [0, 98],
         }
-    },
-    yaxis: {
+      },
+      yaxis: {
         min: 0,
         show: false,
         axisBorder: {
-            show: false
+          show: false
         },
-    },
-    xaxis: {
+      },
+      xaxis: {
         // show: false,
         axisBorder: {
-            show: false
+          show: false
         },
-    },
-    tooltip: {
+      },
+      tooltip: {
         enabled: false,
-    },
-  }
-  this.chartOptions2 = {
-    chart: {
-      type: 'line',
-      height: 40,
-      width: 100,
-      sparkline: {
-        enabled: true,
       },
-    },
-    stroke: {
-      show: true,
-      curve: 'smooth',
-      lineCap: 'butt',
-      width: 1.5,
-      dashArray: 0,
-    },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        opacityFrom: 0.9,
-        opacityTo: 0.9,
-        stops: [0, 98],
+    }
+    this.chartOptions2 = {
+      chart: {
+        type: 'line',
+        height: 40,
+        width: 100,
+        sparkline: {
+          enabled: true,
+        },
       },
-    },
-    series: [
-      {
-        name: 'Value',
-        data: [20, 14, 20, 22, 9, 12, 19, 10, 25],
+      stroke: {
+        show: true,
+        curve: 'smooth',
+        lineCap: 'butt',
+        width: 1.5,
+        dashArray: 0,
       },
-    ],
-    yaxis: {
-      min: 0,
-      show: false,
-      axisBorder: {
+      fill: {
+        type: 'gradient',
+        gradient: {
+          opacityFrom: 0.9,
+          opacityTo: 0.9,
+          stops: [0, 98],
+        },
+      },
+      series: [
+        {
+          name: 'Value',
+          data: [20, 14, 20, 22, 9, 12, 19, 10, 25],
+        },
+      ],
+      yaxis: {
+        min: 0,
         show: false,
+        axisBorder: {
+          show: false,
+        },
       },
-    },
-    xaxis: {
-      show: false,
-      axisBorder: {
+      xaxis: {
         show: false,
+        axisBorder: {
+          show: false,
+        },
       },
-    },
-    tooltip: {
-      enabled: false,
-    },
-    colors: ['rgb(35, 183, 229)'],
-  };
-  this.chartOptions3 = {
-    chart: {
-      type: 'line',
-      height: 40,
-      width: 100,
-      sparkline: {
-        enabled: true,
+      tooltip: {
+        enabled: false,
       },
-    },
-    stroke: {
-      show: true,
-      curve: 'smooth',
-      lineCap: 'butt',
-      width: 1.5,
-      dashArray: 0,
-    },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        opacityFrom: 0.9,
-        opacityTo: 0.9,
-        stops: [0, 98],
+      colors: ['rgb(35, 183, 229)'],
+    };
+    this.chartOptions3 = {
+      chart: {
+        type: 'line',
+        height: 40,
+        width: 100,
+        sparkline: {
+          enabled: true,
+        },
       },
-    },
-    series: [
-      {
-        name: 'Value',
-        data: [20, 20, 22, 9, 14, 19, 10, 25, 12],
+      stroke: {
+        show: true,
+        curve: 'smooth',
+        lineCap: 'butt',
+        width: 1.5,
+        dashArray: 0,
       },
-    ],
-    yaxis: {
-      min: 0,
-      show: false,
-      axisBorder: {
+      fill: {
+        type: 'gradient',
+        gradient: {
+          opacityFrom: 0.9,
+          opacityTo: 0.9,
+          stops: [0, 98],
+        },
+      },
+      series: [
+        {
+          name: 'Value',
+          data: [20, 20, 22, 9, 14, 19, 10, 25, 12],
+        },
+      ],
+      yaxis: {
+        min: 0,
         show: false,
+        axisBorder: {
+          show: false,
+        },
       },
-    },
-    xaxis: {
-      show: false,
-      axisBorder: {
+      xaxis: {
         show: false,
+        axisBorder: {
+          show: false,
+        },
       },
-    },
-    tooltip: {
-      enabled: false,
-    },
-    colors: ['rgb(38, 191, 148)'],
-  };
-  this.chartOptions4 = {
-    chart: {
-      type: 'line',
-      height: 40,
-      width: 100,
-      sparkline: {
-        enabled: true,
+      tooltip: {
+        enabled: false,
       },
-    },
-    stroke: {
-      show: true,
-      curve: 'smooth',
-      lineCap: 'butt',
-      width: 1.5,
-      dashArray: 0,
-    },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        opacityFrom: 0.9,
-        opacityTo: 0.9,
-        stops: [0, 98],
+      colors: ['rgb(38, 191, 148)'],
+    };
+    this.chartOptions4 = {
+      chart: {
+        type: 'line',
+        height: 40,
+        width: 100,
+        sparkline: {
+          enabled: true,
+        },
       },
-    },
-    series: [
-      {
-        name: 'Value',
-        data: [20, 20, 22, 9, 12, 14, 19, 10, 25],
+      stroke: {
+        show: true,
+        curve: 'smooth',
+        lineCap: 'butt',
+        width: 1.5,
+        dashArray: 0,
       },
-    ],
-    yaxis: {
-      min: 0,
-      show: false,
-      axisBorder: {
+      fill: {
+        type: 'gradient',
+        gradient: {
+          opacityFrom: 0.9,
+          opacityTo: 0.9,
+          stops: [0, 98],
+        },
+      },
+      series: [
+        {
+          name: 'Value',
+          data: [20, 20, 22, 9, 12, 14, 19, 10, 25],
+        },
+      ],
+      yaxis: {
+        min: 0,
         show: false,
+        axisBorder: {
+          show: false,
+        },
       },
-    },
-    xaxis: {
-      show: false,
-      axisBorder: {
+      xaxis: {
         show: false,
+        axisBorder: {
+          show: false,
+        },
       },
-    },
-    tooltip: {
-      enabled: false,
-    },
-    colors: ['rgb(245, 184, 73)'],
-  };
-  this.chartOptions5 = {
-    series: [
-      {
+      tooltip: {
+        enabled: false,
+      },
+      colors: ['rgb(245, 184, 73)'],
+    };
+    this.chartOptions5 = {
+      series: [
+        {
           type: 'line',
           name: 'Profit',
           data: [
-              {
-                  x: 'Jan',
-                  y: 100
-              },
-              {
-                  x: 'Feb',
-                  y: 210
-              },
-              {
-                  x: 'Mar',
-                  y: 180
-              },
-              {
-                  x: 'Apr',
-                  y: 454
-              },
-              {
-                  x: 'May',
-                  y: 230
-              },
-              {
-                  x: 'Jun',
-                  y: 320
-              },
-              {
-                  x: 'Jul',
-                  y: 656
-              },
-              {
-                  x: 'Aug',
-                  y: 830
-              },
-              {
-                  x: 'Sep',
-                  y: 350
-              },
-              {
-                  x: 'Oct',
-                  y: 350
-              },
-              {
-                  x: 'Nov',
-                  y: 210
-              },
-              {
-                  x: 'Dec',
-                  y: 410
-              }
+            {
+              x: 'Jan',
+              y: 100
+            },
+            {
+              x: 'Feb',
+              y: 210
+            },
+            {
+              x: 'Mar',
+              y: 180
+            },
+            {
+              x: 'Apr',
+              y: 454
+            },
+            {
+              x: 'May',
+              y: 230
+            },
+            {
+              x: 'Jun',
+              y: 320
+            },
+            {
+              x: 'Jul',
+              y: 656
+            },
+            {
+              x: 'Aug',
+              y: 830
+            },
+            {
+              x: 'Sep',
+              y: 350
+            },
+            {
+              x: 'Oct',
+              y: 350
+            },
+            {
+              x: 'Nov',
+              y: 210
+            },
+            {
+              x: 'Dec',
+              y: 410
+            }
           ]
-      },
-      {
+        },
+        {
           type: 'line',
           name: 'Revenue',
           data: [
-              {
-                  x: 'Jan',
-                  y: 180
-              },
-              {
-                  x: 'Feb',
-                  y: 620
-              },
-              {
-                  x: 'Mar',
-                  y: 476
-              },
-              {
-                  x: 'Apr',
-                  y: 220
-              },
-              {
-                  x: 'May',
-                  y: 520
-              },
-              {
-                  x: 'Jun',
-                  y: 780
-              },
-              {
-                  x: 'Jul',
-                  y: 435
-              },
-              {
-                  x: 'Aug',
-                  y: 515
-              },
-              {
-                  x: 'Sep',
-                  y: 738
-              },
-              {
-                  x: 'Oct',
-                  y: 454
-              },
-              {
-                  x: 'Nov',
-                  y: 525
-              },
-              {
-                  x: 'Dec',
-                  y: 230
-              }
+            {
+              x: 'Jan',
+              y: 180
+            },
+            {
+              x: 'Feb',
+              y: 620
+            },
+            {
+              x: 'Mar',
+              y: 476
+            },
+            {
+              x: 'Apr',
+              y: 220
+            },
+            {
+              x: 'May',
+              y: 520
+            },
+            {
+              x: 'Jun',
+              y: 780
+            },
+            {
+              x: 'Jul',
+              y: 435
+            },
+            {
+              x: 'Aug',
+              y: 515
+            },
+            {
+              x: 'Sep',
+              y: 738
+            },
+            {
+              x: 'Oct',
+              y: 454
+            },
+            {
+              x: 'Nov',
+              y: 525
+            },
+            {
+              x: 'Dec',
+              y: 230
+            }
           ]
-      },
-      {
+        },
+        {
           type: 'area',
           name: 'Sales',
           data: [
-              {
-                  x: 'Jan',
-                  y: 200
-              },
-              {
-                  x: 'Feb',
-                  y: 530
-              },
-              {
-                  x: 'Mar',
-                  y: 110
-              },
-              {
-                  x: 'Apr',
-                  y: 130
-              },
-              {
-                  x: 'May',
-                  y: 480
-              },
-              {
-                  x: 'Jun',
-                  y: 520
-              },
-              {
-                  x: 'Jul',
-                  y: 780
-              },
-              {
-                  x: 'Aug',
-                  y: 435
-              },
-              {
-                  x: 'Sep',
-                  y: 475
-              },
-              {
-                  x: 'Oct',
-                  y: 738
-              },
-              {
-                  x: 'Nov',
-                  y: 454
-              },
-              {
-                  x: 'Dec',
-                  y: 480
-              }
+            {
+              x: 'Jan',
+              y: 200
+            },
+            {
+              x: 'Feb',
+              y: 530
+            },
+            {
+              x: 'Mar',
+              y: 110
+            },
+            {
+              x: 'Apr',
+              y: 130
+            },
+            {
+              x: 'May',
+              y: 480
+            },
+            {
+              x: 'Jun',
+              y: 520
+            },
+            {
+              x: 'Jul',
+              y: 780
+            },
+            {
+              x: 'Aug',
+              y: 435
+            },
+            {
+              x: 'Sep',
+              y: 475
+            },
+            {
+              x: 'Oct',
+              y: 738
+            },
+            {
+              x: 'Nov',
+              y: 454
+            },
+            {
+              x: 'Dec',
+              y: 480
+            }
           ]
-      }
-  ],
-    chart: {
-      height: 350,
-      animations: {
+        }
+      ],
+      chart: {
+        height: 350,
+        animations: {
           speed: 500
-      },
-      dropShadow: {
+        },
+        dropShadow: {
           enabled: true,
           top: 8,
           left: 0,
           blur: 3,
           color: '#000',
           opacity: 0.1
-      },
+        },
 
-  },
-  colors: ["rgb(132, 90, 223)", "rgba(35, 183, 229, 0.85)", "rgba(119, 119, 142, 0.05)"],
-  dataLabels: {
-      enabled: false
-  },
-  grid: {
-      borderColor: '#f1f1f1',
-      strokeDashArray: 3
-  },
-  stroke: {
-      curve: 'smooth',
-      width: [2, 2, 0],
-      dashArray: [0, 5, 0],
-  },
-  xaxis: {
-      axisTicks: {
+      },
+      colors: ["rgb(132, 90, 223)", "rgba(35, 183, 229, 0.85)", "rgba(119, 119, 142, 0.05)"],
+      dataLabels: {
+        enabled: false
+      },
+      grid: {
+        borderColor: '#f1f1f1',
+        strokeDashArray: 3
+      },
+      stroke: {
+        curve: 'smooth',
+        width: [2, 2, 0],
+        dashArray: [0, 5, 0],
+      },
+      xaxis: {
+        axisTicks: {
           show: false,
+        },
       },
-  },
-  yaxis: {
-      labels: {
+      yaxis: {
+        labels: {
           formatter: function (value: string) {
-              return "$" + value;
+            return "$" + value;
           }
+        },
       },
-  },
-  tooltip: {
-      y: [{
-          formatter: function (e: number ) {
-              return void 0 !== e ? "$" + e.toFixed(0) : e;
+      tooltip: {
+        y: [{
+          formatter: function (e: number) {
+            return void 0 !== e ? "$" + e.toFixed(0) : e;
           }
-      }, {
-          formatter: function (e: number ) {
-              return void 0 !== e ? "$" + e.toFixed(0) : e;
+        }, {
+          formatter: function (e: number) {
+            return void 0 !== e ? "$" + e.toFixed(0) : e;
           }
-      }, {
-          formatter: function (e: number ) {
-              return void 0 !== e ? e.toFixed(0) : e;
+        }, {
+          formatter: function (e: number) {
+            return void 0 !== e ? e.toFixed(0) : e;
           }
-      }]
-  },
-  legend: {
-      show: true,
-      customLegendItems: ['Profit', 'Revenue', 'Sales'],
-      inverseOrder: true
-  },
-  title: {
-      text: 'Revenue Analytics with sales & profit (USD)',
-      align: 'left',
-      style: {
+        }]
+      },
+      legend: {
+        show: true,
+        customLegendItems: ['Profit', 'Revenue', 'Sales'],
+        inverseOrder: true
+      },
+      title: {
+        text: 'Revenue Analytics with sales & profit (USD)',
+        align: 'left',
+        style: {
           fontSize: '.8125rem',
           fontWeight: 'semibold',
           color: '#8c9097'
+        },
       },
-  },
-  markers: {
-      hover: {
+      markers: {
+        hover: {
           sizeOffset: 5
-      }
-  },
+        }
+      },
 
-  };
-  this.chartOptions7 = {
-    series: [
-      {
-        name: 'Profit Earned',
-        data: [44, 42, 57, 86, 58, 55, 70],
+    };
+    this.chartOptions7 = {
+      series: [
+        {
+          name: 'Profit Earned',
+          data: [44, 42, 57, 86, 58, 55, 70],
+        },
+        {
+          name: 'Total Sales',
+          data: [34, 22, 37, 56, 21, 35, 60],
+        },
+      ],
+      chart: {
+        type: 'bar',
+        height: 180,
+        toolbar: {
+          show: false,
+        },
       },
-      {
-        name: 'Total Sales',
-        data: [34, 22, 37, 56, 21, 35, 60],
+      grid: {
+        borderColor: '#f1f1f1',
+        strokeDashArray: 3,
       },
-    ],
-    chart: {
-      type: 'bar',
-      height: 180,
-      toolbar: {
+      colors: ['rgb(132, 90, 223)', '#e4e7ed'],
+      plotOptions: {
+        bar: {
+          colors: {
+            ranges: [
+              {
+                from: -100,
+                to: -46,
+                color: '#ebeff5',
+              },
+              {
+                from: -45,
+                to: 0,
+                color: '#ebeff5',
+              },
+            ],
+          },
+          columnWidth: '60%',
+          borderRadius: 5,
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      stroke: {
+        show: true,
+        width: 2,
+      },
+      legend: {
         show: false,
+        position: 'top',
       },
-    },
-    grid: {
-      borderColor: '#f1f1f1',
-      strokeDashArray: 3,
-    },
-    colors: ['rgb(132, 90, 223)', '#e4e7ed'],
-    plotOptions: {
-      bar: {
-        colors: {
-          ranges: [
-            {
-              from: -100,
-              to: -46,
-              color: '#ebeff5',
-            },
-            {
-              from: -45,
-              to: 0,
-              color: '#ebeff5',
-            },
-          ],
+      yaxis: {
+        title: {
+          style: {
+            color: '#adb5be',
+            fontSize: '13px',
+            fontFamily: 'poppins, sans-serif',
+            fontWeight: 600,
+            cssClass: 'apexcharts-yaxis-label',
+          },
         },
-        columnWidth: '60%',
-        borderRadius: 5,
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    stroke: {
-      show: true,
-      width: 2,
-    },
-    legend: {
-      show: false,
-      position: 'top',
-    },
-    yaxis: {
-      title: {
-        style: {
-          color: '#adb5be',
-          fontSize: '13px',
-          fontFamily: 'poppins, sans-serif',
-          fontWeight: 600,
-          cssClass: 'apexcharts-yaxis-label',
+        labels: {
+          formatter: function (y: number) {
+            return y.toFixed(0) + '';
+          },
         },
       },
-      labels: {
-        formatter: function (y: number) {
-          return y.toFixed(0) + '';
+      xaxis: {
+        type: 'week',
+        categories: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
+        axisBorder: {
+          show: true,
+          color: 'rgba(119, 119, 142, 0.05)',
+          offsetX: 0,
+          offsetY: 0,
+        },
+        axisTicks: {
+          show: true,
+          borderType: 'solid',
+          color: 'rgba(119, 119, 142, 0.05)',
+          width: 6,
+          offsetX: 0,
+          offsetY: 0,
+        },
+        labels: {
+          rotate: -90,
         },
       },
-    },
-    xaxis: {
-      type: 'week',
-      categories: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-      axisBorder: {
-        show: true,
-        color: 'rgba(119, 119, 142, 0.05)',
-        offsetX: 0,
-        offsetY: 0,
-      },
-      axisTicks: {
-        show: true,
-        borderType: 'solid',
-        color: 'rgba(119, 119, 142, 0.05)',
-        width: 6,
-        offsetX: 0,
-        offsetY: 0,
-      },
-      labels: {
-        rotate: -90,
-      },
-    },
-  };
-}
+    };
+  }
+
+  async ngOnInit(): Promise<void> {
+    this.currentUser = await this.userService.user$;
+  }
 }

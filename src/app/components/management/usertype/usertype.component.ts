@@ -7,6 +7,8 @@ import { UserTypeResponseDTO } from './usertype.type';
 import { ToastrService } from 'ngx-toastr';
 import { MatDialog } from '@angular/material/dialog';
 import { UsertypeAddUpdateComponent } from './usertype-add-update/usertype-add-update.component';
+import { ConfirmDialogComponent } from '../../../shared/confirmation-dialouge/confirmation-dialog.component';
+import { UserTypeHierarchyComponent } from './usertype-hierarchy/usertype-hierarchy.component';
 
 @Component({
   selector: 'app-usertype',
@@ -20,6 +22,7 @@ export class UsertypeComponent implements OnInit {
   searchText = '';
   pageIndex = 0;
   pageSize = 5;
+  isLoading = false;
 
   userTypes: UserTypeResponseDTO[] = [];
 
@@ -36,18 +39,27 @@ export class UsertypeComponent implements OnInit {
   }
 
   loadUserTypes() {
-  this._userTypeService.getUserTypes().subscribe({
-    next: (res) => {
-      this.userTypes = res.data ?? [];
-      this.filteredUserTypes = [...this.userTypes];
-      this.pageIndex = 0;
-    },
-    error: () => {
-      this.userTypes = [];
-      this.filteredUserTypes = [];
-    }
-  });
-}
+    this.isLoading = true;
+    this._userTypeService.getUserTypes().subscribe({
+      next: (res) => {
+        if (res.success === false) {
+          this._toaster.error(res.remarks || 'Failed to load user types');
+          this.isLoading = false;
+          return;
+        }
+        this.userTypes = res.data ?? [];
+        this.filteredUserTypes = [...this.userTypes];
+        this.pageIndex = 0;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.userTypes = [];
+        this.isLoading = false;
+        this.filteredUserTypes = [];
+        this._toaster.error('Failed to load user types');
+      }
+    });
+  }
 
 
   /* Pagination helpers */
@@ -84,43 +96,91 @@ export class UsertypeComponent implements OnInit {
   }
 
   /* Actions */
-addUserType() {
-  const dialogRef = this.dialog.open(UsertypeAddUpdateComponent, {
-    width: '420px',
-    disableClose: true,
-    autoFocus: false,
-    panelClass: 'ynex-dialog',
-    data: {
-      mode: 'add'
-    }
-  });
+  addUserType() {
+    const dialogRef = this.dialog.open(UsertypeAddUpdateComponent, {
+      width: '420px',
+      disableClose: true,
+      autoFocus: false,
+      panelClass: 'ynex-dialog',
+      data: {
+        mode: 'add'
+      }
+    });
 
-  dialogRef.afterClosed().subscribe(result => {
-    if (result === 'saved') {
-      this.loadUserTypes();
-    }
-  });
-}
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'saved') {
+        this.loadUserTypes();
+      }
+    });
+  }
 
 
-edit(ut: UserTypeResponseDTO) {
-  this.dialog.open(UsertypeAddUpdateComponent, {
-    width: '420px',
-    disableClose: true,
-    autoFocus: false,
-    data: {
-      mode: 'edit',
-      value: ut
-    }
-  });
-}
+  edit(ut: UserTypeResponseDTO) {
+    const dialogRef = this.dialog.open(UsertypeAddUpdateComponent, {
+      width: '420px',
+      disableClose: true,
+      autoFocus: false,
+      data: {
+        mode: 'edit',
+        value: ut
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'saved') {
+        this.loadUserTypes();
+      }
+    });
+  }
 
 
   delete(id: string) {
-    this.userTypes = this.userTypes.filter(u => u.userTypeId !== id);
-    this.searchUserTypes();
-    // this.snack.open('User Type deleted', 'OK', { duration: 1500 });
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      disableClose: true,
+      data: {
+        title: 'Delete User Type',
+        message: 'Deleting this user type will remove it permanently. This action cannot be undone.',
+        confirmText: 'Delete',
+        variant: 'danger',
+        showActions: true
+      }
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (!confirmed) return;
+
+      this._userTypeService.deleteUserType(id).subscribe({
+        next: (res) => {
+          if (res.success) {
+            this._toaster.success('User Type deleted');
+            this.loadUserTypes();
+          } else {
+            this._toaster.error(res.remarks || 'Delete failed');
+          }
+        },
+        error: () => {
+          this._toaster.error('Delete failed');
+        }
+      });
+    });
   }
+
+
+  openHierarchy() {
+    const dialogRef = this.dialog.open(UserTypeHierarchyComponent, {
+      width: '720px',
+      maxWidth: '90vw',
+      disableClose: true,
+      panelClass: 'yx-enterprise-dialog',
+      data: this.userTypes
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'saved') {
+        this.loadUserTypes();
+      }
+    });
+  }
+
 
   nextPage() {
     if ((this.pageIndex + 1) * this.pageSize < this.filteredUserTypes.length) {

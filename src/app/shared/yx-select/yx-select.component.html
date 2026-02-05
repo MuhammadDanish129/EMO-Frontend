@@ -1,0 +1,50 @@
+<div class="yx-select">
+
+  <!-- LABEL -->
+  <label *ngIf="label"
+         class="yx-label block text-xs font-semibold mb-1">
+    {{ label }}
+    <span *ngIf="required" class="text-[rgb(var(--red-500))]">*</span>
+  </label>
+
+  <!-- TRIGGER -->
+ <div
+  class="yx-select-trigger"
+  [class.yx-error]="error"
+  [class.yx-disabled]="disabled"
+  (click)="toggle()">
+
+    <span
+      class="text-sm"
+      [class.text-[rgb(var(--text-muted))]]="!selectedLabel">
+      {{ selectedLabel || placeholder }}
+    </span>
+
+    <i
+      class="las la-angle-down transition-transform"
+      [class.rotate-180]="open">
+    </i>
+  </div>
+
+  <!-- DROPDOWN PANEL -->
+  <div *ngIf="open" class="yx-select-panel">
+
+    <div
+      *ngFor="let item of items"
+      class="yx-select-option"
+      [class.yx-selected]="item[valueKey] === value"
+      (click)="select(item)">
+
+      {{ item[labelKey] }}
+
+    </div>
+
+  </div>
+
+  <!-- ERROR -->
+  <p *ngIf="error"
+     class="text-xs font-medium text-[rgb(var(--danger))] mt-1">
+    {{ error }}
+  </p>
+
+</div>

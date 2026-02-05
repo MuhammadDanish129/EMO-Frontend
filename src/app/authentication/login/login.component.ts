@@ -47,7 +47,7 @@ export class LoginComponent {
   }
   ngOnInit(): void {
     this.loginForm = this.formBuilder.group({
-      username: ['admin@enexol.com', [Validators.required, Validators.email]],
+      username: ['admin@emo.com'] ,
       password: ['12345', Validators.required],
     });
 
@@ -56,7 +56,7 @@ export class LoginComponent {
   // databaseModule = this.firebaseService.getDatabase();
   // authModule = this.firebaseService.getAuth();
   // firebase
-  email = 'admin@enexol.com';
+  email = 'admin@emo.com';
   password = '12345';
   errorMessage = ''; // validation _error handle
   _error: { name: string; message: string } = { name: '', message: '' }; // for firbase _error handle
@@ -127,10 +127,7 @@ export class LoginComponent {
 
       this.authservice.login(username, password).subscribe((success) => {
         if (success) {
-          this.toastr.success('Login successful', 'ynex', {
-            timeOut: 3000,
-            positionClass: 'toast-top-right',
-          });
+          this.toastr.success('Login successful');
           this.router.navigate(['/dashboard']);
           console.clear();
         } else {
