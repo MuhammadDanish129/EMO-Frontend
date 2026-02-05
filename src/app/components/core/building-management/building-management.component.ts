@@ -20,7 +20,8 @@ import { BuildingManagementAddUpdateComponent } from './building-management-add-
 })
 export class BuildingManagementComponent implements OnInit {
 
-  facilityId!: string;
+  fkFacility!: string;
+  fkBusiness!: string;
 
 
   // ngOnInit() {
@@ -52,10 +53,12 @@ export class BuildingManagementComponent implements OnInit {
    * INIT
    * ============================= */
   async ngOnInit(): Promise<void> {
-     const nav = history.state;
-    this.facilityId = nav.facilityId;
+    const nav = history.state;
+    console.log('breadcrumb 2', nav)
+    this.fkFacility = nav.fkFacility;
+     this.fkBusiness = nav.fkBusiness;
     this.currentUser = await this._userService.user$;
-    this.loadBuildings(this.facilityId);
+    this.loadBuildings(this.fkFacility);
   }
 
   /* =============================
@@ -63,7 +66,7 @@ export class BuildingManagementComponent implements OnInit {
    * ============================= */
   loadBuildings(fkFacility: string) {
     this.isLoading = true;
-    fkFacility = this.facilityId;
+    fkFacility = this.fkFacility;
     this._buildingService.getBuildingByFacilityId(fkFacility).subscribe({
       next: (res) => {
         if (res.success === false) {
@@ -134,13 +137,13 @@ export class BuildingManagementComponent implements OnInit {
       panelClass: 'ynex-dialog',
       data: {
         mode: 'add',
-        facilityId: this.facilityId
+        facilityId: this.fkFacility
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'saved') {
-        this.loadBuildings(this.facilityId);
+        this.loadBuildings(this.fkFacility);
       }
     });
   }
@@ -162,7 +165,7 @@ export class BuildingManagementComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'saved') {
-        this.loadBuildings(this.facilityId);
+        this.loadBuildings(this.fkFacility);
       }
     });
   }
@@ -192,7 +195,7 @@ export class BuildingManagementComponent implements OnInit {
         next: (res) => {
           if (res.success) {
             this._toaster.success('Building deleted');
-            this.loadBuildings(this.facilityId);
+            this.loadBuildings(this.fkFacility);
           } else {
             this._toaster.error(res.remarks || 'Delete failed');
           }
@@ -255,11 +258,30 @@ export class BuildingManagementComponent implements OnInit {
   }
 
 
-  goToFloor(id: string){
-    this.router.navigate(['/core/floor-management'],
-      { state: { buildingId: id}}
-    )
-  }
+  goToFloor(id: string) {
+  this.router.navigate(
+    ['/core/floor-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: id
+      }
+    }
+  )
+}
+
+
+  goToFacility(id: string){
+  this.router.navigate(
+    ['/core/facility-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness
+      }
+    }
+  )
+}
 
 
 

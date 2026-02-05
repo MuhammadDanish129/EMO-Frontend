@@ -43,6 +43,8 @@ export class FacilityManagementComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.currentUser = await this._userService.user$;
     this.loadFacilities(this.currentUser.fkFacilities);
+    const nav = history.state;
+    console.log('breadcrumb 1', nav)
   }
 
   /* =============================
@@ -242,8 +244,17 @@ export class FacilityManagementComponent implements OnInit {
 
 
   goToBuilding(id: string){
-    this.router.navigate(['/core/building-management'],
-      { state: { facilityId: id}}
-    )
-  }
+  this.router.navigate(
+    ['/core/building-management'],
+    {
+      state: {
+        fkBusiness: this.currentUser.fkBusiness,
+        fkFacility: id
+      }
+    }
+  )
+}
+
+
+  
 }

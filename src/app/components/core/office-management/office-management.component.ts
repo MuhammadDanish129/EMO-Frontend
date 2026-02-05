@@ -23,7 +23,11 @@ import { OfficeManagementAddUpdateComponent } from './office-management-add-upda
 })
 export class OfficeManagementComponent implements OnInit {
 
-  sectionId!: string;
+  fkSection!: string;
+   fkFloor!: string;
+  fkBuilding!: string;
+fkFacility!: string;
+fkBusiness!: string; 
 
   searchText = '';
   pageIndex = 0;
@@ -47,11 +51,15 @@ export class OfficeManagementComponent implements OnInit {
   async ngOnInit(): Promise<void> {
 
     const nav = history.state;
-    this.sectionId = nav.sectionId;
+    this.fkSection = nav.fkSection;
+  this.fkFloor = nav.fkFloor;
+  this.fkBuilding = nav.fkBuilding;
+  this.fkFacility = nav.fkFacility;
+  this.fkBusiness = nav.fkBusiness;
 
     this.currentUser = await this._userService.user$;
 
-    this.loadOffices(this.sectionId);
+    this.loadOffices(this.fkSection);
   }
 
   /* ================= LOAD ================= */
@@ -132,13 +140,13 @@ export class OfficeManagementComponent implements OnInit {
       panelClass: 'ynex-dialog',
       data: {
         mode: 'add',
-        sectionId: this.sectionId
+        sectionId: this.fkSection
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'saved') {
-        this.loadOffices(this.sectionId);
+        this.loadOffices(this.fkSection);
       }
     });
   }
@@ -160,7 +168,7 @@ export class OfficeManagementComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'saved') {
-        this.loadOffices(this.sectionId);
+        this.loadOffices(this.fkSection);
       }
     });
   }
@@ -192,7 +200,7 @@ export class OfficeManagementComponent implements OnInit {
 
           if (res.success) {
             this._toaster.success('Office deleted');
-            this.loadOffices(this.sectionId);
+            this.loadOffices(this.fkSection);
           }
           else {
             this._toaster.error(res.remarks || 'Delete failed');
@@ -226,5 +234,58 @@ export class OfficeManagementComponent implements OnInit {
   goToPage(i: number) {
     this.pageIndex = i;
   }
+
+
+  goToSection() {
+  this.router.navigate(
+    ['/core/section-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding,
+        fkFloor: this.fkFloor
+      }
+    }
+  );
+}
+
+
+    goToFloor(id: string) {
+  this.router.navigate(
+    ['/core/floor-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding
+      }
+    }
+  )
+}
+goToBuilding() {
+  this.router.navigate(
+    ['/core/building-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility
+      }
+    }
+  );
+}
+
+
+goToFacility() {
+  this.router.navigate(
+    ['/core/facility-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness
+      }
+    }
+  )
+}
+
 
 }

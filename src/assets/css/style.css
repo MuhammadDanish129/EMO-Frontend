@@ -14459,3 +14459,58 @@ input.yx-input:focus-visible {
 /* End:: custom-progress-4 */
 
 /*# sourceMappingURL=style.css.map */
+/* ===== CUSTOM GREEN CHECKBOX ===== */
+
+.yx-checkbox {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+}
+
+/* Hide native checkbox */
+.yx-checkbox input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Box */
+.yx-checkbox-box {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 2px solid rgb(var(--gray-300));
+  background: rgb(var(--light));
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Checked State — ALWAYS GREEN */
+.yx-checkbox input:checked + .yx-checkbox-box {
+  background: rgb(var(--success));
+  border-color: rgb(var(--success));
+}
+
+/* Tick */
+.yx-checkbox input:checked + .yx-checkbox-box::after {
+  content: "✓";
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+/* Disabled */
+.yx-checkbox input:disabled + .yx-checkbox-box {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* REMOVE BLUE FOCUS RING EVERYWHERE */
+.yx-checkbox input:focus,
+.yx-checkbox input:active {
+  outline: none !important;
+  box-shadow: none !important;
+}

@@ -23,7 +23,10 @@ import { SectionManagementAddUpdateComponent } from './section-management-add-up
 })
 export class SectionManagementComponent implements OnInit {
 
-  floorId!: string;
+  fkFloor!: string;
+  fkBuilding!: string;
+fkFacility!: string;
+fkBusiness!: string; 
 
   searchText = '';
   pageIndex = 0;
@@ -47,11 +50,15 @@ export class SectionManagementComponent implements OnInit {
   async ngOnInit(): Promise<void> {
 
     const nav = history.state;
-    this.floorId = nav.floorId;
+    console.log('breadcrumb 4', nav)
+   this.fkFloor = nav.fkFloor || nav.fkFloor;
+  this.fkBuilding = nav.fkBuilding;
+  this.fkFacility = nav.fkFacility;
+  this.fkBusiness = nav.fkBusiness;
 
     this.currentUser = await this._userService.user$;
 
-    this.loadSections(this.floorId);
+    this.loadSections(this.fkFloor);
   }
 
   /* ================= LOAD ================= */
@@ -132,13 +139,13 @@ export class SectionManagementComponent implements OnInit {
       panelClass: 'ynex-dialog',
       data: {
         mode: 'add',
-        floorId: this.floorId
+        floorId: this.fkFloor
       }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'saved') {
-        this.loadSections(this.floorId);
+        this.loadSections(this.fkFloor);
       }
     });
   }
@@ -160,7 +167,7 @@ export class SectionManagementComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'saved') {
-        this.loadSections(this.floorId);
+        this.loadSections(this.fkFloor);
       }
     });
   }
@@ -192,7 +199,7 @@ export class SectionManagementComponent implements OnInit {
 
           if (res.success) {
             this._toaster.success('Section deleted');
-            this.loadSections(this.floorId);
+            this.loadSections(this.fkFloor);
           }
           else {
             this._toaster.error(res.remarks || 'Delete failed');
@@ -230,8 +237,51 @@ export class SectionManagementComponent implements OnInit {
   goToOffice(id: string) {
   this.router.navigate(
     ['/core/office-management'],
-    { state: { sectionId: id } }
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding,
+        fkFloor: this.fkFloor,
+        fkSection: id
+      }
+    }
+  );
+}
+  goToFloor(id: string) {
+  this.router.navigate(
+    ['/core/floor-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding
+      }
+    }
+  )
+}
+goToBuilding(id: string) {
+  this.router.navigate(
+    ['/core/building-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility
+      }
+    }
   );
 }
 
+  goToFacility(id: string){
+  this.router.navigate(
+    ['/core/facility-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness
+      }
+    }
+  )
 }
+
+}
+

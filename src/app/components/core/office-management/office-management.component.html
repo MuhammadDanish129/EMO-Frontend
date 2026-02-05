@@ -30,6 +30,79 @@
 </div>
 
 
+<div class="px-6 py-3 mb-4 bg-[rgb(var(--light))]
+            border-b border-[rgb(var(--gray-200))]">
+
+  <nav class="flex flex-wrap items-center gap-1 text-sm">
+
+    <!-- Facility -->
+    <button (click)="goToFacility()"
+      class="flex items-center gap-1
+             text-[rgb(var(--gray-600))]
+             hover:text-[rgb(var(--primary))]
+             transition font-medium">
+
+      <i class="las la-building text-base"></i>
+      Facility
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <!-- Building -->
+    <button (click)="goToBuilding()"
+      class="flex items-center gap-1
+             text-[rgb(var(--gray-600))]
+             hover:text-[rgb(var(--primary))]
+             transition font-medium">
+
+      <i class="las la-city text-base"></i>
+      Building
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <!-- Floor -->
+    <button (click)="goToFloor(fkBuilding)"
+      class="flex items-center gap-1
+             text-[rgb(var(--gray-600))]
+             hover:text-[rgb(var(--primary))]
+             transition font-medium">
+
+      <i class="las la-layer-group text-base"></i>
+      Floor
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <!-- Section -->
+    <button (click)="goToSection()"
+      class="flex items-center gap-1
+             text-[rgb(var(--gray-600))]
+             hover:text-[rgb(var(--primary))]
+             transition font-medium">
+
+      <i class="las la-sitemap text-base"></i>
+      Section
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <!-- Current -->
+    <span
+      class="flex items-center gap-1
+             text-[rgb(var(--primary))]
+             font-semibold">
+
+      <i class="las la-briefcase text-base"></i>
+      Office
+    </span>
+
+  </nav>
+</div>
+
+
+
+
 <!-- CARD -->
 <div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5">
 
