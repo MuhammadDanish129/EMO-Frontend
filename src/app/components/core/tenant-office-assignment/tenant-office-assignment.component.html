@@ -90,8 +90,8 @@
                        transition-all duration-300
                        focus:outline-none
                        overflow-hidden" [ngClass]="selectionEnabled
-                    ? 'bg-[rgb(var(--primary))]'
-                    : 'bg-gray-300'">
+                    ? 'bg-[rgb(var(--primary))] '
+                    : 'bg-[rgb(var(--dark))]'">
 
                 <!-- RIPPLE LAYER -->
                 <span class="absolute inset-0
@@ -100,7 +100,7 @@
 
                 <!-- TOGGLE DOT -->
                 <span class="inline-block h-4 w-4 transform rounded-full
-                             bg-white transition duration-300" [ngClass]="selectionEnabled
+                             bg-[rgb(var(--light))] transition duration-300" [ngClass]="selectionEnabled
                         ? 'translate-x-6'
                         : 'translate-x-1'">
                 </span>

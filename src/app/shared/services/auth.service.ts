@@ -7,6 +7,7 @@ import { catchError, map, tap, switchMap } from 'rxjs/operators';
 import { environment } from './../../../environments/environment';
 import { WebCryptoService } from '../crypto.service';
 import { User } from './user/user.type';
+import { NavService } from './nav.service';
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +20,8 @@ export class AuthService {
   constructor(
     private http: HttpClient,
     private router: Router,
-    private cryptoService: WebCryptoService
+    private cryptoService: WebCryptoService,
+    private navService: NavService
   ) { }
 
   login(username: string, password: string): Observable<boolean> {
@@ -56,10 +58,15 @@ export class AuthService {
         }
 
         return from(this.cryptoService.encrypt(securePayload)).pipe(
-          tap((encryptedData) => {
-            this.accessToken = response.data.userToken;
-            localStorage.setItem(this.sessionKey, encryptedData);
-          }),
+        tap((encryptedData) => {
+  this.accessToken = response.data.userToken;
+  localStorage.setItem(this.sessionKey, encryptedData);
+
+  setTimeout(() => {
+    this.navService.init();   // ⭐ FORCE NAV REFRESH
+  }, 50);
+}),
+
           map(() => true)
         );
       }),
@@ -76,6 +83,8 @@ export class AuthService {
     localStorage.removeItem(this.sessionKey);
     localStorage.removeItem('otherInfo');
     this.router.navigate(['/sign-in']);
+
+    this.navService.resetMenu();   // ⭐ CLEAR NAV
     // Return the observable
     return of(true);
   }

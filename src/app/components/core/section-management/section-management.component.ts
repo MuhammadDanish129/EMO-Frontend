@@ -17,7 +17,7 @@ import { SectionManagementAddUpdateComponent } from './section-management-add-up
 @Component({
   selector: 'app-section-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, MaterialModuleModule],
+  imports: [CommonModule, FormsModule, MaterialModuleModule],
   templateUrl: './section-management.component.html',
   styleUrl: './section-management.component.scss'
 })

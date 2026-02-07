@@ -58,6 +58,13 @@ export const core: Routes = [
           import('./tenant-office-assignment/tenant-office-assignment.component').then((m) => m.TenantOfficeAssignmentComponent),
         providers: [provideNativeDateAdapter()]
       },
+
+       {
+        path: 'assign-tenant',
+        loadComponent: () =>
+          import('./tenant-office-assignment/assign-tenant/assign-tenant.component').then((m) => m.AssignTenantComponent),
+        providers: [provideNativeDateAdapter()]
+      },
       //   {
       //     path: 'user',
       //     loadComponent: () =>

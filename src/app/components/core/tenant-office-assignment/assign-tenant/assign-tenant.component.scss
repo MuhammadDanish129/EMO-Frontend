@@ -1,0 +1,10 @@
+/* Hide native icon ONLY — no overlay */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+/* Firefox normalize */
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+}

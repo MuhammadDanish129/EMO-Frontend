@@ -41,9 +41,10 @@ export const appConfig: ApplicationConfig = {
       AngularFireDatabaseModule,
       AngularFirestoreModule,
       ToastrModule.forRoot({
-        timeOut: 15000,
+        timeOut: 3000,
         closeButton: true,
         progressBar: true,
+        positionClass: 'toast-bottom-center'
       })
     ),
   ]

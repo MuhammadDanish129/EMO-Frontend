@@ -33,7 +33,6 @@ import { MatIcon } from '@angular/material/icon';
     MatStepperModule,
     YxSelectComponent,
     SharedModule,
-    MatIcon
   ],
   templateUrl: './business-management-add-update.component.html',
   styleUrl: './business-management-add-update.component.scss'
@@ -51,8 +50,8 @@ export class BusinessManagementAddUpdateComponent implements OnInit {
   showPassword = false;
   showConfirmPassword = false;
 
-  currentUser: User | null = null;
-
+ currentUser: any;
+businessId: string = '';
   /* ================= DROPDOWNS ================= */
   genders: GenderResponseDTO[] = [];
   subUserTypes: SubUserTypeResponseDTO[] = [];
@@ -93,7 +92,8 @@ export class BusinessManagementAddUpdateComponent implements OnInit {
     private subUserTypeService: SubUserTypeService,
     private managementService: ManagementService,
     private businessService: BusinessService,
-    private toaster: ToastrService
+    private toaster: ToastrService,
+    
   ) {}
 
   get isEditMode(): boolean {
@@ -109,6 +109,9 @@ export class BusinessManagementAddUpdateComponent implements OnInit {
     this.getGenders();
 
     this.currentUser = await this.userService.user$;
+
+  this.businessId = this.currentUser?.fkBusiness;
+
 
     this.loadSubUserTypes(this.currentUser?.userId ?? '');
   }
@@ -145,6 +148,8 @@ export class BusinessManagementAddUpdateComponent implements OnInit {
     });
   }
 
+
+  
   /* ================= IMAGE ================= */
 
   onFileInput(event: Event) {

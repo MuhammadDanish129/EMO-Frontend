@@ -15,7 +15,7 @@ import { MaterialModuleModule } from '../../../material-module/material-module.m
 @Component({
   selector: 'app-facility-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSlideToggleModule, RouterLink, MaterialModuleModule],
+  imports: [CommonModule, FormsModule, MatSlideToggleModule,  MaterialModuleModule],
   templateUrl: './facility-management.component.html',
   styleUrl: './facility-management.component.scss'
 })
@@ -28,6 +28,8 @@ export class FacilityManagementComponent implements OnInit {
 
   Facilities: FacilityResponseDTO[] = [];
   filteredFacilities: FacilityResponseDTO[] = [];
+
+  
 
   constructor(
     private _facilityService: FacilityService,

@@ -1,1 +1,537 @@
-<p>assign-tenant works!</p>
+<div class="w-full rounded-t-xl bg-[rgb(var(--light))] shadow-xl max-h-[90vh] flex flex-col">
+<div class="-mt-2 mb-4">
+    <div class="px-6 py-4 bg-[rgb(var(--primary))]">
+        <div class="flex flex-col gap-4 pt-3
+         md:flex-row md:items-center md:justify-between">
+
+            <!-- TITLE -->
+            <div>
+                <h1 class="text-white text-2xl font-semibold tracking-wide">
+                    Tenant Assignment
+                </h1>
+                <p class="mt-0.5 text-sm text-white/80 max-w-2xl">
+                    Assign tenant to the selected offices
+                </p>
+            </div>
+
+            <!-- ACTION
+            <div class="flex">
+                <button class="flex items-center gap-2 rounded-lg
+          bg-white/95 px-4 py-2 text-sm font-semibold
+          text-[rgb(var(--primary))]" (click)="addSection()">
+
+                    <i class="las la-plus-circle text-lg"></i>
+                    Add Section
+                </button>
+            </div> -->
+
+        </div>
+    </div>
+</div>
+
+    <div class="px-1 py-1 overflow-y-auto">
+
+        <!-- ================= YX STEPPER ================= -->
+        <div class="yx-stepper">
+
+       <!-- ================= CLEAN ENTERPRISE STEPPER ================= -->
+<div class="px-8 pt-8 pb-6">
+
+  <div class="relative flex items-center justify-between">
+
+    <!-- BACK LINE -->
+    <div
+      class="absolute left-0 right-0 top-1/2 -translate-y-1/2
+             h-[6px] rounded-full
+             bg-[rgb(var(--gray-200))]">
+    </div>
+
+    <!-- ACTIVE LINE -->
+    <div
+      class="absolute left-0 top-1/2 -translate-y-1/2
+             h-[6px] rounded-full
+             bg-[rgb(var(--primary))]
+             transition-all duration-500"
+      [style.width.%]="
+        currentStep === 0 ? 0 :
+        currentStep === 1 ? 50 :
+        100
+      ">
+    </div>
+
+    <!-- STEP 1 -->
+    <div
+      class="relative z-10 cursor-pointer"
+      (click)="currentStep = 0">
+
+      <div
+        class="w-14 h-14 rounded-full flex items-center justify-center
+               border-4 shadow-lg transition-all duration-300"
+        [ngClass]="currentStep >= 0
+          ? 'bg-[rgb(var(--primary))] border-white text-[rgb(var(--light))]  scale-105'
+          : 'bg-[rgb(var(--light))] border-[rgb(var(--gray-300))] text-[rgb(var(--dark))] '">
+
+        <i class="las la-user text-xl"></i>
+
+      </div>
+
+    </div>
+
+    <!-- STEP 2 (UNCHANGED ICON) -->
+    <div
+      class="relative z-10 cursor-pointer"
+      (click)="currentStep = 1">
+
+      <div
+        class="w-14 h-14 rounded-full flex items-center justify-center
+               border-4 shadow-lg transition-all duration-300"
+        [ngClass]="currentStep >= 1
+          ? 'bg-[rgb(var(--primary))] border-white text-[rgb(var(--light))]  scale-105'
+          : 'bg-[rgb(var(--light))] border-[rgb(var(--gray-300))] text-[rgb(var(--dark))] '">
+
+        <!-- YOUR ORIGINAL ICON KEPT -->
+        <i class="las la-address-book text-xl"></i>
+
+      </div>
+
+    </div>
+
+    <!-- STEP 3 -->
+    <div
+      class="relative z-10 cursor-pointer"
+      (click)="currentStep = 2">
+
+      <div
+        class="w-14 h-14 rounded-full flex items-center justify-center
+               border-4 shadow-lg transition-all duration-300"
+        [ngClass]="currentStep >= 2
+          ? 'bg-[rgb(var(--primary))] border-text-[rgb(var(--dark))]  text-[rgb(var(--light))] scale-105'
+          : 'bg-[rgb(var(--light))] border-[rgb(var(--gray-300))] text-[rgb(var(--dark))] '">
+
+        <i class="las la-file-contract text-xl"></i>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+
+
+            <!-- ================= STEP CONTENT ================= -->
+
+            <div class="mt-4">
+
+                <!-- ================= STEP 1 TENANT ================= -->
+                <ng-container *ngIf="currentStep === 0">
+
+                    <div class="rounded-lg border border-[rgb(var(--gray-200))] p-5 space-y-4">
+
+                        <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide">
+                            Tenant Information
+                        </p>
+
+                        <!-- MODE -->
+                        <div class="flex gap-6">
+                            <label>
+                                <input type="radio" value="existing" [(ngModel)]="tenantMode"
+                                    (change)="onTenantModeChange()">
+                                Existing Tenant
+                            </label>
+
+                            <label>
+                                <input type="radio" value="new" [(ngModel)]="tenantMode"
+                                    (change)="onTenantModeChange()">
+                                New Tenant
+                            </label>
+                        </div>
+
+                        <!-- EXISTING -->
+                        <div *ngIf="tenantMode === 'existing'">
+                            <yx-select [items]="tenants" labelKey="tenantName" valueKey="tenantId"
+                                placeholder="Select Tenant" [(value)]="selectedTenantId">
+                            </yx-select>
+                        </div>
+
+                        <!-- NEW TENANT -->
+                        <div *ngIf="tenantMode === 'new'" class="space-y-4">
+
+                            <!-- BASIC INFO -->
+                            <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]"
+                                [class.border-[rgb(var(--danger))]]="fieldErrors.name || fieldErrors.username">
+
+                                <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+                                    Basic Information
+                                </p>
+
+                                <!-- NAME -->
+                                <div class="yx-field">
+                                    <label class="yx-label">
+                                        Full Name <span class="text-[rgb(var(--red-500))]">*</span>
+                                    </label>
+
+                                    <input class="yx-input w-full" [(ngModel)]="tenantModel.name"
+                                        (ngModelChange)="fieldErrors.name = null"
+                                        [class.border-[rgb(var(--danger))]]="fieldErrors.name" />
+
+                                    <p *ngIf="fieldErrors.name" class="text-xs mt-1 text-[rgb(var(--danger))]">
+                                        Full name is required
+                                    </p>
+                                </div>
+
+                                <!-- USERNAME -->
+                                <div class="yx-field">
+                                    <label class="yx-label">
+                                        Username <span class="text-[rgb(var(--red-500))]">*</span>
+                                    </label>
+
+                                    <input class="yx-input w-full" [(ngModel)]="tenantModel.userName"
+                                        (ngModelChange)="fieldErrors.username = null"
+                                        [class.border-[rgb(var(--danger))]]="fieldErrors.username" />
+
+                                    <p *ngIf="fieldErrors.username" class="text-xs mt-1 text-[rgb(var(--danger))]">
+                                        Username is required
+                                    </p>
+                                </div>
+
+                                <!-- PHONE -->
+                                <div class="yx-field">
+                                    <label class="yx-label">
+                                        Phone <span class="text-muted">(optional)</span>
+                                    </label>
+
+                                    <input class="yx-input w-full" [(ngModel)]="tenantModel.userPhoneNo" />
+                                </div>
+
+                            </div>
+
+                            <!-- ROLE -->
+                            <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]">
+
+                                <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+                                    Role & Access
+                                </p>
+
+                                <yx-select label="Gender" [items]="genders" labelKey="genderName" valueKey="genderId"
+                                    placeholder="Select Gender" [(value)]="tenantModel.fkGender">
+                                </yx-select>
+
+                            </div>
+
+                            <!-- SECURITY -->
+                            <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]"
+                                [class.border-[rgb(var(--danger))]]="fieldErrors.password || fieldErrors.confirmPassword">
+
+                                <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+                                    Security
+                                </p>
+
+                                <!-- PASSWORD -->
+                                <div class="yx-field">
+                                    <label class="yx-label">
+                                        Password <span class="text-[rgb(var(--red-500))]">*</span>
+                                    </label>
+
+                                    <div class="relative">
+                                        <input [type]="showPassword ? 'text' : 'password'" class="yx-input w-full pr-10"
+                                            [(ngModel)]="tenantModel.userPassword"
+                                            (ngModelChange)="fieldErrors.password = null"
+                                            [class.border-[rgb(var(--danger))]]="fieldErrors.password" />
+
+                                        <button type="button" class="absolute inset-y-0 right-3 text-muted"
+                                            (click)="togglePassword()">
+                                            <i class="las" [ngClass]="showPassword ? 'la-eye-slash' : 'la-eye'">
+                                            </i>
+                                        </button>
+                                    </div>
+
+                                    <!-- PASSWORD RULES -->
+                                    <ul class="mt-2 text-xs space-y-1 text-[rgb(var(--primary))]">
+                                        <li>• 6–10 characters long</li>
+                                        <li>• At least 1 uppercase letter (A–Z)</li>
+                                        <li>• At least 1 number (0–9)</li>
+                                        <li>• At least 1 special character (&#64; # $ % ^ * ( ) _ - = + ~ `)</li>
+                                    </ul>
+
+                                    <p *ngIf="fieldErrors.password" class="text-xs mt-2 text-[rgb(var(--danger))]">
+                                        {{ fieldErrors.password }}
+                                    </p>
+                                </div>
+
+                                <!-- CONFIRM PASSWORD -->
+                                <!-- CONFIRM PASSWORD -->
+                                <div *ngIf="(tenantModel.userPassword || '').length > 0"
+                                    class="yx-field animate-confirm">
+
+                                    <label class="yx-label">
+                                        Confirm Password <span class="text-[rgb(var(--red-500))]">*</span>
+                                    </label>
+
+                                    <div class="relative">
+                                        <input [type]="showConfirmPassword ? 'text' : 'password'"
+                                            class="yx-input w-full pr-10" [(ngModel)]="confirmPassword"
+                                            (ngModelChange)="fieldErrors.confirmPassword = null"
+                                            [class.border-[rgb(var(--danger))]]="fieldErrors.confirmPassword" />
+
+                                        <button type="button" class="absolute inset-y-0 right-3 text-muted"
+                                            (click)="toggleConfirmPassword()">
+
+                                            <i class="las" [ngClass]="showConfirmPassword ? 'la-eye-slash' : 'la-eye'">
+                                            </i>
+
+                                        </button>
+                                    </div>
+
+                                    <p *ngIf="fieldErrors.confirmPassword"
+                                        class="text-xs mt-1 text-[rgb(var(--danger))]">
+                                        {{ fieldErrors.confirmPassword }}
+                                    </p>
+
+                                </div>
+
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                    <div class="flex justify-end mt-6">
+                        <button class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white"
+                            (click)="currentStep = 1">
+                            Next
+                        </button>
+                    </div>
+
+                </ng-container>
+
+                <!-- ================= STEP 2 CONTACT ================= -->
+                <ng-container *ngIf="currentStep === 1">
+
+                    <!-- CARD -->
+                    <div class="rounded-lg border border-[rgb(var(--gray-200))]  p-6 shadow-sm">
+
+                        <!-- HEADER -->
+                        <div class="flex items-center justify-between mb-6">
+
+                            <div>
+                                <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide">
+                                    Contact Persons
+                                </p>
+                                <p class="text-xs text-muted mt-1">
+                                    Add one or more contact persons for tenant communication
+                                </p>
+                            </div>
+
+                            <!-- ADD BUTTON -->
+                            <button class="flex items-center gap-2 px-4 py-2 rounded-lg
+               bg-[rgb(var(--primary))] text-white
+               hover:shadow-md hover:scale-[1.02]
+               active:scale-[0.98] transition" (click)="addContact()">
+
+                                <i class="las la-plus text-lg"></i>
+                                Add Contact
+
+                            </button>
+
+                        </div>
+
+                        <!-- CONTACT LIST -->
+                        <div class="space-y-4">
+
+                            <div *ngFor="let cp of contactPersons; let i = index" class="rounded-lg border border-[rgb(var(--gray-200))]
+                  p-5 bg-[rgb(var(--light))]
+                  hover:shadow-sm transition">
+
+                                <!-- ROW HEADER -->
+                                <div class="flex items-center justify-between mb-4">
+
+                                    <p class="text-sm font-semibold text-[rgb(var(--primary))]">
+                                        Contact #{{ i + 1 }}
+                                    </p>
+
+                                    <!-- REMOVE BUTTON -->
+                                    <button class="flex items-center gap-1 px-3 py-1.5 rounded-md
+                   text-[rgb(var(--danger))] bg-[rgb(var(--danger)/0.08)]
+                   hover:bg-[rgb(var(--danger)/0.15)]
+                   transition text-sm font-medium" (click)="removeContact(i)">
+
+                                        <i class="las la-trash text-base"></i>
+                                        Remove
+
+                                    </button>
+
+                                </div>
+
+                                <!-- GRID FIELDS -->
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+                                    <!-- NAME -->
+                                    <div class="yx-field">
+                                        <label class="yx-label text-xs">Full Name</label>
+                                        <input class="yx-input w-full" placeholder="Enter full name"
+                                            [(ngModel)]="cp.contactPersonName">
+                                    </div>
+
+                                    <!-- PHONE -->
+                                    <div class="yx-field">
+                                        <label class="yx-label text-xs">Phone</label>
+                                        <input class="yx-input w-full" placeholder="Enter phone number"
+                                            [(ngModel)]="cp.contactPersonPhone">
+                                    </div>
+
+                                    <!-- EMAIL -->
+                                    <div class="yx-field">
+                                        <label class="yx-label text-xs">Email</label>
+                                        <input class="yx-input w-full" placeholder="Enter email address"
+                                            [(ngModel)]="cp.contactPersonEmail">
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- FOOTER ACTIONS -->
+                    <div class="flex justify-between items-center mt-6">
+
+                        <button class="flex items-center gap-2
+             border border-[rgb(var(--gray-300))]
+             px-5 py-2 rounded-lg
+             hover:bg-[rgb(var(--gray-100))]
+             transition" (click)="currentStep = 0">
+                            Back
+
+                        </button>
+
+                        <button class="flex items-center gap-2
+             bg-[rgb(var(--primary))] text-white
+             px-6 py-2 rounded-lg
+             shadow hover:shadow-md
+             transition" (click)="currentStep = 2">
+
+                            Next
+                            <i class="las la-arrow-right"></i>
+
+                        </button>
+
+                    </div>
+
+                </ng-container>
+
+
+                <!-- ================= STEP 3 AGREEMENT ================= -->
+                <ng-container *ngIf="currentStep === 2">
+
+                    <div
+                        class="rounded-xl border border-[rgb(var(--gray-200))] bg-[rgb(var(--light))] shadow-sm p-6 space-y-6">
+
+                        <!-- HEADER -->
+                        <div class="space-y-1">
+                            <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wider text-sm">
+                                Agreement Details
+                            </p>
+                            <p class="text-xs text-muted">
+                                Define the agreement duration and description for tenant allocation
+                            </p>
+                        </div>
+
+                        <!-- DATE ROW -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+
+                            <!-- START DATE -->
+                            <div class="yx-field">
+                                <label class="yx-label">Agreement Start Date</label>
+
+                                <div class="flex w-full">
+
+                                    <input #startDateInput type="date"
+                                        class="yx-input w-full h-12 rounded-r-none cursor-pointer"
+                                        [value]="range.controls.start.value ? (range.controls.start.value | date:'yyyy-MM-dd') : ''"
+                                        (change)="onStartDateChange($event)" />
+
+                                    <button type="button" class="h-12 px-4 flex items-center justify-center
+                   border border-l-0 border-[rgb(var(--gray-200))]
+                   rounded-r-lg text-[rgb(var(--primary))]
+                   hover:bg-[rgb(var(--gray-100))] transition" (click)="openStartPicker($event)">
+                                        <i class="las la-calendar text-xl"></i>
+                                    </button>
+
+                                </div>
+                            </div>
+
+                            <!-- END DATE -->
+                            <div class="yx-field">
+                                <label class="yx-label">Agreement End Date</label>
+
+                                <div class="flex w-full">
+
+                                    <input #endDateInput type="date"
+                                        class="yx-input w-full h-12 rounded-r-none cursor-pointer"
+                                        [value]="range.controls.end.value ? (range.controls.end.value | date:'yyyy-MM-dd') : ''"
+                                        (change)="onEndDateChange($event)" />
+
+                                    <button type="button" class="h-12 px-4 flex items-center justify-center
+                   border border-l-0 border-[rgb(var(--gray-200))]
+                   rounded-r-lg text-[rgb(var(--primary))]
+                   hover:bg-[rgb(var(--gray-100))] transition" (click)="openEndPicker($event)">
+                                        <i class="las la-calendar text-xl"></i>
+                                    </button>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- AGREEMENT NAME -->
+                        <div class="yx-field">
+                            <label class="yx-label">Agreement Name</label>
+                            <input class="yx-input w-full" placeholder="Enter agreement name"
+                                [(ngModel)]="agreementModel.agreementName">
+                        </div>
+
+                        <!-- DESCRIPTION -->
+                        <div class="yx-field">
+                            <label class="yx-label">Description</label>
+                            <textarea class="yx-input w-full min-h-[110px]" placeholder="Enter agreement description"
+                                [(ngModel)]="agreementModel.agreementDescription">
+      </textarea>
+                        </div>
+
+                    </div>
+
+                    <!-- ACTIONS -->
+                    <div class="flex justify-between mt-6">
+
+                        <button
+                            class="border border-[rgb(var(--gray-200))] rounded-lg px-5 py-2 hover:bg-[rgb(var(--gray-100))] transition"
+                            (click)="currentStep = 1">
+                            Back
+                        </button>
+
+                        <button
+                            class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white shadow-sm hover:opacity-90 transition"
+                            (click)="submitAll()">
+                            Assign Tenant
+                        </button>
+
+                    </div>
+
+                </ng-container>
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

@@ -198,7 +198,6 @@
 // }
 
 
-
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, BehaviorSubject, fromEvent } from 'rxjs';
 import { takeUntil, debounceTime } from 'rxjs/operators';
@@ -206,7 +205,6 @@ import { Router } from '@angular/router';
 import { UserService } from './user/user.service';
 import { User } from './user/user.type';
 
-// ================= MENU INTERFACE =================
 export interface Menu {
   headTitle?: string;
   headTitle2?: string;
@@ -238,7 +236,6 @@ export class NavService implements OnDestroy {
 
   public screenWidth = new BehaviorSubject<number>(window.innerWidth);
 
-  // UI FLAGS
   public search = false;
   public language = false;
   public megaMenu = false;
@@ -284,20 +281,20 @@ export class NavService implements OnDestroy {
     this.init();
   }
 
-  // ================= INIT (AUTO LOAD USER MENU) =================
+  // ⭐ FIXED INIT
   async init(): Promise<void> {
 
     this.initialized = true;
-
     this.items.next([]);
 
-    this.currentUser = await this._userService.user$;
-    console.log(this.currentUser)
-    if (this.currentUser?.userTypeLevel !== undefined) {
-      this.setMenuByLevel(this.currentUser.userTypeLevel);
-    } else {
+    this.currentUser = await this._userService.get();   // ⭐ IMPORTANT FIX
+
+    if (!this.currentUser) {
       this.resetMenu();
+      return;
     }
+
+    this.setMenuByLevel(this.currentUser.userTypeLevel);
   }
 
   ngOnDestroy(): void {
@@ -309,7 +306,6 @@ export class NavService implements OnDestroy {
     this.screenWidth.next(width);
   }
 
-  // ================= MENU DEFINATION =================
   MENUITEMS: Menu[] = [
 
     { headTitle: 'MAIN' },
@@ -353,7 +349,7 @@ export class NavService implements OnDestroy {
       type: 'link',
       path: '/core/facility-management',
     },
-     {
+    {
       title: 'Office Tenant Assignment',
       icon: 'las la-briefcase',
       type: 'link',
@@ -369,7 +365,6 @@ export class NavService implements OnDestroy {
     },
   ];
 
-  // ================= ROLE MATRIX =================
   private MENU_ACCESS: Record<number, string[]> = {
 
     0: [
@@ -394,7 +389,6 @@ export class NavService implements OnDestroy {
     ]
   };
 
-  // ================= MENU FILTER =================
   setMenuByLevel(level: number): void {
 
     const allowed = this.MENU_ACCESS[level] || [];
@@ -428,13 +422,12 @@ export class NavService implements OnDestroy {
     this.items.next(result);
   }
 
-  // ================= RESET =================
   resetMenu(): void {
     this.initialized = false;
     this.currentUser = null;
     this.items.next([]);
   }
 
-  // ================= STREAM =================
   items = new BehaviorSubject<Menu[]>([]);
 }
+
