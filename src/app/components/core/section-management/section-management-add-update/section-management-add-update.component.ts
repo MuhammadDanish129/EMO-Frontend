@@ -72,7 +72,7 @@ export class SectionManagementAddUpdateComponent implements OnInit {
 
     // USER
     this.currentUser = await this._userService.user$;
-
+     this.model.fkBusiness = this.currentUser?.fkBusiness;
     // FLOOR CONTEXT
     if (this.data?.floorId) {
       this.model.fkFloor = this.data.floorId;

@@ -349,13 +349,32 @@ export class NavService implements OnDestroy {
       type: 'link',
       path: '/core/facility-management',
     },
+    
     {
       title: 'Office Tenant Assignment',
       icon: 'las la-briefcase',
       type: 'link',
       path: '/core/tenant-office-assignment',
     },
-
+    
+    {
+      title: 'Agreement Management',
+      icon: 'las la-file-contract',
+      type: 'link',
+      path: '/core/agreement-management',
+    },
+     {
+      title: 'Device Management',
+      icon: 'las la-microchip',
+      type: 'link',
+      path: '/core/device-management',
+    },
+{
+      title: 'Sensor Management',
+      icon: 'las la-briefcase',
+      type: 'link',
+      path: '/core/sensor-management',
+    },
     { headTitle: 'DEVICE UTILITY MANAGEMENT' },
     {
       title: 'Utility Management',
@@ -363,6 +382,7 @@ export class NavService implements OnDestroy {
       type: 'link',
       path: '/device/utility-management',
     },
+    
   ];
 
   private MENU_ACCESS: Record<number, string[]> = {
@@ -376,12 +396,14 @@ export class NavService implements OnDestroy {
     ],
 
     1: [
-      'User Type',
       'User Sub Type',
       'Users',
+      'Device Management',
       'Facility Management',
       'Dashboards',
-      'Office Tenant Assignment'
+      'Office Tenant Assignment',
+      'Sensor Management',
+      'Agreement Management'
     ],
 
     2: [

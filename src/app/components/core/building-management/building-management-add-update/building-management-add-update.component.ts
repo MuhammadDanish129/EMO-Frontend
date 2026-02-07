@@ -64,6 +64,7 @@ export class BuildingManagementAddUpdateComponent  implements OnInit {
       this.currentUser = await this._userService.user$;
     if (this.data?.facilityId) {
   this.model.fkFacility = this.data.facilityId;
+       this.model.fkBusiness = this.currentUser?.fkBusiness;
 }
       // this.loadUserTypes(this.currentUser.userId);
     }

@@ -72,7 +72,7 @@ export class OfficeManagementAddUpdateComponent implements OnInit {
 
     // USER
     this.currentUser = await this._userService.user$;
-
+    this.model.fkBusiness = this.currentUser?.fkBusiness;  
     // SECTION CONTEXT
     if (this.data?.sectionId) {
       this.model.fkSection = this.data.sectionId;

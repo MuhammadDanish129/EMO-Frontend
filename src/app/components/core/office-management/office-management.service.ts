@@ -25,6 +25,16 @@ export class OfficeService {
     );
   }
 
+    getOfficeByBusinessId(
+    id: string
+  ): Observable<ResponseModel<OfficeResponseDTO[]>> {
+    return this.http.get<ResponseModel<OfficeResponseDTO[]>>(
+      `${this.baseUrl}/Office/GetByBusinessId`,
+      { params: { id } }
+    );
+  }
+
+
   /** ===============================
    *  GET OFFICES BY SECTION ID
    *  =============================== */

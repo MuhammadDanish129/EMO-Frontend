@@ -65,6 +65,24 @@ export const core: Routes = [
           import('./tenant-office-assignment/assign-tenant/assign-tenant.component').then((m) => m.AssignTenantComponent),
         providers: [provideNativeDateAdapter()]
       },
+        {
+        path: 'device-management',
+        loadComponent: () =>
+          import('./device-management/device-management.component').then((m) => m.DeviceManagementComponent),
+        providers: [provideNativeDateAdapter()]
+      },
+       {
+        path: 'sensor-management',
+        loadComponent: () =>
+          import('./sensor-management/sensor-management.component').then((m) => m.SensorManagementComponent),
+        providers: [provideNativeDateAdapter()]
+      },
+      {
+        path: 'agreement-management',
+        loadComponent: () =>
+          import('./agreement-management/agreement-management.component').then((m) => m.AgreementManagementComponent),
+        providers: [provideNativeDateAdapter()]
+      },
       //   {
       //     path: 'user',
       //     loadComponent: () =>

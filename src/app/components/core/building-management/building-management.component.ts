@@ -58,6 +58,7 @@ export class BuildingManagementComponent implements OnInit {
     this.fkFacility = nav.fkFacility;
      this.fkBusiness = nav.fkBusiness;
     this.currentUser = await this._userService.user$;
+    
     this.loadBuildings(this.fkFacility);
   }
 

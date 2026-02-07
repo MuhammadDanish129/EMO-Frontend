@@ -74,7 +74,7 @@ fieldErrors: {
 
     // USER
     this.currentUser = await this._userService.user$;
-
+ this.model.fkBusiness = this.currentUser?.fkBusiness;
     // BUILDING CONTEXT
     if (this.data?.buildingId) {
       this.model.fkBuilding = this.data.buildingId;
