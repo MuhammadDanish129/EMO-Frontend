@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { YxSelectComponent } from '../../../shared/yx-select/yx-select.component';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { MaterialModuleModule } from '../../../material-module/material-module.module';
 @Component({
   selector: 'app-business-management',
@@ -33,7 +33,8 @@ export class BusinessManagementComponent implements OnInit {
     private _businessService: BusinessService,
     private _toaster: ToastrService,
     private dialog: MatDialog,
-    private _userService: UserService
+    private _userService: UserService,
+    private router: Router
   ) { }
 
   /* =============================
@@ -155,6 +156,20 @@ export class BusinessManagementComponent implements OnInit {
     });
   }
 
+viewAdmins(businessId: string) {
+
+  console.log(businessId);
+
+  this.router.navigate(
+    ['/core/business-admin-management'],
+    {
+      state: {
+        businessId: businessId
+      }
+    }
+  );
+
+}
   /* =============================
    * DELETE
    * ============================= */

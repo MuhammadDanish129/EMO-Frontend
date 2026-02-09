@@ -58,6 +58,12 @@ export const core: Routes = [
           import('./tenant-office-assignment/tenant-office-assignment.component').then((m) => m.TenantOfficeAssignmentComponent),
         providers: [provideNativeDateAdapter()]
       },
+       {
+        path: 'business-admin-management',
+        loadComponent: () =>
+          import('./business-management/business-admin-management/business-admin-management.component').then((m) => m.BusinessAdminManagementComponent),
+        providers: [provideNativeDateAdapter()]
+      },
 
        {
         path: 'assign-tenant',

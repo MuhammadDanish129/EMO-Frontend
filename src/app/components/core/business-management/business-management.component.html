@@ -105,6 +105,13 @@
                  text-[rgb(var(--indigo-600))]" (click)="edit(st)">
           <i class="las la-edit text-lg"></i>
         </button>
+          <!-- VIEW ADMINS (NEW BUTTON) -->
+  <button class="rounded-lg p-2
+           bg-[rgb(var(--primary-100))]
+           text-[rgb(var(--primary))]" 
+           (click)="viewAdmins(st.businessId)">
+    <i class="las la-users text-lg"></i>
+  </button>
 
         <button class="rounded-lg p-2
                  bg-[rgb(var(--red-100))]
@@ -117,7 +124,7 @@
     <!-- EMPTY -->
     <div *ngIf="!isLoading && pagedBusinesses.length === 0" class="py-16 text-center">
       <p class="text-sm font-semibold">
-        No sub user types found
+        No record found
       </p>
       <p class="text-xs text-gray-400 mt-1">
         Try adjusting your search or add a new business.
@@ -166,7 +173,6 @@
         <!-- DATA -->
         <tr *ngFor="let st of pagedBusinesses; let i = index"
           class="border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]">
-
           <td class="px-4 py-3 font-medium">
             {{ pageIndex * pageSize + i + 1 }}
           </td>
@@ -197,6 +203,13 @@
                        text-[rgb(var(--indigo-600))]" (click)="edit(st)">
                 <i class="las la-edit text-lg"></i>
               </button>
+   <!-- VIEW ADMINS (NEW BUTTON) -->
+    <button class="rounded-lg p-2
+             bg-[rgb(var(--primary-100))]
+             text-[rgb(var(--primary))]" 
+             (click)="viewAdmins(st.businessId)">
+      <i class="las la-users text-lg"></i>
+    </button>
 
               <button class="rounded-lg p-2
                        bg-[rgb(var(--red-100))]

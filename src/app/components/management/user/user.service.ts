@@ -34,4 +34,11 @@ export class UserManagementService {
       { params: { id } }
     );
   }
+
+   getBusinessAdmins(businessId: string): Observable<ResponseModel<UserResponseDTO[]>> {
+    return this.http.get<ResponseModel<UserResponseDTO[]>>(
+      `${this.baseUrl}/User/GetBusinessAdminsByBusinessId`,
+      { params: { businessId } }
+    );
+  }
 }

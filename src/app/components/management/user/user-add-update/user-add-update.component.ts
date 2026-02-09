@@ -93,6 +93,7 @@ export class UserAddUpdateComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.getGenders();
     this.currentUser = await this.userService.user$;
+    this.model.fkBusiness = this.currentUser?.fkBusiness ?? '';
     this.loadSubUserTypes(this.currentUser?.userId ?? '');
   }
 
@@ -230,7 +231,7 @@ export class UserAddUpdateComponent implements OnInit {
     const currentUserLevel = this.currentUser?.subUserTypeLevel ?? 1000;
 
     if (selectedSubUserType &&
-        selectedSubUserType.subUserTypeLevel >= currentUserLevel) {
+        selectedSubUserType.subUserTypeLevel <= currentUserLevel) {
       this.toaster.warning(
         'You are not authorized to assign this sub user type.'
       );
