@@ -216,7 +216,7 @@
                 </tr>
 
                 <!-- DATA -->
-                <tr *ngFor="let s of pagedSections; let i = index" class="border-b hover:bg-[rgb(var(--primary-100))]">
+                <tr *ngFor="let s of pagedSections; let i = index" class="border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]">
 
                     <td class="px-4 py-3 font-medium">
                         {{ pageIndex * pageSize + i + 1 }}
@@ -235,38 +235,108 @@
                         </span>
                     </td>
 
-                    <td class="px-3 py-3 text-center">
-                        <div class="flex justify-center gap-2">
+                   <td class="px-3 py-3 text-center">
+  <div class="flex justify-center gap-2">
 
-                            <!-- EDIT -->
-                            <button matTooltip="Edit Section" class="rounded-lg p-2
-                bg-[rgb(var(--indigo-100))]
-                text-[rgb(var(--indigo-600))]
-                hover:bg-[rgb(var(--indigo-200))]" (click)="edit(s)">
-                                <i class="las la-edit text-lg"></i>
-                            </button>
+    <!-- EDIT -->
+    <div class="relative group">
+      <button
+        class="rounded-lg p-2
+               bg-[rgb(var(--indigo-100))]
+               text-[rgb(var(--indigo-600))]
+               hover:bg-[rgb(var(--indigo-200))]"
+        (click)="edit(s)">
 
-                            <!-- DELETE -->
-                            <button matTooltip="Delete Section" class="rounded-lg p-2
-                bg-[rgb(var(--red-100))]
-                text-[rgb(var(--red-600))]
-                hover:bg-[rgb(var(--red-200))]" (click)="delete(s.sectionId)">
-                                <i class="las la-trash text-lg"></i>
-                            </button>
-                            <!-- OFFICE -->
-                            <button matTooltip="Manage Offices" class="rounded-lg p-2
-                bg-[rgb(var(--primary-100))]
-                text-[rgb(var(--primary-600))]
-                hover:bg-[rgb(var(--primary-200))]" (click)="goToOffice(s.sectionId)">
+        <i class="las la-edit text-lg"></i>
+      </button>
 
-                                <i class="las la-briefcase text-lg"></i>
-                            </button>
+      <div
+        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+               flex opacity-0 group-hover:opacity-100
+               px-2 py-1 text-[11px] font-medium rounded-md
+               shadow-sm whitespace-nowrap transition duration-200
+               pointer-events-none
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--gray-900))]
+               border border-[rgb(var(--primary-200))]">
 
-                        </div>
-                    </td>
+        Edit Section
+      </div>
+    </div>
+
+    <!-- DELETE -->
+    <div class="relative group">
+      <button
+        class="rounded-lg p-2
+               bg-[rgb(var(--red-100))]
+               text-[rgb(var(--red-600))]
+               hover:bg-[rgb(var(--red-200))]"
+        (click)="delete(s.sectionId)">
+
+        <i class="las la-trash text-lg"></i>
+      </button>
+
+      <div
+        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+               flex opacity-0 group-hover:opacity-100
+               px-2 py-1 text-[11px] font-medium rounded-md
+               shadow-sm whitespace-nowrap transition duration-200
+               pointer-events-none
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--gray-900))]
+               border border-[rgb(var(--primary-200))]">
+
+        Delete Section
+      </div>
+    </div>
+
+    <!-- OFFICE -->
+    <div class="relative group">
+      <button
+        class="rounded-lg p-2
+               bg-[rgb(var(--blue-100))]
+               text-[rgb(var(--blue-600))]
+               hover:bg-[rgb(var(--blue-200))]"
+        (click)="goToOffice(s.sectionId)">
+
+        <i class="las la-briefcase text-lg"></i>
+      </button>
+
+      <div
+        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+               flex opacity-0 group-hover:opacity-100
+               px-2 py-1 text-[11px] font-medium rounded-md
+               shadow-sm whitespace-nowrap transition duration-200
+               pointer-events-none
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--gray-900))]
+               border border-[rgb(var(--primary-200))]">
+
+        Manage Offices
+      </div>
+    </div>
+
+  </div>
+</td>
+
+
 
                 </tr>
 
+
+                                  <tr *ngIf="!isLoading && pagedSections.length === 0">
+        <td colspan="7" class="px-6 py-20 text-center">
+
+          <p class="text-sm font-semibold text-gray-700">
+            No Record Found
+          </p>
+
+          <p class="text-xs text-gray-600 mt-1">
+            Try adjusting search or create a new Section.
+          </p>
+
+        </td>
+      </tr>
             </tbody>
 
         </table>

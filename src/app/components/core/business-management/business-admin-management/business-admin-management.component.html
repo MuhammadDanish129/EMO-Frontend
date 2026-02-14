@@ -141,7 +141,7 @@
       <tbody class="text-sm">
 
         <tr *ngFor="let u of pagedUsers; let i = index"
-            class="border-b hover:bg-[rgb(var(--primary-100))]">
+            class="border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]">
 
           <td class="px-4 py-3 font-medium">
             {{ pageIndex * pageSize + i + 1 }}
@@ -165,19 +165,38 @@
 
           <td class="px-4 py-3">{{ u.userPhone }}</td>
 
-          <td class="px-4 py-3">
-            <i class="las text-lg"
-               [ngClass]="{
-                 'la-mars yx-gender-male': u.genderName === 'Male',
-                 'la-venus yx-gender-female': u.genderName === 'Female',
-                 'la-transgender yx-gender-other': u.genderName === 'Other',
-                 'la-user-secret yx-gender-na': u.genderName === 'Prefer Not To Say',
-                 'la-genderless yx-gender-default': ![
-                   'Male','Female','Other','Prefer Not To Say'
-                 ].includes(u.genderName)
-               }">
-            </i>
-          </td>
+         <td class="px-4 py-3">
+  <div class="relative inline-flex items-center group">
+
+    <i class="las text-lg cursor-pointer"
+       [ngClass]="{
+         'la-mars yx-gender-male': u.genderName === 'Male',
+         'la-venus yx-gender-female': u.genderName === 'Female',
+         'la-transgender yx-gender-other': u.genderName === 'Other',
+         'la-user-secret yx-gender-na': u.genderName === 'Prefer Not To Say',
+         'la-genderless yx-gender-default': ![
+           'Male','Female','Other','Prefer Not To Say'
+         ].includes(u.genderName)
+       }">
+    </i>
+
+    <!-- TOOLTIP -->
+    <div
+      class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+             flex opacity-0 group-hover:opacity-100
+             px-2 py-1 text-[11px] font-medium rounded-md
+             shadow-sm whitespace-nowrap transition duration-200
+             pointer-events-none
+             bg-[rgb(var(--primary-100))]
+             text-[rgb(var(--gray-900))]
+             border border-[rgb(var(--primary-200))]">
+
+      {{ u.genderName || 'Not Specified' }}
+    </div>
+
+  </div>
+</td>
+
 
           <td class="px-4 py-3">
             <span
@@ -189,16 +208,36 @@
             </span>
           </td>
 
-          <td class="px-3 py-3 text-center">
-            <button
-              type="button"
-              (click)="editUser(u)"
-              class="rounded-lg p-2
-                     bg-[rgb(var(--indigo-100))]
-                     text-[rgb(var(--indigo-600))]">
-              <i class="las la-edit text-lg"></i>
-            </button>
-          </td>
+         <td class="px-3 py-3 text-center">
+  <div class="relative inline-flex group">
+
+    <button
+      type="button"
+      (click)="editUser(u)"
+      class="rounded-lg p-2
+             bg-[rgb(var(--indigo-100))]
+             text-[rgb(var(--indigo-600))]">
+
+      <i class="las la-edit text-lg"></i>
+    </button>
+
+    <!-- TOOLTIP -->
+    <div
+      class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+             flex opacity-0 group-hover:opacity-100
+             px-2 py-1 text-[11px] font-medium rounded-md
+             shadow-sm whitespace-nowrap transition duration-200
+             pointer-events-none
+             bg-[rgb(var(--primary-100))]
+             text-[rgb(var(--gray-900))]
+             border border-[rgb(var(--primary-200))]">
+
+      Edit User
+    </div>
+
+  </div>
+</td>
+
 
         </tr>
 
