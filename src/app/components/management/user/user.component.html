@@ -15,10 +15,7 @@
       </div>
 
       <!-- ACTION -->
-      <button
-        type="button"
-        (click)="addUser()"
-        class="flex items-center justify-center gap-2 rounded-lg
+      <button type="button" (click)="addUser()" class="flex items-center justify-center gap-2 rounded-lg
                bg-white/95 px-4 py-2
                text-sm font-semibold
                text-[rgb(var(--primary))]">
@@ -44,21 +41,14 @@
       </span>
     </p>
 
-    <input
-      type="text"
-      [(ngModel)]="searchText"
-      (ngModelChange)="searchUsers()"
-      placeholder="Search users..."
-      class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
+    <input type="text" [(ngModel)]="searchText" (ngModelChange)="searchUsers()" placeholder="Search users..." class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
              border-[rgb(var(--input-border))]" />
   </div>
 
   <!-- ================= LOADER ================= -->
-  <div *ngIf="isLoading"
-       class="flex items-center justify-center py-20">
+  <div *ngIf="isLoading" class="flex items-center justify-center py-20">
     <div class="flex flex-col items-center gap-3 text-sm text-muted">
-      <span
-        class="h-8 w-8 rounded-full
+      <span class="h-8 w-8 rounded-full
                border-2 border-[rgb(var(--primary))]
                border-t-transparent animate-spin">
       </span>
@@ -67,27 +57,22 @@
   </div>
 
   <!-- ================= MOBILE CARDS ================= -->
-  <div *ngIf="!isLoading"
-       class="block md:hidden p-4 space-y-3">
+  <div *ngIf="!isLoading" class="block md:hidden p-4 space-y-3">
 
-    <div *ngFor="let u of pagedUsers; let i = index"
-         class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4"
-         [ngClass]="u.userId === currentUser?.userId
+    <div *ngFor="let u of pagedUsers; let i = index" class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4"
+      [ngClass]="u.userId === currentUser?.userId
            ? 'border-2 border-[rgb(var(--primary))] bg-[rgb(var(--primary-50))]'
            : ''">
 
       <!-- HEADER -->
       <div class="flex items-center gap-3">
-        <img
-          [src]="getUserAvatar(u)"
-          class="h-12 w-12 rounded-full object-cover border" />
+        <img [src]="getUserAvatar(u)" class="h-12 w-12 rounded-full object-cover border" />
 
         <div class="flex-1">
           <div class="font-semibold text-sm flex items-center gap-2">
             {{ u.name }}
 
-            <span *ngIf="u.userId === currentUser?.userId"
-                  class="text-[10px] px-2 py-0.5 rounded-full
+            <span *ngIf="u.userId === currentUser?.userId" class="text-[10px] px-2 py-0.5 rounded-full
                          bg-[rgb(var(--primary))] text-white">
               You
             </span>
@@ -99,9 +84,7 @@
           </div>
         </div>
 
-        <span
-          class="rounded-full px-3 py-1 text-xs font-semibold"
-          [ngClass]="u.isActive
+        <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="u.isActive
             ? 'bg-success/10 text-success'
             : 'bg-danger/10 text-danger'">
           {{ u.isActive ? 'Active' : 'Inactive' }}
@@ -117,8 +100,7 @@
 
         <div>
           <div class="text-xs text-stone-600">Gender</div>
-          <i class="las text-lg"
-             [ngClass]="{
+          <i class="las text-lg" [ngClass]="{
                  'la-mars yx-gender-male': u.genderName === 'Male',
                'la-venus yx-gender-female': u.genderName === 'Female',
                'la-genderless yx-gender-other':
@@ -130,18 +112,13 @@
 
       <!-- ACTIONS -->
       <div class="mt-4 flex justify-end gap-2 border-t pt-3">
-        <button
-          type="button"
-          (click)="editUser(u)"
-          class="rounded-lg p-2
+        <button type="button" (click)="editUser(u)" class="rounded-lg p-2
                  bg-[rgb(var(--indigo-100))]
                  text-[rgb(var(--indigo-600))]">
           <i class="las la-edit text-lg"></i>
         </button>
 
-        <button
-          type="button"
-          class="rounded-lg p-2
+        <button type="button" class="rounded-lg p-2
                  bg-[rgb(var(--red-100))]
                  text-[rgb(var(--red-600))]">
           <i class="las la-trash text-lg"></i>
@@ -152,8 +129,7 @@
   </div>
 
   <!-- ================= DESKTOP TABLE ================= -->
-  <div *ngIf="!isLoading"
-       class="hidden md:block overflow-x-auto">
+  <div *ngIf="!isLoading" class="hidden md:block overflow-x-auto">
 
     <table class="min-w-full bg-[rgb(var(--light))] ">
 
@@ -170,8 +146,7 @@
 
       <tbody class="text-sm">
 
-        <tr *ngFor="let u of pagedUsers; let i = index"
-            class="border-b"             [ngClass]="u.userId === currentUser?.userId
+        <tr *ngFor="let u of pagedUsers; let i = index" class="border-b" [ngClass]="u.userId === currentUser?.userId
               ? 'bg-[rgb(var(--primary-100))] border-l-4 border-[rgb(var(--primary))] text-[rgb(var(--gray-900))] '
               : 'hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]'">
 
@@ -181,15 +156,12 @@
 
           <td class="px-4 py-3">
             <div class="flex items-center gap-3">
-              <img
-                [src]="getUserAvatar(u)"
-                class="h-12 w-12 rounded-full object-cover border" />
+              <img [src]="getUserAvatar(u)" class="h-12 w-12 rounded-full object-cover border" />
               <div class="flex flex-col leading-tight">
                 <span class="font-semibold flex items-center gap-2">
                   {{ u.name }}
 
-                  <span *ngIf="u.userId === currentUser?.userId"
-                        class="text-[10px] px-2 py-0.5 rounded-full
+                  <span *ngIf="u.userId === currentUser?.userId" class="text-[10px] px-2 py-0.5 rounded-full
                                bg-[rgb(var(--primary))] text-white ">
                     You
                   </span>
@@ -205,7 +177,7 @@
 
           <td class="px-4 py-3">{{ u.userPhone }}</td>
 
-         <!-- <td class="px-4 py-3">
+          <!-- <td class="px-4 py-3">
   <i class="las text-lg cursor-pointer"
      [attr.title]="u.genderName || 'Not Specified'"
      [ngClass]="{
@@ -222,12 +194,11 @@
      }">
   </i>
 </td> -->
-<td class="px-4 py-3">
-  <div class="relative inline-flex items-center group">
+          <td class="px-4 py-3">
+            <div class="relative inline-flex items-center group">
 
-    <!-- ICON -->
-    <i class="las text-lg cursor-pointer"
-       [ngClass]="{
+              <!-- ICON -->
+              <i class="las text-lg cursor-pointer" [ngClass]="{
          'la-mars yx-gender-male': u.genderName === 'Male',
          'la-venus yx-gender-female': u.genderName === 'Female',
          'la-transgender yx-gender-other': u.genderName === 'Other',
@@ -236,11 +207,10 @@
            'Male','Female','Other','Prefer Not To Say'
          ].includes(u.genderName)
        }">
-    </i>
+              </i>
 
-    <!-- CUSTOM TOOLTIP -->
-    <div
-      class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+              <!-- CUSTOM TOOLTIP -->
+              <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
              hidden group-hover:flex items-center
              px-2 py-1 text-[11px] font-medium rounded-md
              shadow-sm whitespace-nowrap
@@ -252,18 +222,16 @@
 
            ">
 
-      {{ u.genderName || 'Not Specified' }}
+                {{ u.genderName || 'Not Specified' }}
 
-    </div>
+              </div>
 
-  </div>
-</td>
+            </div>
+          </td>
 
 
           <td class="px-4 py-3">
-            <span
-              class="rounded-full px-3 py-1 text-xs font-semibold"
-              [ngClass]="u.isActive
+            <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="u.isActive
                 ? 'bg-success/10 text-success'
                 : 'bg-danger/10 text-danger'">
               {{ u.isActive ? 'Active' : 'Inactive' }}
@@ -271,21 +239,17 @@
           </td>
 
           <td class="px-3 py-3 text-center">
-  <div class="flex justify-center gap-2">
+            <div class="flex justify-center gap-2">
 
-    <!-- EDIT -->
-    <div class="relative group">
-      <button
-        type="button"
-        (click)="editUser(u)"
-        class="rounded-lg p-2
+              <!-- EDIT -->
+              <div class="relative group">
+                <button type="button" (click)="editUser(u)" class="rounded-lg p-2
                bg-[rgb(var(--indigo-100))]
                text-[rgb(var(--indigo-600))]">
-        <i class="las la-edit text-lg"></i>
-      </button>
+                  <i class="las la-edit text-lg"></i>
+                </button>
 
-      <div
-        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+                <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
                flex opacity-0 group-hover:opacity-100
                px-2 py-1 text-[11px] font-medium rounded-md
                shadow-sm whitespace-nowrap transition duration-200
@@ -294,23 +258,19 @@
                text-[rgb(var(--gray-900))]
                border border-[rgb(var(--primary-200))]">
 
-        Edit User
-      </div>
-    </div>
+                  Edit User
+                </div>
+              </div>
 
-    <!-- DELETE -->
-    <div class="relative group">
-      <button
-        type="button"
-        (click)="deleteUser(u.userId)"
-        class="rounded-lg p-2
+              <!-- DELETE -->
+              <div class="relative group">
+                <button type="button" (click)="deleteUser(u.userId)" class="rounded-lg p-2
                bg-[rgb(var(--red-100))]
                text-[rgb(var(--red-600))]">
-        <i class="las la-trash text-lg"></i>
-      </button>
+                  <i class="las la-trash text-lg"></i>
+                </button>
 
-      <div
-        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+                <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
                flex opacity-0 group-hover:opacity-100
                px-2 py-1 text-[11px] font-medium rounded-md
                shadow-sm whitespace-nowrap transition duration-200
@@ -319,12 +279,12 @@
                text-[rgb(var(--gray-900))]
                border border-[rgb(var(--primary-200))]">
 
-        Delete User
-      </div>
-    </div>
+                  Delete User
+                </div>
+              </div>
 
-  </div>
-</td>
+            </div>
+          </td>
 
 
         </tr>
@@ -334,8 +294,7 @@
   </div>
 
   <!-- ================= PAGINATION ================= -->
-  <div *ngIf="!isLoading"
-       class="flex items-center justify-between px-4 py-3 border-t">
+  <div *ngIf="!isLoading" class="flex items-center justify-between px-4 py-3 border-t">
 
     <p class="text-sm text-gray-500">
       Showing {{ pageIndex * pageSize + 1 }} – {{ pageEnd }}
@@ -343,29 +302,19 @@
     </p>
 
     <div class="flex gap-1">
-      <button
-        type="button"
-        (click)="prevPage()"
-        [disabled]="pageIndex === 0"
+      <button type="button" (click)="prevPage()" [disabled]="pageIndex === 0"
         class="px-3 py-2 rounded-lg border text-sm">
         Prev
       </button>
 
-      <button
-        type="button"
-        *ngFor="let p of pages"
-        (click)="goToPage(p)"
-        class="px-3 py-2 rounded-lg border text-sm"
+      <button type="button" *ngFor="let p of pages" (click)="goToPage(p)" class="px-3 py-2 rounded-lg border text-sm"
         [ngClass]="p === pageIndex
           ? 'bg-[rgb(var(--primary))] text-white'
           : 'hover:bg-gray-100'">
         {{ p + 1 }}
       </button>
 
-      <button
-        type="button"
-        (click)="nextPage()"
-        [disabled]="(pageIndex + 1) * pageSize >= filteredUsers.length"
+      <button type="button" (click)="nextPage()" [disabled]="(pageIndex + 1) * pageSize >= filteredUsers.length"
         class="px-3 py-2 rounded-lg border text-sm">
         Next
       </button>

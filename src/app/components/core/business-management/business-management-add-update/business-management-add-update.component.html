@@ -74,6 +74,8 @@
         <!-- ================= STEP 1 ================= -->
         <ng-container *ngIf="currentStep === 0">
 
+
+          <div class="px-6 py-2 overflow-y-auto space-y-3">
           <div class="rounded-lg border border-[rgb(var(--gray-200))] p-5 space-y-4">
 
             <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide">
@@ -82,26 +84,43 @@
 
             <div class="yx-field">
               <label class="yx-label">Business Name *</label>
-              <input
-                class="yx-input w-full"
-                [(ngModel)]="model.businessName"
-              />
+             <input class="yx-input w-full"
+       [(ngModel)]="model.businessName"
+       (ngModelChange)="fieldErrors.businessName = null"
+       [class.border-[rgb(var(--danger))]]="fieldErrors.businessName" />
+
+<p *ngIf="fieldErrors.businessName"
+   class="text-xs text-[rgb(var(--danger))] mt-1">
+   {{ fieldErrors.businessName }}
+</p>
             </div>
              <div class="yx-field">
               <label class="yx-label">Business Email *</label>
-              <input
-                class="yx-input w-full"
-                [(ngModel)]="model.businessEmail"
-              />
+            <input class="yx-input w-full"
+       [(ngModel)]="model.businessEmail"
+       (ngModelChange)="fieldErrors.businessEmail = null"
+       [class.border-[rgb(var(--danger))]]="fieldErrors.businessEmail" />
+
+<p *ngIf="fieldErrors.businessEmail"
+   class="text-xs text-[rgb(var(--danger))] mt-1">
+   {{ fieldErrors.businessEmail }}
+</p>
             </div>
              <div class="yx-field">
               <label class="yx-label">Business Contact *</label>
-              <input
-                class="yx-input w-full"
-                [(ngModel)]="model.businessContact"
-              />
+             <input class="yx-input w-full"
+       [(ngModel)]="model.businessContact"
+       (ngModelChange)="fieldErrors.businessContact = null"
+       [class.border-[rgb(var(--danger))]]="fieldErrors.businessContact" />
+
+<p *ngIf="fieldErrors.businessContact"
+   class="text-xs text-[rgb(var(--danger))] mt-1">
+   {{ fieldErrors.businessContact }}
+</p>
             </div>
-             <!-- ================= STATUS ================= -->
+           
+          </div>
+            <!-- ================= STATUS ================= -->
             <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
               <div>
                 <p class="text-sm font-medium">Active Status</p>
@@ -113,12 +132,11 @@
                                 [disabled]="model.isControlsDisabled">
               </mat-slide-toggle>
             </div>
-          </div>
-
+</div>
           <div class="flex justify-end mt-6">
             <button
               class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white"
-              (click)="currentStep = 1">
+              (click)="goToAdminStep()">
               Next
             </button>
           </div>

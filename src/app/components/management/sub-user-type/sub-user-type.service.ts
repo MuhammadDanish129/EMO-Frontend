@@ -34,6 +34,15 @@ export class SubUserTypeService {
       { params: { userId } }
     );
   }
+
+   getActiveSubUserTypesByUserId(
+    userId: string
+  ): Observable<ResponseModel<SubUserTypeResponseDTO[]>> {
+    return this.http.get<ResponseModel<SubUserTypeResponseDTO[]>>(
+      `${this.baseUrl}/SubUserType/GetActiveSubUserTypesByUserId`,
+      { params: { userId } }
+    );
+  }
   getSubUserTypesOfBusinessAdmin(
     userId: string
   ): Observable<ResponseModel<SubUserTypeResponseDTO[]>> {

@@ -270,5 +270,32 @@
 
     </div>
 
+ <div class="flex items-center justify-between px-4 py-3 border-t">
 
+        <p class="text-sm text-gray-500">
+            Showing {{ pageIndex * pageSize + 1 }} – {{ pageEnd }}
+            of {{ filteredOffices.length }}
+        </p>
+
+        <div class="flex gap-1">
+
+            <button (click)="prevPage()" [disabled]="pageIndex === 0" class="px-3 py-2 rounded-lg border text-sm">
+                Prev
+            </button>
+
+            <button *ngFor="let p of pages" (click)="goToPage(p)" class="px-3 py-2 rounded-lg border text-sm" [ngClass]="p === pageIndex
+          ? 'bg-[rgb(var(--primary))] text-white'
+          : 'hover:bg-gray-100'">
+
+                {{ p + 1 }}
+            </button>
+
+            <button (click)="nextPage()" [disabled]="(pageIndex + 1) * pageSize >= filteredOffices.length"
+                class="px-3 py-2 rounded-lg border text-sm">
+                Next
+            </button>
+
+        </div>
+
+    </div>
 </div>

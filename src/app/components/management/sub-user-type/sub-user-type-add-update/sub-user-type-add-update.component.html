@@ -56,14 +56,11 @@
     </div>
 
     <!-- ACTIVE -->
-    <div class="flex items-center justify-between rounded-lg border p-3
-                border-[rgb(var(--default-border))]">
-      <div>
-        <p class="text-sm font-medium">Active Status</p>
-        <p class="text-xs text-[rgb(var(--text-muted))]">
-          Inactive sub user types cannot be assigned.
-        </p>
-      </div>
+     <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
+              <div>
+                <p class="text-sm font-medium">Active Status</p>
+                <p class="text-xs text-muted">Inactive utilities cannot be used.</p>
+              </div>
 
       <mat-slide-toggle [(ngModel)]="model.isActive" color="primary"></mat-slide-toggle>
     </div>

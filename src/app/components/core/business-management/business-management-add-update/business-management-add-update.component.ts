@@ -22,6 +22,7 @@ import { SubUserTypeResponseDTO } from '../../../management/sub-user-type/sub-us
 
 import { AddBusinessAndAdminRequestDTO } from '../business-management.type';
 import { MatIcon } from '@angular/material/icon';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-business-management-add-update',
@@ -86,6 +87,7 @@ businessId: string = '';
   fieldErrors: any = {};
 
   constructor(
+    private dialogRef: MatDialogRef<BusinessManagementAddUpdateComponent>,
     private route: ActivatedRoute,
     private router: Router,
     private userService: UserService,
@@ -148,6 +150,36 @@ businessId: string = '';
     });
   }
 
+  private validateBusinessInfo(): boolean {
+
+  this.fieldErrors = this.fieldErrors || {};
+
+  if (!this.model.businessName.trim()) {
+    this.fieldErrors.businessName = 'Business name is required';
+  }
+
+  if (!this.model.businessEmail.trim()) {
+    this.fieldErrors.businessEmail = 'Business email is required';
+  }
+  else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(this.model.businessEmail)) {
+    this.fieldErrors.businessEmail = 'Invalid email format';
+  }
+
+  if (!this.model.businessContact.trim()) {
+    this.fieldErrors.businessContact = 'Business contact is required';
+  }
+
+  return !(
+    this.fieldErrors.businessName ||
+    this.fieldErrors.businessEmail ||
+    this.fieldErrors.businessContact
+  );
+}
+
+goToAdminStep() {
+  if (!this.validateBusinessInfo()) return;
+  this.currentStep = 1;
+}
 
   
   /* ================= IMAGE ================= */
@@ -277,7 +309,7 @@ businessId: string = '';
   }
 
   close() {
-    this.router.navigate(['/core/business-management']);
+     this.dialogRef.close();
   }
 
 }

@@ -166,10 +166,10 @@
           <td class="px-4 py-3">{{ u.userPhone }}</td>
 
          <td class="px-4 py-3">
-  <div class="relative inline-flex items-center group">
+            <div class="relative inline-flex items-center group">
 
-    <i class="las text-lg cursor-pointer"
-       [ngClass]="{
+              <!-- ICON -->
+              <i class="las text-lg cursor-pointer" [ngClass]="{
          'la-mars yx-gender-male': u.genderName === 'Male',
          'la-venus yx-gender-female': u.genderName === 'Female',
          'la-transgender yx-gender-other': u.genderName === 'Other',
@@ -178,24 +178,27 @@
            'Male','Female','Other','Prefer Not To Say'
          ].includes(u.genderName)
        }">
-    </i>
+              </i>
 
-    <!-- TOOLTIP -->
-    <div
-      class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
-             flex opacity-0 group-hover:opacity-100
+              <!-- CUSTOM TOOLTIP -->
+              <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+             hidden group-hover:flex items-center
              px-2 py-1 text-[11px] font-medium rounded-md
-             shadow-sm whitespace-nowrap transition duration-200
-             pointer-events-none
+             shadow-sm whitespace-nowrap
+             
+             /* LIGHT THEME */
              bg-[rgb(var(--primary-100))]
              text-[rgb(var(--gray-900))]
-             border border-[rgb(var(--primary-200))]">
+             border border-[rgb(var(--primary-200))]
 
-      {{ u.genderName || 'Not Specified' }}
-    </div>
+           ">
 
-  </div>
-</td>
+                {{ u.genderName || 'Not Specified' }}
+
+              </div>
+
+            </div>
+          </td>
 
 
           <td class="px-4 py-3">
@@ -243,7 +246,7 @@
 
         <tr *ngIf="pagedUsers.length === 0">
           <td colspan="6" class="text-center py-16">
-            No admins found
+            No record found
           </td>
         </tr>
 

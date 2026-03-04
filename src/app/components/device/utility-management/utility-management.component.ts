@@ -50,6 +50,7 @@ export class UtilityManagementComponent implements OnInit {
 
         if (res.success === false) {
           this._toaster.error(res.remarks || 'Failed to load utilities');
+          this.utilities = res.data ?? []
           this.isLoading = false;
           return;
         }

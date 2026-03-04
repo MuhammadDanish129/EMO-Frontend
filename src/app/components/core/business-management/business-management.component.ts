@@ -156,20 +156,40 @@ export class BusinessManagementComponent implements OnInit {
     });
   }
 
-viewAdmins(businessId: string) {
+  add() {
+    const dialogRef = this.dialog.open(BusinessManagementAddUpdateComponent, {
 
-  console.log(businessId);
+      width: '720px',
+      maxWidth: '95vw',
+      disableClose: true,
+      autoFocus: false,
+      panelClass: 'ynex-dialog',
 
-  this.router.navigate(
-    ['/core/business-admin-management'],
-    {
-      state: {
-        businessId: businessId
+      data: {
+        mode: 'add'
       }
-    }
-  );
+    });
 
-}
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'saved') {
+        this.loadBusinesses(this.currentUser.userId);
+      }
+    });
+  }
+  viewAdmins(businessId: string) {
+
+    console.log(businessId);
+
+    this.router.navigate(
+      ['/core/business-admin-management'],
+      {
+        state: {
+          businessId: businessId
+        }
+      }
+    );
+
+  }
   /* =============================
    * DELETE
    * ============================= */

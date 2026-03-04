@@ -43,11 +43,14 @@
     </div>
 
     <!-- ================= BASIC INFORMATION ================= -->
-    <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]" [class.border-[rgb(var(--danger))]]="
-        fieldErrors.name || fieldErrors.username || fieldErrors.phone
-      " [class.border-gray-200]="
-        !(fieldErrors.name || fieldErrors.username || fieldErrors.phone)
-      ">
+    <div class="rounded-lg p-5 space-y-4 border"
+     [ngClass]="{
+       'border-[rgb(var(--danger))]':
+         fieldErrors.name || fieldErrors.username || fieldErrors.phone,
+
+       'border-[rgb(var(--gray-200))]':
+         !(fieldErrors.name || fieldErrors.username || fieldErrors.phone)
+     }">
 
       <p class="text-[rgb(var(--primary))]  font-semibold uppercase tracking-wide text-muted">
         Basic Information
@@ -88,11 +91,11 @@
     </div>
 
     <!-- ================= SECURITY ================= -->
-    <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]" [class.border-[rgb(var(--danger))]]="
-        fieldErrors.password || fieldErrors.confirmPassword
-      " [class.border-gray-200]="
-        !(fieldErrors.password || fieldErrors.confirmPassword)
-      ">
+    <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]"
+     [ngClass]="{
+       'border-[rgb(var(--danger))]': fieldErrors.password || fieldErrors.confirmPassword,
+       'border-[rgb(var(--gray-200))]': !(fieldErrors.password || fieldErrors.confirmPassword)
+     }">
 
       <p class="text-[rgb(var(--primary))]  font-semibold uppercase tracking-wide text-muted">
         Security
@@ -156,38 +159,60 @@
     </div>
 
     <!-- ================= ROLE & ACCESS ================= -->
-    <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]" [class.border-[rgb(var(--danger))]]="
-        fieldErrors.gender || fieldErrors.subUserType
-      " [class.border-gray-200]="
-        !(fieldErrors.gender || fieldErrors.subUserType)
-      ">
+   <div class="rounded-lg p-5 space-y-4 border"
+     [ngClass]="{
+       'border-[rgb(var(--danger))]': fieldErrors.gender || fieldErrors.subUserType,
+       'border-[rgb(var(--gray-200))]': !(fieldErrors.gender || fieldErrors.subUserType)
+     }">
 
-      <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
-        Role & Access
-      </p>
+  <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+    Role & Access
+  </p>
 
-      <yx-select label="Gender" [items]="genders" labelKey="genderName" valueKey="genderId" placeholder="Select Gender"
-        [(value)]="model.fkGender" (valueChange)="fieldErrors.gender = null">
-      </yx-select>
+  <!-- Gender Dropdown -->
+  <div class="space-y-2">
+    <yx-select
+      label="Gender"
+      [items]="genders"
+      labelKey="genderName"
+      valueKey="genderId"
+      [placeholder]="genders.length ? 'Select Gender' : 'No Gender Found'"
+      [(value)]="model.fkGender"
+      (valueChange)="fieldErrors.gender = null"
+      [disabled]="!genders.length">
+    </yx-select>
 
-      <p *ngIf="fieldErrors.gender" class="text-xs mt-1 text-[rgb(var(--danger))]">
-        Gender is required
-      </p>
+    <p *ngIf="fieldErrors.gender"
+       class="text-xs text-[rgb(var(--danger))]">
+      Gender is required
+    </p>
+  </div>
 
-      <yx-select label="Sub User Type" [items]="subUserTypes" labelKey="subUserTypeName" valueKey="subUserTypeId"
-        placeholder="Select Sub User Type" [(value)]="model.fkSubUserType"
-        (valueChange)="fieldErrors.subUserType = null" [disabled]="isControlsDisabled">
-      </yx-select>
+  <!-- Sub User Type Dropdown -->
+  <div class="space-y-2">
+    <yx-select
+      label="Sub User Type"
+      [items]="subUserTypes"
+      labelKey="subUserTypeName"
+      valueKey="subUserTypeId"
+      placeholder="Select Sub User Type"
+      [(value)]="model.fkSubUserType"
+      (valueChange)="fieldErrors.subUserType = null"
+      [disabled]="isEditMode || !subUserTypes.length || isControlsDisabled">
+    </yx-select>
 
-      <p *ngIf="fieldErrors.subUserType" class="text-xs mt-1 text-[rgb(var(--danger))]">
-        Sub User Type is required
-      </p>
-    </div>
+    <p *ngIf="fieldErrors.subUserType"
+       class="text-xs text-[rgb(var(--danger))]">
+      Sub User Type is required
+    </p>
+  </div>
+
+</div>
 
     <!-- ================= STATUS ================= -->
     <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
       <div>
-        <p class="text-sm font-medium">Active Status</p>
+        <p class="text-sm text-[rgb(var(--primary))] font-medium">Active Status</p>
         <p class="text-xs text-muted">Inactive users cannot login</p>
       </div>
       <mat-slide-toggle color="primary" [(ngModel)]="model.isActive" [disabled]="isControlsDisabled">

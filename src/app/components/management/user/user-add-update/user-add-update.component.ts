@@ -85,7 +85,8 @@ export class UserAddUpdateComponent implements OnInit {
         avatarPreview: data.value.imageBase64 ?? '',
         avatarFile: null,        // IMPORTANT: unchanged image
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        phone : this.data.value.userPhone
       };
     }
   }
@@ -94,7 +95,19 @@ export class UserAddUpdateComponent implements OnInit {
     this.getGenders();
     this.currentUser = await this.userService.user$;
     this.model.fkBusiness = this.currentUser?.fkBusiness ?? '';
-    this.loadSubUserTypes(this.currentUser?.userId ?? '');
+    if(!this.isEditMode){
+      this.loadSubUserTypes(this.currentUser?.userId ?? '');
+    }
+    else{
+     this.subUserTypes = [
+  {
+    subUserTypeId: this.data.value.fkSubUserType,
+    subUserTypeName: this.data.value.subUserTypeName,
+    subUserTypeLevel: this.data.value.subUserTypeLevel
+  } as SubUserTypeResponseDTO
+];
+    }
+    
   }
 
   /* ================= IMAGE UPLOADER ================= */
@@ -162,7 +175,7 @@ export class UserAddUpdateComponent implements OnInit {
   }
 
   loadSubUserTypes(userId: string) {
-    this.subUserTypeService.getSubUserTypesByUserId(userId).subscribe({
+    this.subUserTypeService.getActiveSubUserTypesByUserId(userId).subscribe({
       next: res => this.subUserTypes = res.data ?? [],
       error: () => this.toaster.error('Failed to load sub user types')
     });
@@ -230,7 +243,7 @@ export class UserAddUpdateComponent implements OnInit {
 
     const currentUserLevel = this.currentUser?.subUserTypeLevel ?? 1000;
 
-    if (selectedSubUserType &&
+    if (!this.isEditMode && selectedSubUserType &&
         selectedSubUserType.subUserTypeLevel <= currentUserLevel) {
       this.toaster.warning(
         'You are not authorized to assign this sub user type.'
@@ -274,7 +287,7 @@ export class UserAddUpdateComponent implements OnInit {
       fkGender: this.model.fkGender,
       fkSubUserType: this.model.fkSubUserType,
       isActive: this.model.isActive,
-      fkBusiness : this.model.fkBusiness ? this.model.fkBusiness  : null,
+      fkBusiness : this.model.fkBusiness ? this.model.fkBusiness  : '',
       fkHandler : this.currentUser?.userId,
       userPassword: this.isEditMode ? undefined : this.model.password,
       imageBase64: imageBase64,
@@ -285,7 +298,7 @@ export class UserAddUpdateComponent implements OnInit {
 
     if (this.isEditMode) {
       // update API here if needed
-      // console.log(payload);
+      console.log(payload);
       this.userManagementService.updateUser(payload).subscribe({
         next: res => {
           if (res.success) {
