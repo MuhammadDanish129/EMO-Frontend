@@ -41,6 +41,7 @@
     "filepond": "^4.30.6",
     "filepond-plugin-get-file": "^1.1.0",
     "firebase": "^10.7.1",
+    "flatpickr": "^4.6.13",
     "font-awesome": "^4.7.0",
     "i": "^0.3.7",
     "keen-slider": "^6.8.6",

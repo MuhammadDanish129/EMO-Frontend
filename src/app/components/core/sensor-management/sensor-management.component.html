@@ -116,6 +116,17 @@
 
             </div>
         </div>
+          <div *ngIf="!isLoading && pagedSensors.length === 0" class="py-16 text-center">
+
+            <p class="text-sm font-semibold">
+                No Record Found
+            </p>
+
+            <p class="text-xs text-gray-600 mt-1">
+                Try adjusting search or add a new sensors.
+            </p>
+
+        </div>
 
     </div>
 
@@ -213,7 +224,7 @@
                   <tr *ngIf="!isLoading && pagedSensors.length === 0">
         <td colspan="7" class="px-6 py-20 text-center">
 
-          <p class="text-sm font-semibold text-gray-700">
+          <p class="text-sm font-semibold">
             No Record Found
           </p>
 

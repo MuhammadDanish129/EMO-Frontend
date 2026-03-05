@@ -4,7 +4,8 @@ import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angul
 import { Router } from '@angular/router';
 
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-
+import { FlatpickrModule, FlatpickrDefaults } from 'angularx-flatpickr';
+import flatpickr from 'flatpickr';
 import { ToastrService } from 'ngx-toastr';
 import { YxSelectComponent } from '../../../../shared/yx-select/yx-select.component';
 import { ManagementService } from '../../../management/management.service';
@@ -25,8 +26,10 @@ import { AddTenenatDTO } from '../tenant-office-assignment.type';
     ReactiveFormsModule,
     MatSlideToggleModule,
     YxSelectComponent,
-    MaterialModuleModule
+    MaterialModuleModule,
+    FlatpickrModule
   ],
+   providers: [FlatpickrDefaults],
   templateUrl: './assign-tenant.component.html',
   styleUrl: './assign-tenant.component.scss'
 })
@@ -95,7 +98,11 @@ export class AssignTenantComponent implements OnInit {
     agreementStartDate: '',
     agreementEndDate: ''
   };
-
+ flatpickrDateOptions: any = {
+    altInput: true,
+    altFormat: 'F j, Y',
+    dateFormat: 'Y-m-d',
+  };
   /* ================= UI ================= */
   isSaving = false;
   isLoading = false;
@@ -248,42 +255,18 @@ export class AssignTenantComponent implements OnInit {
 
   /* ================= DATE CHANGE ================= */
 
-  onStartDateChange(event: any) {
-    const value = event.target.value;
-    if (!value) return;
-    this.range.controls.start.setValue(new Date(value));
+   onStartDateChange(date: Date | Date[]) {
+    if (date instanceof Array) date = date[0];
+    this.range.controls.start.setValue(date);
   }
 
-  onEndDateChange(event: any) {
-    const value = event.target.value;
-    if (!value) return;
-    this.range.controls.end.setValue(new Date(value));
-  }
-
-  /* ================= OPEN PICKERS ================= */
-
-  openStartPicker(event: MouseEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const input = this.startDateInput.nativeElement as any;
-    if (input.showPicker) input.showPicker();
-    else this.startDateInput.nativeElement.focus();
-  }
-
-  openEndPicker(event: MouseEvent) {
-    event.preventDefault();
-    event.stopPropagation();
-
-    const input = this.endDateInput.nativeElement as any;
-    if (input.showPicker) input.showPicker();
-    else this.endDateInput.nativeElement.focus();
+  onEndDateChange(date: Date | Date[]) {
+    if (date instanceof Array) date = date[0];
+    this.range.controls.end.setValue(date);
   }
 
   /* ================= DATE PREP ================= */
-
   prepareAgreementDates() {
-
     const startDate = this.range.controls.start.value;
     const endDate = this.range.controls.end.value;
 

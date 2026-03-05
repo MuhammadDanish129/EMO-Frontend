@@ -54,7 +54,7 @@ export class TenantOfficeAssignmentComponent implements OnInit {
   pageSize = 5;
   isLoading = false;
 
-  selectionEnabled = false;
+  selectionEnabled = true;
 
   constructor(
     private facilityService: FacilityService,
@@ -239,35 +239,19 @@ export class TenantOfficeAssignmentComponent implements OnInit {
 
   /* ================= SELECTION ================= */
 
-  enableSelection() {
+ 
+toggleOfficeSelection(office: any) {
 
-    this.selectionEnabled = !this.selectionEnabled;
+  const exists = this.selectedOfficeIds.includes(office.officeId);
 
-    if (!this.selectionEnabled) {
-      this.selectedOfficeIds = [];
-    }
-
+  if (exists) {
+    this.selectedOfficeIds =
+      this.selectedOfficeIds.filter(x => x !== office.officeId);
+  } else {
+    this.selectedOfficeIds = [...this.selectedOfficeIds, office.officeId];
   }
 
-  disableSelection() {
-    this.selectionEnabled = false;
-    this.selectedOfficeIds = [];
-  }
-
-  toggleOfficeSelection(office: any) {
-
-    if (!this.selectionEnabled) return;
-
-    const exists = this.selectedOfficeIds.includes(office.officeId);
-
-    if (exists) {
-      this.selectedOfficeIds =
-        this.selectedOfficeIds.filter(x => x !== office.officeId);
-    } else {
-      this.selectedOfficeIds = [...this.selectedOfficeIds, office.officeId];
-    }
-
-  }
+}
 
   isOfficeSelected(id: string): boolean {
     return this.selectedOfficeIds.includes(id);
@@ -289,6 +273,16 @@ export class TenantOfficeAssignmentComponent implements OnInit {
     );
 
   }
+  assignTenantForOffice(office: any) {
+
+  this.selectedOfficeIds = [office.officeId];
+
+  this.router.navigate(
+    ['/core/assign-tenant'],
+    { state: { officeIds: this.selectedOfficeIds } }
+  );
+
+}
 
   /* ================= HELPERS ================= */
 
