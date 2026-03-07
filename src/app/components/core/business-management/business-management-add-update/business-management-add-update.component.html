@@ -8,14 +8,14 @@
 
     <button
       type="button"
-      class="rounded-lg p-2 text-white/80 bg-white/10"
+      class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-red"
       (click)="close()"
     >
       <i class="las la-times"></i>
     </button>
   </div>
 
-  <div class="px-1 py-1 overflow-y-auto">
+  <div class="flex-1 px-1 py-1 overflow-y-auto">
 
     <!-- ================= CUSTOM STEPPER ================= -->
     <div class="yx-stepper">
@@ -50,7 +50,7 @@
 
         <!-- STEP 2 -->
         <div class="flex items-center gap-3 cursor-pointer"
-             (click)="currentStep = 1">
+             (click)="goToAdminStep()">
 
           <div class="h-10 w-10 rounded-full flex items-center justify-center transition"
                [class.bg-[rgb(var(--primary))]]="currentStep >= 1"
@@ -133,13 +133,13 @@
               </mat-slide-toggle>
             </div>
 </div>
-          <div class="flex justify-end mt-6">
+          <!-- <div class="flex justify-end mt-6">
             <button
               class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white"
               (click)="goToAdminStep()">
               Next
             </button>
-          </div>
+          </div> -->
 
         </ng-container>
 
@@ -342,7 +342,7 @@
 
           </div>
 
-          <div class="flex justify-between mt-6 px-6 pb-4">
+          <!-- <div class="flex justify-between mt-6 px-6 pb-4">
             <button class="border border-[rgb(var(--gray-200))] rounded-lg px-4 py-2"
                     (click)="currentStep = 0">
               Back
@@ -352,14 +352,68 @@
                     (click)="submitAll()">
               Save All
             </button>
-          </div>
+          </div> -->
 
         </ng-container>
 
       </div>
 
+
+  
+
     </div>
 
   </div>
+    <!-- ================= FOOTER ================= -->
+<div class="flex items-center justify-between gap-3
+            px-6 py-4 border-t
+            border-[rgb(var(--default-border))]">
 
+  <!-- LEFT SIDE -->
+  <button
+    *ngIf="currentStep === 1"
+    class="rounded-lg px-4 py-2 text-sm font-medium
+           border border-[rgb(var(--gray-300))]
+           hover:bg-red"
+    (click)="currentStep = 0">
+    Back
+  </button>
+
+  <div *ngIf="currentStep === 0"></div>
+
+  <!-- RIGHT SIDE -->
+  <div class="flex gap-3">
+
+      <button
+      *ngIf="currentStep === 0"
+      class="rounded-lg px-4 py-2 text-sm font-medium
+            border border-[rgb(var(--gray-300))]
+            hover:bg-[rgb(var(--danger))] hover:text-white"
+      (click)="close()">
+      Cancel
+    </button>
+
+    <!-- STEP 1 BUTTON -->
+    <button
+      *ngIf="currentStep === 0"
+      class="rounded-lg px-5 py-2 text-sm font-semibold
+             bg-[rgb(var(--primary-600))] text-white
+             hover:bg-[rgb(var(--primary-700))]"
+      (click)="goToAdminStep()">
+      Next
+    </button>
+
+    <!-- STEP 2 BUTTON -->
+    <button
+      *ngIf="currentStep === 1"
+      class="rounded-lg px-5 py-2 text-sm font-semibold
+             bg-[rgb(var(--primary-600))] text-white
+             hover:bg-[rgb(var(--primary-700))]"
+      (click)="submitAll()">
+      Save Business
+    </button>
+
+  </div>
+
+</div>
 </div>

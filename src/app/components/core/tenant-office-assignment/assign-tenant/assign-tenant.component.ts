@@ -78,7 +78,11 @@ export class AssignTenantComponent implements OnInit {
     fkHandler: null,
     fkBusiness: null
   };
-
+goToNextStep() {
+  if (this.currentStep === 0 && !this.validateStep1()) return;
+  if (this.currentStep === 1 && !this.validateStep2()) return;
+  this.currentStep = this.currentStep + 1;
+}
   /* ⭐ CONFIRM PASSWORD GLOBAL (NO UI MODEL) */
   confirmPassword: string = '';
 
@@ -252,7 +256,27 @@ export class AssignTenantComponent implements OnInit {
       this.range.controls.end.value
     );
   }
+navigateStep(step: number) {
 
+  // Step 0 is always allowed
+  if (step === 0) {
+    this.currentStep = 0;
+    return;
+  }
+
+  // Moving to Step 1 → validate Step 1 first
+  if (step >= 1) {
+    if (!this.validateStep1()) return;
+  }
+
+  // Moving to Step 2 → validate Step 1 + Step 2
+  if (step >= 2) {
+    if (!this.validateStep1()) return;
+    if (!this.validateStep2()) return;
+  }
+
+  this.currentStep = step;
+}
   /* ================= DATE CHANGE ================= */
 
    onStartDateChange(date: Date | Date[]) {
@@ -291,7 +315,9 @@ export class AssignTenantComponent implements OnInit {
   toggleConfirmPassword() {
     this.showConfirmPassword = !this.showConfirmPassword;
   }
-
+cancelAssignment() {
+  this.router.navigate(['/core/tenant-office-assignment']);
+}
   /* ================= SUBMIT ================= */
 
   submitAll() {

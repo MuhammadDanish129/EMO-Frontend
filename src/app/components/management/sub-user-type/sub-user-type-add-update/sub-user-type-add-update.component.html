@@ -1,5 +1,5 @@
 <!-- MODAL CONTAINER -->
-<div class="w-full max-w-md rounded-t-xl bg-[rgb(var(--light))] shadow-xl">
+<div class="w-full max-w-xl rounded-t-xl bg-[rgb(var(--light))] max-h-[90vh] flex flex-col">
 
   <!-- HEADER -->
   <div class="flex items-center justify-between px-6 py-3 bg-[rgb(var(--primary))] shadow-md">
@@ -8,7 +8,7 @@
     </span>
 
     <button
-      class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-white/20 transition"
+      class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-red transition"
       (click)="close()">
       <i class="las la-times text-lg"></i>
     </button>
@@ -72,8 +72,8 @@
               border-[rgb(var(--default-border))]">
 
     <button
-      class="rounded-lg px-4 py-2 text-sm font-medium
-             border border-[rgb(var(--gray-300))]"
+      class="rounded-lg px-4 py-2 text-sm font-medium hover:bg-red hover:text-white
+             border border-[rgb(var(--gray-300))]" 
       (click)="close()">
       Cancel
     </button>

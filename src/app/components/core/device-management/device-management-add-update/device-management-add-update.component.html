@@ -7,7 +7,7 @@
             {{ isEditMode ? 'Update Device' : 'Add Device' }}
         </span>
 
-        <button class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-white/20 transition"
+        <button class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-red transition"
                 (click)="close()">
             <i class="las la-times text-lg"></i>
         </button>
@@ -53,7 +53,7 @@
     <div class="flex items-center justify-end gap-3 px-6 py-4 border-t
               border-[rgb(var(--default-border))]">
 
-        <button class="rounded-lg px-4 py-2 text-sm font-medium
+        <button class="rounded-lg px-4 py-2 text-sm font-medium hover:bg-red hover:text-white
              border border-[rgb(var(--gray-300))]"
              (click)="close()">
             Cancel
