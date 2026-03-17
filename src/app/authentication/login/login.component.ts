@@ -126,11 +126,13 @@ export class LoginComponent {
       const { username, password } = this.loginForm.value;
 
       this.authservice.login(username, password).subscribe((success) => {
+        console.log(success);
         if (success) {
           this.toastr.success('Login successful');
           this.router.navigate(['/dashboard']);
           console.clear();
         } else {
+           this.toastr.error('Invalid credentials. Please try again.');
           this.error = 'Invalid credentials. Please try again.';
         }
       });

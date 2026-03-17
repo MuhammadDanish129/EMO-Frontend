@@ -93,6 +93,7 @@
           labelKey="officeName"
           valueKey="officeId"
           placeholder="Select Office"
+           [enableSearch]="true"> <!-- ✅ search enabled -->
           [(value)]="model.fkOffice">
         </yx-select>
 
@@ -114,6 +115,7 @@
           labelKey="deviceName"
           valueKey="deviceId"
           placeholder="Select Device"
+           [enableSearch]="true"> <!-- ✅ search enabled -->
           [(value)]="model.fkDevice">
         </yx-select>
 

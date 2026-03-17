@@ -47,6 +47,7 @@
       labelKey="facilityName"
       valueKey="facilityId"
       placeholder="Facility"
+      [enableSearch]="true"
       [(value)]="selectedFacilityId"
       (valueChange)="onFacilityChange()"
     >
@@ -57,6 +58,7 @@
       labelKey="buildingName"
       valueKey="buildingId"
       placeholder="Building"
+      [enableSearch]="true"
       [(value)]="selectedBuildingId"
       (valueChange)="onBuildingChange()"
       [disabled]="!selectedFacilityId"
@@ -68,6 +70,7 @@
       labelKey="floorName"
       valueKey="floorId"
       placeholder="Floor"
+      [enableSearch]="true"
       [(value)]="selectedFloorId"
       (valueChange)="onFloorChange()"
       [disabled]="!selectedBuildingId"
@@ -79,6 +82,7 @@
       labelKey="sectionName"
       valueKey="sectionId"
       placeholder="Section"
+      [enableSearch]="true"
       [(value)]="selectedSectionId"
       (valueChange)="onSectionChange()"
       [disabled]="!selectedFloorId"
@@ -87,7 +91,7 @@
   </div>
 </div>
 
-<div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 overflow-hidden">
+<div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6 overflow-hidden">
   <!-- ================= SEARCH HEADER ================= -->
   <div
     class="flex flex-col gap-2 p-4 border-b sm:flex-row sm:items-center sm:justify-between"
@@ -264,8 +268,8 @@
 <div class="relative group">
   <button
     class="rounded-lg p-2
-           bg-[rgb(var(--primary-100))]
-           text-[rgb(var(--primary-600))]"
+           bg-[rgb(var(--blue-100))]
+           text-[rgb(var(--blue-600))]"
     (click)="$event.stopPropagation(); assignTenantForOffice(o)">
 
     <i class="las la-user-plus text-lg"></i>
@@ -277,7 +281,7 @@
            px-2 py-1 text-[11px] font-medium rounded-md
            shadow-sm whitespace-nowrap transition duration-200
            pointer-events-none
-           bg-[rgb(var(--blue-100))]
+           bg-[rgb(var(--primary-100))]
            text-[rgb(var(--gray-900))]
            border border-[rgb(var(--primary-200))]">
 

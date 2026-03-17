@@ -43,13 +43,13 @@
       <i class="las la-microchip text-base"></i>
       Device
     </span>
-
+    
   </nav>
 </div> -->
 
 
 <!-- CARD -->
-<div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5">
+<div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6">
 
     <!-- SEARCH -->
     <div class="flex flex-col gap-2 p-4 border-b
@@ -62,10 +62,7 @@
             </span>
         </p>
 
-        <input type="text"
-            [(ngModel)]="searchText"
-            (ngModelChange)="searchDevices()"
-            placeholder="Search Devices.."
+        <input type="text" [(ngModel)]="searchText" (ngModelChange)="searchDevices()" placeholder="Search Devices.."
             class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
              border-[rgb(var(--input-border))]" />
     </div>
@@ -98,8 +95,7 @@
                     </div>
                 </div>
 
-                <span class="rounded-full px-3 py-1 text-xs font-semibold"
-                    [ngClass]="st.isActive
+                <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="st.isActive
                     ? 'bg-success/10 text-success'
                     : 'bg-danger/10 text-danger'">
 
@@ -113,15 +109,13 @@
 
                 <button class="rounded-lg p-2
                  bg-[rgb(var(--indigo-100))]
-                 text-[rgb(var(--indigo-600))]"
-                 (click)="edit(st)">
+                 text-[rgb(var(--indigo-600))]" (click)="edit(st)">
                     <i class="las la-edit text-lg"></i>
                 </button>
 
                 <button class="rounded-lg p-2
                  bg-[rgb(var(--red-100))]
-                 text-[rgb(var(--red-600))]"
-                 (click)="delete(st.deviceId)">
+                 text-[rgb(var(--red-600))]" (click)="delete(st.deviceId)">
                     <i class="las la-trash text-lg"></i>
                 </button>
 
@@ -129,8 +123,7 @@
         </div>
 
         <!-- EMPTY -->
-        <div *ngIf="!isLoading && pagedDevices.length === 0"
-             class="py-16 text-center">
+        <div *ngIf="!isLoading && pagedDevices.length === 0" class="py-16 text-center">
 
             <p class="text-sm font-semibold">
                 No Record Found
@@ -198,8 +191,7 @@
 
                     <td class="px-4 py-3">
 
-                        <span class="rounded-full px-3 py-1 text-xs font-semibold"
-                              [ngClass]="st.isActive
+                        <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="st.isActive
                               ? 'bg-success/10 text-success'
                               : 'bg-danger/10 text-danger'">
 
@@ -209,23 +201,20 @@
 
                     </td>
 
-                  <td class="px-3 py-3 text-center">
-  <div class="flex justify-center gap-2">
+                    <td class="px-3 py-3 text-center">
+                        <div class="flex justify-center gap-2">
 
-    <!-- EDIT -->
-    <div class="relative group">
-      <button
-        class="rounded-lg p-2
+                            <!-- EDIT -->
+                            <div class="relative group">
+                                <button class="rounded-lg p-2
                bg-[rgb(var(--indigo-100))]
                text-[rgb(var(--indigo-600))]
-                hover:bg-[rgb(var(--indigo-200))]"
-        (click)="edit(st)">
+                hover:bg-[rgb(var(--indigo-200))]" (click)="edit(st)">
 
-        <i class="las la-edit text-lg"></i>
-      </button>
+                                    <i class="las la-edit text-lg"></i>
+                                </button>
 
-      <div
-        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+                                <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
                flex opacity-0 group-hover:opacity-100
                px-2 py-1 text-[11px] font-medium rounded-md
                shadow-sm whitespace-nowrap transition duration-200
@@ -234,24 +223,21 @@
                text-[rgb(var(--gray-900))]
                border border-[rgb(var(--primary-200))]">
 
-        Edit Device
-      </div>
-    </div>
+                                    Edit Device
+                                </div>
+                            </div>
 
-    <!-- DELETE -->
-    <div class="relative group">
-      <button
-        class="rounded-lg p-2
+                            <!-- DELETE -->
+                            <div class="relative group">
+                                <button class="rounded-lg p-2
                bg-[rgb(var(--red-100))]
                text-[rgb(var(--red-600))]
-                hover:bg-[rgb(var(--red-200))]"
-        (click)="delete(st.deviceId)">
+                hover:bg-[rgb(var(--red-200))]" (click)="delete(st.deviceId)">
 
-        <i class="las la-trash text-lg"></i>
-      </button>
+                                    <i class="las la-trash text-lg"></i>
+                                </button>
 
-      <div
-        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+                                <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
                flex opacity-0 group-hover:opacity-100
                px-2 py-1 text-[11px] font-medium rounded-md
                shadow-sm whitespace-nowrap transition duration-200
@@ -260,29 +246,29 @@
                text-[rgb(var(--gray-900))]
                border border-[rgb(var(--primary-200))]">
 
-        Delete Device
-      </div>
-    </div>
+                                    Delete Device
+                                </div>
+                            </div>
 
-  </div>
-</td>
+                        </div>
+                    </td>
 
 
                 </tr>
 
                 <tr *ngIf="!isLoading && pagedDevices.length === 0">
-        <td colspan="7" class="px-6 py-20 text-center">
+                    <td colspan="7" class="px-6 py-20 text-center">
 
-          <p class="text-sm font-semibold">
-            No Record Found
-          </p>
+                        <p class="text-sm font-semibold">
+                            No Record Found
+                        </p>
 
-          <p class="text-xs text-gray-600 mt-1">
-            Try adjusting search or create a new device.
-          </p>
+                        <p class="text-xs text-gray-600 mt-1">
+                            Try adjusting search or create a new device.
+                        </p>
 
-        </td>
-      </tr>
+                    </td>
+                </tr>
 
             </tbody>
 
@@ -299,16 +285,11 @@
 
         <div class="flex gap-1">
 
-            <button (click)="prevPage()"
-                [disabled]="pageIndex === 0"
-                class="px-3 py-2 rounded-lg border text-sm">
+            <button (click)="prevPage()" [disabled]="pageIndex === 0" class="px-3 py-2 rounded-lg border text-sm">
                 Prev
             </button>
 
-            <button *ngFor="let p of pages"
-                (click)="goToPage(p)"
-                class="px-3 py-2 rounded-lg border text-sm"
-                [ngClass]="p === pageIndex
+            <button *ngFor="let p of pages" (click)="goToPage(p)" class="px-3 py-2 rounded-lg border text-sm" [ngClass]="p === pageIndex
                 ? 'bg-[rgb(var(--primary))] text-white'
                 : 'hover:bg-gray-100'">
 
@@ -316,8 +297,7 @@
 
             </button>
 
-            <button (click)="nextPage()"
-                [disabled]="(pageIndex + 1) * pageSize >= filteredDevices.length"
+            <button (click)="nextPage()" [disabled]="(pageIndex + 1) * pageSize >= filteredDevices.length"
                 class="px-3 py-2 rounded-lg border text-sm">
                 Next
             </button>

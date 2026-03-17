@@ -102,7 +102,7 @@ export class SensorManagementComponent implements OnInit {
 
   addSensor() {
     const dialogRef = this.dialog.open(SensorManagementAddUpdateComponent, {
-      width: '420px',
+      width: '720px',
       disableClose: true,
       autoFocus: false,
       panelClass: 'ynex-dialog',

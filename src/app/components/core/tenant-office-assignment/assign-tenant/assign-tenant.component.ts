@@ -58,6 +58,17 @@ export class AssignTenantComponent implements OnInit {
   genders: any[] = [];
   tenants: TenantResponseDTO[] = [];
 
+  /* ================= CUSTOM DROPDOWN (SEARCHABLE) ================= */
+
+  isOpen = false;
+  searchTerm = '';
+  filteredItems: any[] = [];
+
+  /* CONFIGURABLE INPUTS */
+  items: any[] = [];          // bind this with tenants OR genders
+  labelKey: string = 'name';  // change if needed
+  placeholder: string = 'Select option';
+
   selectedTenantId = '';
   fieldErrors: any = {};
 
@@ -145,28 +156,56 @@ goToNextStep() {
       }
     });
   }
+ /* ================= DROPDOWN FUNCTIONS ================= */
 
-  loadTenants() {
-    this.isLoading = true;
+toggleDropdown() {
+  this.isOpen = !this.isOpen;
 
-    this.tenantService.getTenantsByBusiness(this.businessId).subscribe({
-      next: (res) => {
-        if (res.success === false) {
-          this.toaster.error(res.remarks || 'Failed to load tenants');
-          this.isLoading = false;
-          return;
-        }
-
-        this.tenants = res.data ?? [];
-        this.isLoading = false;
-      },
-      error: () => {
-        this.tenants = [];
-        this.isLoading = false;
-        this.toaster.error('Failed to load tenants');
-      }
-    });
+  if (this.isOpen) {
+    this.filteredItems = [...this.items];
   }
+}
+
+filterItems() {
+  const term = this.searchTerm.toLowerCase();
+
+  this.filteredItems = this.items.filter(item =>
+    item[this.labelKey]?.toLowerCase().includes(term)
+  );
+}
+
+select(item: any) {
+  this.selectedTenantId = item.id || item.tenantId; // adjust if needed
+  this.isOpen = false;
+}
+
+getSelectedLabel(): string {
+  const selected = this.items.find(
+    x => (x.id || x.tenantId) === this.selectedTenantId
+  );
+  return selected ? selected[this.labelKey] : '';
+}
+ loadTenants() {
+  this.isLoading = true;
+
+  this.tenantService.getTenantsByBusiness(this.businessId).subscribe({
+    next: (res) => {
+      if (res.success === false) {
+        this.toaster.error(res.remarks || 'Failed to load tenants');
+        this.isLoading = false;
+        return;
+      }
+
+      this.tenants = res.data ?? [];
+      this.isLoading = false;
+    },
+    error: () => {
+      this.tenants = [];
+      this.isLoading = false;
+      this.toaster.error('Failed to load tenants');
+    }
+  });
+}
 
   onTenantModeChange() {
     if (this.tenantMode === 'existing') {
