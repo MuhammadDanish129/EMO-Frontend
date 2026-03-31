@@ -8,6 +8,7 @@ import { MatSlideToggleModule } from "@angular/material/slide-toggle";
 import { MaterialModuleModule } from "../../../material-module/material-module.module";
 import { Component, OnInit } from "@angular/core";
 import { ConfirmDialogComponent } from "../../../shared/confirmation-dialouge/confirmation-dialog.component";
+import { UserService } from "../../../shared/services/user/user.service";
 
 @Component({
   selector: 'app-agreement-management',
@@ -21,6 +22,7 @@ export class AgreementManagementComponent implements OnInit {
   pageIndex = 0;
   pageSize = 5;
   isLoading = false;
+  currentUser: any
 
   Agreements: AgreementResponseDTO[] = [];
   filteredAgreements: AgreementResponseDTO[] = [];
@@ -28,19 +30,21 @@ export class AgreementManagementComponent implements OnInit {
   constructor(
     private agreementService: AgreementService,
     private toaster: ToastrService,
+    private _userService: UserService,
     private dialog: MatDialog
   ) {}
 
-  ngOnInit() {
-    this.loadAgreements();
+  async ngOnInit() {
+     this.currentUser = await this._userService.user$;
+    this.loadAgreements(this.currentUser.fkBusiness);
   }
 
   /* ================= LOAD ================= */
 
-  loadAgreements() {
+  loadAgreements(fkBusiness:string) {
     this.isLoading = true;
 
-    this.agreementService.getAgreements().subscribe({
+    this.agreementService.getSensorByBusinessId(fkBusiness).subscribe({
       next: (res: any) => {
 
         if (res.success === false) {
@@ -168,7 +172,7 @@ export class AgreementManagementComponent implements OnInit {
         next: (res: any) => {
           if (res.success) {
             this.toaster.success('Agreement deleted');
-            this.loadAgreements();
+            this.loadAgreements(this.currentUser.fkBusiness);
           } else {
             this.toaster.error(res.remarks || 'Delete failed');
           }

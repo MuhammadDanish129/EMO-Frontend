@@ -25,6 +25,14 @@ export class AgreementService {
   updateAgreement(model: any) {
     return this.http.put(`${this.baseUrl}/Agreement`, model);
   }
+   getSensorByBusinessId(
+      id: string
+    ): Observable<ResponseModel<AgreementResponseDTO[]>> {
+      return this.http.get<ResponseModel<AgreementResponseDTO[]>>(
+        `${this.baseUrl}/Agreement/GetByBusinessId`,
+        { params: { id } }
+      );
+    }
 
   deleteAgreement(id: string) {
     return this.http.delete(`${this.baseUrl}/Agreement`, {

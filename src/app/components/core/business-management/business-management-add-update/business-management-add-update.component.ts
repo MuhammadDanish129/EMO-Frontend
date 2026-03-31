@@ -296,7 +296,8 @@ goToAdminStep() {
 
       next: () => {
         this.toaster.success('Business And Admin created successfully');
-        this.router.navigate(['/core/business-management']);
+        // this.router.navigate(['/core/business-management']);
+        this.dialogRef.close('saved');
       },
 
       error: () => {

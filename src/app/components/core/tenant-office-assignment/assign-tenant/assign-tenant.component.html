@@ -447,8 +447,10 @@
 
             <!-- FINAL SUBMIT -->
             <button *ngIf="currentStep === 2"
-                class="rounded-lg px-5 py-2 text-sm font-semibold bg-[rgb(var(--primary))] text-white hover:bg-[rgb(var(--primary-700))]">
+                class="rounded-lg px-5 py-2 text-sm font-semibold bg-[rgb(var(--primary))] text-white hover:bg-[rgb(var(--primary-700))]"
+                 (click)="submitAll()">
                 Assign Tenant
+                
             </button>
 
         </div>
