@@ -119,29 +119,65 @@ export class LoginComponent {
     return this.loginForm.controls;
   }
 
-  signIn() {
-    console.log(this.loginForm);
+  // signIn() {
+  //   console.log(this.loginForm);
 
-    if (this.loginForm.valid) {
-      const { username, password } = this.loginForm.value;
+  //   if (this.loginForm.valid) {
+  //     const { username, password } = this.loginForm.value;
 
-      this.authservice.login(username, password).subscribe((success) => {
-        console.log(success);
-        if (success) {
-          this.toastr.success('Login successful');
+  //     this.authservice.login(username, password).subscribe((success) => {
+  //       console.log(success);
+  //       if (success) {
+  //         this.toastr.success('Login successful');
+  //         this.router.navigate(['/dashboard']);
+  //         console.clear();
+  //       } else {
+  //          this.toastr.error('Invalid credentials. Please try again.');
+  //         this.error = 'Invalid credentials. Please try again.';
+  //       }
+  //     });
+  //   } else {
+  //     this.error = 'Please fill in valid email and password.';
+  //     this.loginForm.markAllAsTouched(); // Optionally mark fields as touched for validation display
+  //   }
+  // }
+signIn() {
+  console.log(this.loginForm);
+
+  if (this.loginForm.valid) {
+    const { username, password } = this.loginForm.value;
+
+    this.authservice.login(username, password).subscribe({
+      next: (res: any) => {
+        console.log(res);
+
+        if (res?.success) {
+          this.toastr.success(res.remarks || 'Login successful');
           this.router.navigate(['/dashboard']);
           console.clear();
         } else {
-           this.toastr.error('Invalid credentials. Please try again.');
-          this.error = 'Invalid credentials. Please try again.';
+          this.toastr.error(res?.remarks);
+          this.error = res?.remarks;
         }
-      });
-    } else {
-      this.error = 'Please fill in valid email and password.';
-      this.loginForm.markAllAsTouched(); // Optionally mark fields as touched for validation display
-    }
-  }
+      },
 
+      error: (err) => {
+        console.log(err);
+        const message =
+          err?.error?.remarks ||
+          err?.message ||
+          'Server error occurred';
+
+        this.toastr.error(message);
+        this.error = message;
+      }
+    });
+
+  } else {
+    this.error = 'Please fill in valid email and password.';
+    this.loginForm.markAllAsTouched();
+  }
+}
   customOptions: OwlOptions = {
     loop: true,
     rtl: false,

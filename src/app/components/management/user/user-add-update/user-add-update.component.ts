@@ -147,6 +147,7 @@ export class UserAddUpdateComponent implements OnInit {
   removeImage() {
     this.model.avatarFile = null;
     this.model.avatarPreview = '';
+    
   }
 
   /* ================= PASSWORD ================= */
@@ -276,7 +277,10 @@ export class UserAddUpdateComponent implements OnInit {
       if (this.model.avatarFile) {
         imageBase64 = this.model.avatarPreview;
         isImageChanged = true;
-      }
+      } else if (this.model.avatarPreview === '') {
+    // user removed image
+    isImageChanged = true;
+  }
     }
 
     const payload: UserRequestDTO = {

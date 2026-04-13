@@ -1,1 +1,99 @@
-<p>business-management-update works!</p>
+<div class="w-full rounded-t-xl bg-[rgb(var(--light))] shadow-xl max-h-[90vh] flex flex-col">
+
+  <!-- HEADER -->
+  <div class="flex items-center justify-between px-6 py-3 bg-[rgb(var(--primary))]">
+    <span class="text-sm font-semibold text-white">
+      Update Business
+    </span>
+
+    <button
+      type="button"
+      class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-red"
+      (click)="close()">
+      <i class="las la-times"></i>
+    </button>
+  </div>
+
+  <!-- BODY -->
+  <div class="flex-1 px-6 py-4 overflow-y-auto space-y-4">
+
+    <div class="rounded-lg border border-[rgb(var(--gray-200))] p-5 space-y-4">
+
+      <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide">
+        Business Information
+      </p>
+
+      <!-- NAME -->
+      <div class="yx-field">
+        <label class="yx-label">Business Name *</label>
+        <input class="yx-input w-full"
+               [(ngModel)]="model.businessName"
+               (ngModelChange)="fieldErrors.businessName = null"
+               [class.border-[rgb(var(--danger))]]="fieldErrors.businessName" />
+
+        <p *ngIf="fieldErrors.businessName" class="text-xs text-[rgb(var(--danger))] mt-1">
+          {{ fieldErrors.businessName }}
+        </p>
+      </div>
+
+      <!-- EMAIL -->
+      <div class="yx-field">
+        <label class="yx-label">Business Email *</label>
+        <input class="yx-input w-full"
+               [(ngModel)]="model.businessEmail"
+               (ngModelChange)="fieldErrors.businessEmail = null"
+               [class.border-[rgb(var(--danger))]]="fieldErrors.businessEmail" />
+
+        <p *ngIf="fieldErrors.businessEmail" class="text-xs text-[rgb(var(--danger))] mt-1">
+          {{ fieldErrors.businessEmail }}
+        </p>
+      </div>
+
+      <!-- CONTACT -->
+      <div class="yx-field">
+        <label class="yx-label">Business Contact *</label>
+        <input class="yx-input w-full"
+               [(ngModel)]="model.businessContact"
+               (ngModelChange)="fieldErrors.businessContact = null"
+               [class.border-[rgb(var(--danger))]]="fieldErrors.businessContact" />
+
+        <p *ngIf="fieldErrors.businessContact" class="text-xs text-[rgb(var(--danger))] mt-1">
+          {{ fieldErrors.businessContact }}
+        </p>
+      </div>
+
+    </div>
+
+    <!-- STATUS -->
+    <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
+      <div>
+        <p class="text-sm font-medium">Active Status</p>
+        <p class="text-xs text-muted">Inactive users cannot login</p>
+      </div>
+
+      <mat-slide-toggle
+        color="primary"
+        [(ngModel)]="model.isActive">
+      </mat-slide-toggle>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="flex justify-end gap-3 px-6 py-4 border-t border-[rgb(var(--default-border))]">
+
+    <button
+      class="rounded-lg px-4 py-2 border border-[rgb(var(--gray-300))]"
+      (click)="close()">
+      Cancel
+    </button>
+
+    <button
+      class="rounded-lg px-5 py-2 bg-[rgb(var(--primary-600))] text-white"
+      (click)="updateBusiness()">
+      Update Business
+    </button>
+
+  </div>
+
+</div>

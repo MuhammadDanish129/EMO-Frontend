@@ -4,6 +4,7 @@ import { AgreementResponseDTO } from "./agreement-management.type";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../../../environments/environment";
 import { Injectable } from "@angular/core";
+import { UserResponseDTO } from "../../management/user/user.type";
 
 @Injectable({ providedIn: 'root' })
 export class AgreementService {
@@ -22,6 +23,13 @@ export class AgreementService {
     return this.http.post(`${this.baseUrl}/Agreement`, model);
   }
 
+
+  getTenants(id: string): Observable<ResponseModel<UserResponseDTO[]>> {
+      return this.http.get<ResponseModel<UserResponseDTO[]>>(
+        `${this.baseUrl}/Tenant/GetTenantByAgreementId`,
+        { params: { id } }
+      );
+    }
   updateAgreement(model: any) {
     return this.http.put(`${this.baseUrl}/Agreement`, model);
   }

@@ -115,7 +115,7 @@ businessId: string = '';
   this.businessId = this.currentUser?.fkBusiness;
 
 
-    this.loadSubUserTypes(this.currentUser?.userId ?? '');
+    // this.loadSubUserTypes(this.currentUser?.userId ?? '');
   }
 
   /* ================= PASSWORD ================= */
@@ -231,7 +231,7 @@ goToAdminStep() {
     if (!this.model.name.trim()) this.fieldErrors.name = true;
     if (!this.model.userName.trim()) this.fieldErrors.username = true;
     if (!this.model.fkGender) this.fieldErrors.gender = true;
-    if (!this.model.fkSubUserType) this.fieldErrors.subUserType = true;
+    // if (!this.model.fkSubUserType) this.fieldErrors.subUserType = true;
 
     if (!this.model.password) {
       this.fieldErrors.password = 'Password is required';
@@ -283,7 +283,7 @@ goToAdminStep() {
       username: this.model.userName,
       userPhoneNo: this.model.phone,
       fkGender: this.model.fkGender,
-      fkSubUserType: this.model.fkSubUserType,
+      // fkSubUserType: this.model.fkSubUserType,
       userPassword: this.model.password,
       fkUser: this.currentUser?.userId ?? '',
 

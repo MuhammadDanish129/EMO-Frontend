@@ -12,6 +12,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { YxSelectComponent } from '../../../shared/yx-select/yx-select.component';
 import { Router, RouterLink } from '@angular/router';
 import { MaterialModuleModule } from '../../../material-module/material-module.module';
+import { BusinessManagementUpdateComponent } from './business-management-update/business-management-update.component';
 @Component({
   selector: 'app-business-management',
   standalone: true,
@@ -135,26 +136,45 @@ export class BusinessManagementComponent implements OnInit {
   /* =============================
    * EDIT
    * ============================= */
-  edit(st: BusinessResponseDTO) {
-    const dialogRef = this.dialog.open(BusinessManagementAddUpdateComponent, {
+  // edit(st: BusinessResponseDTO) {
+  //   const dialogRef = this.dialog.open(BusinessManagementAddUpdateComponent, {
 
-      width: '720px',
-      maxWidth: '95vw',
-      disableClose: true,
-      autoFocus: false,
-      panelClass: 'ynex-dialog',
-      data: {
-        mode: 'edit',
-        value: st
-      }
-    });
+  //     width: '720px',
+  //     maxWidth: '95vw',
+  //     disableClose: true,
+  //     autoFocus: false,
+  //     panelClass: 'ynex-dialog',
+  //     data: {
+  //       mode: 'edit',
+  //       value: st
+  //     }
+  //   });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'saved') {
-        this.loadBusinesses(this.currentUser.userId);
-      }
-    });
-  }
+  //   dialogRef.afterClosed().subscribe(result => {
+  //     if (result === 'saved') {
+  //       this.loadBusinesses(this.currentUser.userId);
+  //     }
+  //   });
+  // }
+
+editBusiness(st: BusinessResponseDTO) {
+  const dialogRef = this.dialog.open(BusinessManagementUpdateComponent, {
+    width: '420px',
+    disableClose: true,
+    autoFocus: false,
+    panelClass: 'ynex-dialog',
+    data: {
+      mode: 'edit',
+      value: st
+    }
+  });
+
+  dialogRef.afterClosed().subscribe(result => {
+    if (result === 'updated') {
+      this.loadBusinesses(this.currentUser.userId);
+    }
+  });
+}
 
   add() {
     const dialogRef = this.dialog.open(BusinessManagementAddUpdateComponent, {

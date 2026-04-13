@@ -21,7 +21,7 @@ export interface AddBusinessAndAdminRequestDTO{
   username: string;
   userPassword?: string;
   userPhoneNo: string;
-  fkSubUserType: string;
+  // fkSubUserType: string;
   BusinessisActive: boolean;
   fkGender: string;
   isImageChanged: boolean;

@@ -9,6 +9,7 @@ import { MaterialModuleModule } from "../../../material-module/material-module.m
 import { Component, OnInit } from "@angular/core";
 import { ConfirmDialogComponent } from "../../../shared/confirmation-dialouge/confirmation-dialog.component";
 import { UserService } from "../../../shared/services/user/user.service";
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-agreement-management',
@@ -31,7 +32,8 @@ export class AgreementManagementComponent implements OnInit {
     private agreementService: AgreementService,
     private toaster: ToastrService,
     private _userService: UserService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private router: Router
   ) {}
 
   async ngOnInit() {
@@ -143,6 +145,21 @@ export class AgreementManagementComponent implements OnInit {
   edit(st: AgreementResponseDTO) {
     console.log('Edit Agreement', st);
     // later open dialog like facility
+  }
+
+viewTenants(agreementId: string) {
+
+    console.log(agreementId);
+
+    this.router.navigate(
+      ['/core/agreement-tenant-management'],
+      {
+        state: {
+          agreementId: agreementId
+        }
+      }
+    );
+
   }
 
   /* ================= DELETE ================= */

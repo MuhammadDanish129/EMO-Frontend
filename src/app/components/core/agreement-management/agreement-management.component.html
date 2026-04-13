@@ -281,6 +281,28 @@
 
             </button> -->
 
+            <!-- VIEW ADMINS -->
+              <div class="relative group">
+                <button class="rounded-lg p-2
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--primary))]" (click)="viewTenants(st.agreementId)">
+
+                  <i class="las la-users text-lg"></i>
+                </button>
+
+                <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+               flex opacity-0 group-hover:opacity-100
+               px-2 py-1 text-[11px] font-medium rounded-md
+               shadow-sm whitespace-nowrap transition duration-200
+               pointer-events-none
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--gray-900))]
+               border border-[rgb(var(--primary-200))]">
+
+                  View Admins
+                </div>
+              </div>
+
             <!-- DELETE -->
             <button matTooltip="Delete Agreement"
               class="rounded-lg p-2 transition

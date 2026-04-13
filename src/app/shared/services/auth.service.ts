@@ -24,11 +24,69 @@ export class AuthService {
     private navService: NavService
   ) { }
 
-  login(username: string, password: string): Observable<boolean> {
+//   login(username: string, password: string): Observable<boolean> {
+//   return this.http
+//     .post<any>(this.authUrl, { username, password })
+//     .pipe(
+//       switchMap((response) => {
+
+//         const securePayload = {
+//           userId: response.data.userId,
+//           name: response.data.name,
+//           username: response.data.username,
+//           userToken: response.data.userToken,
+//           fkSubUserType: response.data.fkSubUserType,
+//           subUserTypeLevel: response.data.subUserTypeLevel,
+//           subUserTypeName: response.data.subUserTypeName,
+//           fkUserType: response.data.fkUserType,
+//           fkGender: response.data.fkGender,
+//           genderName: response.data.genderName,
+//           isActive: response.data.isActive,
+//           fkBusiness: response.data.fkBusiness,
+//           businessName:response.data.businessName,
+//           userTypeLevel: response.data.userTypeLevel,
+//           fkHandler:response.data.fkHandler,
+//           handlerName:response.data.handlerName
+//         };
+
+//         // store avatar separately (NOT encrypted)
+//         if (response.data.imageBase64) {
+//           localStorage.setItem(
+//             'userAvatar',
+//             response.data.imageBase64
+//           );
+//         }
+
+//         return from(this.cryptoService.encrypt(securePayload)).pipe(
+//         tap((encryptedData) => {
+//   this.accessToken = response.data.userToken;
+//   localStorage.setItem(this.sessionKey, encryptedData);
+
+//   setTimeout(() => {
+//     this.navService.init();   // ⭐ FORCE NAV REFRESH
+//   }, 50);
+// }),
+
+//           map(() => true)
+//         );
+//       }),
+//       catchError((err) => {
+//         console.error('Login failed', err);
+//         return of(false);
+//       })
+//     );
+// }
+
+login(username: string, password: string): Observable<any> {
   return this.http
     .post<any>(this.authUrl, { username, password })
     .pipe(
       switchMap((response) => {
+
+        // ❌ If backend failed → return immediately
+        if (!response?.success) {
+          return of(response);
+        }
 
         const securePayload = {
           userId: response.data.userId,
@@ -43,41 +101,38 @@ export class AuthService {
           genderName: response.data.genderName,
           isActive: response.data.isActive,
           fkBusiness: response.data.fkBusiness,
-          businessName:response.data.businessName,
+          businessName: response.data.businessName,
           userTypeLevel: response.data.userTypeLevel,
-          fkHandler:response.data.fkHandler,
-          handlerName:response.data.handlerName
+          fkHandler: response.data.fkHandler,
+          handlerName: response.data.handlerName
         };
 
-        // store avatar separately (NOT encrypted)
         if (response.data.imageBase64) {
-          localStorage.setItem(
-            'userAvatar',
-            response.data.imageBase64
-          );
+          localStorage.setItem('userAvatar', response.data.imageBase64);
         }
 
         return from(this.cryptoService.encrypt(securePayload)).pipe(
-        tap((encryptedData) => {
-  this.accessToken = response.data.userToken;
-  localStorage.setItem(this.sessionKey, encryptedData);
+          tap((encryptedData) => {
+            this.accessToken = response.data.userToken;
+            localStorage.setItem(this.sessionKey, encryptedData);
 
-  setTimeout(() => {
-    this.navService.init();   // ⭐ FORCE NAV REFRESH
-  }, 50);
-}),
-
-          map(() => true)
+            setTimeout(() => {
+              this.navService.init();
+            }, 50);
+          }),
+          map(() => response) // ✅ return full backend response
         );
       }),
       catchError((err) => {
         console.error('Login failed', err);
-        return of(false);
+
+        return of({
+          success: false,
+          remarks: err?.error?.remarks || 'Server error occurred'
+        });
       })
     );
 }
-
-
   signOutLocal(): Observable<any> {
     // Remove the access token from the local storage
     localStorage.removeItem(this.sessionKey);
