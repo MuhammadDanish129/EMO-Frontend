@@ -7,16 +7,48 @@
       <!-- TITLE -->
       <div>
         <h1 class="text-white text-2xl font-semibold tracking-wide">
-          Business Admin Management
+          Agreement Tenant Management
         </h1>
         <p class="mt-0.5 text-sm text-white/80 max-w-2xl">
-          Manage admins assigned to this business.
+          Manage tenants assigned to this agreement.
         </p>
       </div>
 
     </div>
   </div>
 </div>
+
+<div class="px-6 py-3 mb-4 bg-[rgb(var(--light))]
+            border-b border-[rgb(var(--gray-200))]">
+
+  <nav class="flex flex-wrap items-center gap-1 text-sm">
+
+    <!-- Agreements -->
+    <button (click)="goToAgreement()"
+      class="flex items-center gap-1
+             text-[rgb(var(--gray-600))]
+             hover:text-[rgb(var(--primary))]
+             transition font-medium">
+
+      <i class="las la-file-contract text-base"></i>
+      Agreements
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <!-- CURRENT -->
+    <span
+      class="flex items-center gap-1
+             text-[rgb(var(--primary))]
+             font-semibold">
+
+      <i class="las la-user text-base"></i>
+      Tenants
+    </span>
+
+  </nav>
+</div>
+
 
 <!-- CARD -->
 <div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6">
@@ -26,7 +58,7 @@
            sm:flex-row sm:items-center sm:justify-between">
 
     <p class="text-sm text-[rgb(var(--primary))]">
-      Total Admins:
+      Total Tenants:
       <span class="font-semibold text-[rgb(var(--primary))]">
         {{ filteredTenants.length }}
       </span>
@@ -36,7 +68,7 @@
       type="text"
       [(ngModel)]="searchText"
       (ngModelChange)="searchUsers()"
-      placeholder="Search admins..."
+      placeholder="Search tenant..."
       class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
              border-[rgb(var(--input-border))]" />
   </div>
@@ -50,7 +82,7 @@
                border-2 border-[rgb(var(--primary))]
                border-t-transparent animate-spin">
       </span>
-      Loading admins...
+      Loading tenants...
     </div>
   </div>
 
@@ -130,7 +162,7 @@
       <thead class="bg-[rgb(var(--gray-200))] text-sm text-[rgb(var(--gray-500))]">
         <tr>
           <th class="px-4 py-3 text-left">Sr #</th>
-          <th class="px-4 py-3 text-left">Admin</th>
+          <th class="px-4 py-3 text-left">Tenant</th>
           <th class="px-4 py-3 text-left">Phone</th>
           <th class="px-4 py-3 text-left">Gender</th>
           <th class="px-4 py-3 text-left">Status</th>

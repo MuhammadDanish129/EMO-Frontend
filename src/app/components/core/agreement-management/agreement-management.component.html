@@ -30,6 +30,23 @@
 </div>
 
 
+<div class="px-6 py-3 mb-4 bg-[rgb(var(--light))]
+            border-b border-[rgb(var(--gray-200))]">
+
+  <nav class="flex flex-wrap items-center gap-1 text-sm">
+
+    <!-- CURRENT -->
+    <span class="flex items-center gap-1
+             text-[rgb(var(--primary))]
+             font-semibold">
+
+      <i class="las la-file-contract text-base"></i>
+      Agreements
+    </span>
+
+  </nav>
+</div>
+
 <!-- CARD -->
 <div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6">
 
@@ -44,11 +61,7 @@
       </span>
     </p>
 
-    <input
-      [(ngModel)]="searchText"
-      (ngModelChange)="searchAgreements()"
-      placeholder="Search Agreements..."
-      class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
+    <input [(ngModel)]="searchText" (ngModelChange)="searchAgreements()" placeholder="Search Agreements..." class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
       border-[rgb(var(--input-border))]" />
 
   </div>
@@ -70,67 +83,70 @@
     </div>
 
     <!-- DATA -->
-    <div *ngFor="let st of pagedAgreements"
-         class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
+    <div *ngFor="let st of pagedAgreements" class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
 
-      <div class="flex justify-between">
+      <!-- HEADER -->
+      <div class="flex items-center gap-3">
 
-        <div>
-          <div class="font-semibold text-indigo-600 text-sm">
+        <div class="flex-1">
+
+          <!-- Agreement Name -->
+          <div class="font-semibold text-sm text-indigo-600">
             {{ st.agreementName }}
           </div>
+
+          <!-- Tenant Name -->
           <div class="text-xs text-gray-500">
-            {{ st.tenantName }} • {{ st.officeName }}
+            {{ st.tenantName }}
           </div>
+
         </div>
 
-        <span class="rounded-full px-3 py-1 text-xs font-semibold"
-              [ngClass]="st.isActive
-            ? 'bg-success/10 text-success'
-            : 'bg-danger/10 text-danger'">
+        <!-- STATUS -->
+        <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="st.isActive
+        ? 'bg-success/10 text-success'
+        : 'bg-danger/10 text-danger'">
           {{ st.isActive ? 'Active' : 'Inactive' }}
         </span>
 
       </div>
 
       <!-- DATES -->
-      <div class="mt-3 flex flex-col gap-1 text-xs">
-        <span class="px-2 py-1 rounded bg-blue-50 text-blue-600">
-          Start: {{ formatDate(st.agreementStartDate) }}
-        </span>
-
-        <span class="px-2 py-1 rounded bg-purple-50 text-purple-600">
-          End: {{ formatDate(st.agreementEndDate) }}
-        </span>
-      </div>
+      <!-- DATES -->
+      <div class="mt-3 flex gap-2 text-xs"> <span class="flex-1 px-2 py-1 rounded bg-blue-50 text-blue-600"> Start: {{
+          formatDate(st.agreementStartDate) }} </span> <span
+          class="flex-1 px-2 py-1 rounded bg-purple-50 text-purple-600 text-right"> End: {{
+          formatDate(st.agreementEndDate) }} </span> </div>
 
       <!-- ACTIONS -->
       <div class="mt-4 flex justify-end gap-2 border-t pt-3">
 
         <button class="rounded-lg p-2
-               bg-[rgb(var(--indigo-100))]
-               text-[rgb(var(--indigo-600))]"
-                (click)="edit(st)">
-          <i class="las la-edit text-lg"></i>
+           bg-[rgb(var(--indigo-100))]
+           text-[rgb(var(--indigo-600))]" (click)="viewTenants(st.agreementId)">
+          <i class="las la-users text-lg"></i>
+        </button>
+
+          <button class="rounded-lg p-2
+           bg-[rgb(var(--indigo-100))]
+           text-[rgb(var(--indigo-600))]" (click)="viewOffices(st.agreementId)">
+          <i class="las la-briefcase text-lg"></i>
         </button>
 
         <button class="rounded-lg p-2
-               bg-[rgb(var(--red-100))]
-               text-[rgb(var(--red-600))]"
-                (click)="delete(st.agreementId)">
+           bg-[rgb(var(--red-100))]
+           text-[rgb(var(--red-600))]" (click)="delete(st.agreementId)">
           <i class="las la-trash text-lg"></i>
         </button>
 
       </div>
 
     </div>
-
     <!-- EMPTY -->
-    <div *ngIf="!isLoading && pagedAgreements.length === 0"
-         class="py-16 text-center">
+    <div *ngIf="!isLoading && pagedAgreements.length === 0" class="py-16 text-center">
 
       <p class="text-sm font-semibold">
-         No Record Found
+        No Record Found
       </p>
 
       <p class="text-xs text-gray-600 mt-1">
@@ -141,135 +157,132 @@
 
   </div>
 
- <!-- ================= DESKTOP TABLE ================= -->
-<div class="hidden md:block overflow-x-auto">
+  <!-- ================= DESKTOP TABLE ================= -->
+  <div class="hidden md:block overflow-x-auto">
 
-  <table class="min-w-full bg-[rgb(var(--light))]">
+    <table class="min-w-full bg-[rgb(var(--light))]">
 
-    <!-- HEADER -->
-    <thead class="bg-[rgb(var(--gray-200))]
+      <!-- HEADER -->
+      <thead class="bg-[rgb(var(--gray-200))]
                    text-xs tracking-wider
                    text-[rgb(var(--gray-500))]">
 
-      <tr>
-        <th class="px-5 py-3 text-left font-semibold">Sr #</th>
-        <th class="px-5 py-3 text-left font-semibold">Agreement</th>
-        <th class="px-5 py-3 text-left font-semibold">Tenant</th>
-        <th class="px-5 py-3 text-left font-semibold">Office</th>
-        <th class="px-5 py-3 text-left font-semibold">Duration</th>
-        <th class="px-5 py-3 text-left font-semibold">Status</th>
-        <th class="px-5 py-3 text-center font-semibold">Actions</th>
-      </tr>
+        <tr>
+          <th class="px-5 py-3 text-left font-semibold">Sr #</th>
+          <th class="px-5 py-3 text-left font-semibold">Agreement</th>
+          <th class="px-5 py-3 text-left font-semibold">Tenant</th>
+          <th class="px-5 py-3 text-left font-semibold">Duration</th>
+          <th class="px-5 py-3 text-left font-semibold">Status</th>
+          <th class="px-5 py-3 text-center font-semibold">Actions</th>
+        </tr>
 
-    </thead>
+      </thead>
 
-    <!-- BODY -->
-    <tbody class="text-sm divide-y divide-[rgb(var(--gray-200))]">
+      <!-- BODY -->
+      <tbody class="text-sm divide-y divide-[rgb(var(--gray-200))]">
 
-      <!-- LOADING -->
-      <tr *ngIf="isLoading">
-        <td colspan="7" class="px-6 py-16 text-center">
-          <div class="flex flex-col items-center gap-3">
+        <!-- LOADING -->
+        <tr *ngIf="isLoading">
+          <td colspan="7" class="px-6 py-16 text-center">
+            <div class="flex flex-col items-center gap-3">
 
-            <div class="h-10 w-10 animate-spin rounded-full
+              <div class="h-10 w-10 animate-spin rounded-full
                         border-4 border-gray-200
                         border-t-[rgb(var(--primary))]">
+              </div>
+
+              <p class="text-sm text-gray-500 font-medium">
+                Loading Agreements...
+              </p>
+
             </div>
+          </td>
+        </tr>
 
-            <p class="text-sm text-gray-500 font-medium">
-              Loading Agreements...
-            </p>
-
-          </div>
-        </td>
-      </tr>
-
-      <!-- DATA -->
-     <tr *ngFor="let st of pagedAgreements; let i = index"
-      class="border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]">
+        <!-- DATA -->
+        <tr *ngFor="let st of pagedAgreements; let i = index"
+          class="border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]">
 
 
-        <!-- SR -->
-        <td class="px-5 py-4 font-medium text-[rgb(var(--gray-700))]">
-          {{ pageIndex * pageSize + i + 1 }}
-        </td>
+          <!-- SR -->
+          <td class="px-5 py-4 font-medium text-[rgb(var(--gray-700))]">
+            {{ pageIndex * pageSize + i + 1 }}
+          </td>
 
-        <!-- AGREEMENT -->
-        <td class="px-5 py-4">
-          <div class="flex flex-col">
-            <span class="font-semibold text-indigo-600 group-hover:text-indigo-700">
-              {{ st.agreementName }}
-            </span>
+          <!-- AGREEMENT -->
+          <td class="px-5 py-4">
+            <div class="flex flex-col">
+              <span class="font-semibold text-indigo-600 group-hover:text-indigo-700">
+                {{ st.agreementName }}
+              </span>
 
-            <!-- <span class="text-xs text-gray-500 mt-0.5 line-clamp-1">
+              <!-- <span class="text-xs text-gray-500 mt-0.5 line-clamp-1">
               {{ st.agreementDescription }}
             </span> -->
-          </div>
-        </td>
+            </div>
+          </td>
 
-        <!-- TENANT -->
-        <td class="px-5 py-4 font-medium text-[rgb(var(--gray-700))]">
-          {{ st.tenantName }}
-        </td>
+          <!-- TENANT -->
+          <td class="px-5 py-4 font-medium text-[rgb(var(--gray-700))]">
+            {{ st.tenantName }}
+          </td>
 
-        <!-- OFFICE -->
+          <!-- OFFICE
         <td class="px-5 py-4 text-[rgb(var(--gray-700))]">
           {{ st.officeName }}
-        </td>
+        </td> -->
 
-        <!-- DURATION -->
-        <td class="px-5 py-4">
+          <!-- DURATION -->
+          <td class="px-5 py-4">
 
-          <div class="flex flex-col gap-1.5 text-xs">
+            <div class="flex flex-col gap-1.5 text-xs">
 
-            <span class="inline-flex items-center gap-1
+              <span class="inline-flex items-center gap-1
                          px-2.5 py-1 rounded-md
                          bg-blue-50 text-blue-700 font-medium">
 
-              <i class="las la-calendar text-sm"></i>
-              Start: {{ formatDate(st.agreementStartDate) }}
+                <i class="las la-calendar text-sm"></i>
+                Start: {{ formatDate(st.agreementStartDate) }}
 
-            </span>
+              </span>
 
-            <span class="inline-flex items-center gap-1
+              <span class="inline-flex items-center gap-1
                          px-2.5 py-1 rounded-md
                          bg-purple-50 text-purple-700 font-medium">
 
-              <i class="las la-calendar-check text-sm"></i>
-              End: {{ formatDate(st.agreementEndDate) }}
+                <i class="las la-calendar-check text-sm"></i>
+                End: {{ formatDate(st.agreementEndDate) }}
 
-            </span>
+              </span>
 
-          </div>
+            </div>
 
-        </td>
+          </td>
 
-        <!-- STATUS -->
-        <td class="px-5 py-4">
+          <!-- STATUS -->
+          <td class="px-5 py-4">
 
-          <span class="inline-flex items-center gap-1.5
-                       rounded-full px-3 py-1 text-xs font-semibold"
-                [ngClass]="st.isActive
+            <span class="inline-flex items-center gap-1.5
+                       rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="st.isActive
                 ? 'bg-success/10 text-success'
                 : 'bg-danger/10 text-danger'">
 
-            <span class="h-1.5 w-1.5 rounded-full"
-                  [ngClass]="st.isActive ? 'bg-success' : 'bg-danger'">
+              <span class="h-1.5 w-1.5 rounded-full" [ngClass]="st.isActive ? 'bg-success' : 'bg-danger'">
+              </span>
+
+              {{ st.isActive ? 'Active' : 'Inactive' }}
+
             </span>
 
-            {{ st.isActive ? 'Active' : 'Inactive' }}
+          </td>
 
-          </span>
+          <!-- ACTIONS -->
+          <td class="px-5 py-4">
 
-        </td>
+            <div class="flex justify-center gap-2">
 
-        <!-- ACTIONS -->
-        <td class="px-5 py-4">
-
-          <div class="flex justify-center gap-2">
-
-            <!-- EDIT -->
-            <!-- <button matTooltip="Edit Agreement"
+              <!-- EDIT -->
+              <!-- <button matTooltip="Edit Agreement"
               class="rounded-lg p-2 transition
                      bg-[rgb(var(--indigo-100))]
                      text-[rgb(var(--indigo-600))]
@@ -281,13 +294,13 @@
 
             </button> -->
 
-            <!-- VIEW ADMINS -->
+              <!-- VIEW Tenant -->
               <div class="relative group">
                 <button class="rounded-lg p-2
                bg-[rgb(var(--primary-100))]
                text-[rgb(var(--primary))]" (click)="viewTenants(st.agreementId)">
 
-                  <i class="las la-users text-lg"></i>
+                  <i class="las la-user text-lg"></i>
                 </button>
 
                 <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
@@ -299,49 +312,69 @@
                text-[rgb(var(--gray-900))]
                border border-[rgb(var(--primary-200))]">
 
-                  View Admins
+                  View Tenant
                 </div>
               </div>
 
-            <!-- DELETE -->
-            <button matTooltip="Delete Agreement"
-              class="rounded-lg p-2 transition
+
+              <div class="relative group">
+                <button class="rounded-lg p-2
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--primary))]" (click)="viewOffices(st.agreementId)">
+
+                  <i class="las la-briefcase text-lg"></i>
+                </button>
+
+                <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+               flex opacity-0 group-hover:opacity-100
+               px-2 py-1 text-[11px] font-medium rounded-md
+               shadow-sm whitespace-nowrap transition duration-200
+               pointer-events-none
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--gray-900))]
+               border border-[rgb(var(--primary-200))]">
+
+                  View offices
+                </div>
+              </div>
+
+              <!-- DELETE -->
+              <button matTooltip="Delete Agreement" class="rounded-lg p-2 transition
                      bg-[rgb(var(--red-100))]
                      text-[rgb(var(--red-600))]
                      hover:bg-[rgb(var(--red-200))]
-                     hover:scale-105"
-              (click)="delete(st.agreementId)">
+                     hover:scale-105" (click)="delete(st.agreementId)">
 
-              <i class="las la-trash text-lg"></i>
+                <i class="las la-trash text-lg"></i>
 
-            </button>
+              </button>
 
-          </div>
+            </div>
 
-        </td>
+          </td>
 
-      </tr>
+        </tr>
 
-      <!-- EMPTY -->
-      <tr *ngIf="!isLoading && pagedAgreements.length === 0">
-        <td colspan="7" class="px-6 py-20 text-center">
+        <!-- EMPTY -->
+        <tr *ngIf="!isLoading && pagedAgreements.length === 0">
+          <td colspan="7" class="px-6 py-20 text-center">
 
-          <p class="text-sm font-semibold">
-            No Record Found
-          </p>
+            <p class="text-sm font-semibold">
+              No Record Found
+            </p>
 
-          <p class="text-xs text-gray-600 mt-1">
-            Try adjusting search or create a new agreement.
-          </p>
+            <p class="text-xs text-gray-600 mt-1">
+              Try adjusting search or create a new agreement.
+            </p>
 
-        </td>
-      </tr>
+          </td>
+        </tr>
 
-    </tbody>
+      </tbody>
 
-  </table>
+    </table>
 
-</div>
+  </div>
 
 
   <!-- PAGINATION -->
@@ -354,24 +387,18 @@
 
     <div class="flex gap-1">
 
-      <button (click)="prevPage()"
-              [disabled]="pageIndex === 0"
-              class="px-3 py-2 rounded-lg border text-sm">
+      <button (click)="prevPage()" [disabled]="pageIndex === 0" class="px-3 py-2 rounded-lg border text-sm">
         Prev
       </button>
 
-      <button *ngFor="let p of pages"
-              (click)="goToPage(p)"
-              class="px-3 py-2 rounded-lg border text-sm"
-              [ngClass]="p === pageIndex
+      <button *ngFor="let p of pages" (click)="goToPage(p)" class="px-3 py-2 rounded-lg border text-sm" [ngClass]="p === pageIndex
             ? 'bg-[rgb(var(--primary))] text-white'
             : 'hover:bg-gray-100'">
         {{ p + 1 }}
       </button>
 
-      <button (click)="nextPage()"
-              [disabled]="(pageIndex + 1) * pageSize >= filteredAgreements.length"
-              class="px-3 py-2 rounded-lg border text-sm">
+      <button (click)="nextPage()" [disabled]="(pageIndex + 1) * pageSize >= filteredAgreements.length"
+        class="px-3 py-2 rounded-lg border text-sm">
         Next
       </button>
 

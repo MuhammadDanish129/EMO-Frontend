@@ -154,5 +154,10 @@ getUserAvatar(u: any): string {
       if (res) this.loadTenant();
     });
   }
-
+goToAgreement(){
+  this.router.navigate(
+    ['/core/agreement-management'],
+    
+  )
+}
 }

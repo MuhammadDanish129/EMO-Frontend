@@ -95,6 +95,12 @@ export const core: Routes = [
           import('./agreement-management/agreement-tenant-management/agreement-tenant-management.component').then((m) => m.AgreementTenantManagementComponent),
         providers: [provideNativeDateAdapter()]
       },
+      {
+        path: 'agreement-office-management',
+        loadComponent: () =>
+          import('./agreement-management/agreement-office-management/agreement-office-management.component').then((m) => m.AgreementOfficeManagementComponent),
+        providers: [provideNativeDateAdapter()]
+      },
       //   {
       //     path: 'user',
       //     loadComponent: () =>

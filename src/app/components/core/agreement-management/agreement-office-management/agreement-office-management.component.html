@@ -1,0 +1,226 @@
+<!-- PAGE HEADER -->
+<div class="-mt-2 mb-4">
+  <div class="px-6 py-4 bg-[rgb(var(--primary))]">
+    <div class="flex flex-col gap-4 pt-3
+             md:flex-row md:items-center md:justify-between">
+
+      <!-- TITLE -->
+      <div>
+        <h1 class="text-white text-2xl font-semibold tracking-wide">
+          Agreement Office Management
+        </h1>
+        <p class="mt-0.5 text-sm text-white/80 max-w-2xl">
+          Manage offices assigned to this agreement.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="px-6 py-3 mb-4 bg-[rgb(var(--light))]
+            border-b border-[rgb(var(--gray-200))]">
+
+  <nav class="flex flex-wrap items-center gap-1 text-sm">
+
+    <!-- Agreements -->
+    <button (click)="goToAgreement()"
+      class="flex items-center gap-1
+             text-[rgb(var(--gray-600))]
+             hover:text-[rgb(var(--primary))]
+             transition font-medium">
+
+      <i class="las la-file-contract text-base"></i>
+      Agreements
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <!-- CURRENT -->
+    <span
+      class="flex items-center gap-1
+             text-[rgb(var(--primary))]
+             font-semibold">
+
+      <i class="las la-briefcase text-base"></i>
+      Offices
+    </span>
+
+  </nav>
+</div>
+
+
+<!-- CARD -->
+<div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6">
+
+  <!-- SEARCH BAR -->
+  <div class="flex flex-col gap-2 p-4 border-b
+           sm:flex-row sm:items-center sm:justify-between">
+
+    <p class="text-sm text-[rgb(var(--primary))]">
+      Total Offices:
+      <span class="font-semibold text-[rgb(var(--primary))]">
+        {{ filteredOffices.length }}
+      </span>
+    </p>
+
+    <input
+      type="text"
+      [(ngModel)]="searchText"
+      (ngModelChange)="searchOffices()"
+      placeholder="Search office..."
+      class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
+             border-[rgb(var(--input-border))]" />
+  </div>
+
+  <!-- LOADER -->
+  <div *ngIf="isLoading"
+       class="flex items-center justify-center py-20">
+    <div class="flex flex-col items-center gap-3 text-sm text-muted">
+      <span
+        class="h-8 w-8 rounded-full
+               border-2 border-[rgb(var(--primary))]
+               border-t-transparent animate-spin">
+      </span>
+      Loading offices...
+    </div>
+  </div>
+
+  <!-- MOBILE -->
+  <div *ngIf="!isLoading"
+       class="block md:hidden p-4 space-y-3">
+
+    <div *ngFor="let o of pagedOffices"
+         class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
+
+      <div class="flex items-start justify-between">
+
+        <div>
+          <div class="font-semibold text-indigo-600 text-sm">
+            {{ o.officeName }}
+          </div>
+        </div>
+
+        <span class="rounded-full px-3 py-1 text-xs font-semibold"
+          [ngClass]="o.isActive
+            ? 'bg-success/10 text-success'
+            : 'bg-danger/10 text-danger'">
+
+          {{ o.isActive ? 'Active' : 'Inactive' }}
+        </span>
+
+      </div>
+
+      <div class="mt-2">
+        <span class="rounded-full px-3 py-1 text-xs font-semibold"
+          [ngClass]="o.isOcuppied
+            ? 'bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))]'
+            : 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-700))]'">
+
+          {{ o.isOcuppied ? 'Occupied' : 'Available' }}
+        </span>
+      </div>
+
+    </div>
+
+    <div *ngIf="pagedOffices.length === 0" class="py-16 text-center">
+      <p class="text-sm font-semibold">No Record Found</p>
+      <p class="text-xs text-gray-600 mt-1">
+        Try adjusting search.
+      </p>
+    </div>
+
+  </div>
+
+  <!-- DESKTOP -->
+  <div *ngIf="!isLoading"
+       class="hidden md:block overflow-x-auto">
+
+    <table class="min-w-full bg-[rgb(var(--light))]">
+
+      <thead class="bg-[rgb(var(--gray-200))] text-sm text-[rgb(var(--gray-500))]">
+        <tr>
+          <th class="px-4 py-3 text-left">Sr #</th>
+          <th class="px-4 py-3 text-left">Office</th>
+          <th class="px-4 py-3 text-left">Occupied</th>
+          <th class="px-4 py-3 text-left">Status</th>
+        </tr>
+      </thead>
+
+      <tbody class="text-sm">
+
+        <tr *ngFor="let o of pagedOffices; let i = index"
+            class="border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]">
+
+          <td class="px-4 py-3 font-medium">
+            {{ pageIndex * pageSize + i + 1 }}
+          </td>
+
+          <td class="px-4 py-3 font-semibold text-indigo-600">
+            {{ o.officeName }}
+          </td>
+
+          <td class="px-4 py-3">
+            <span class="rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="o.isOcuppied
+                ? 'bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))]'
+                : 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-700))]'">
+              {{ o.isOcuppied ? 'Occupied' : 'Available' }}
+            </span>
+          </td>
+
+          <td class="px-4 py-3">
+            <span class="rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="o.isActive
+                ? 'bg-success/10 text-success'
+                : 'bg-danger/10 text-danger'">
+              {{ o.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+
+        </tr>
+
+        <tr *ngIf="pagedOffices.length === 0">
+          <td colspan="4" class="text-center py-16">
+            No record found
+          </td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGINATION -->
+  <div *ngIf="!isLoading"
+       class="flex items-center justify-between px-4 py-3 border-t">
+
+    <p class="text-sm text-gray-500">
+      Showing {{ pageIndex * pageSize + 1 }} – {{ pageEnd }}
+      of {{ filteredOffices.length }}
+    </p>
+
+    <div class="flex gap-1">
+      <button (click)="prevPage()" [disabled]="pageIndex === 0"
+              class="px-3 py-2 rounded-lg border text-sm">
+        Prev
+      </button>
+
+      <button *ngFor="let p of pages"
+              (click)="goToPage(p)"
+              class="px-3 py-2 rounded-lg border text-sm"
+              [ngClass]="p === pageIndex
+                ? 'bg-[rgb(var(--primary))] text-white'
+                : 'hover:bg-gray-100'">
+        {{ p + 1 }}
+      </button>
+
+      <button (click)="nextPage()"
+              [disabled]="(pageIndex + 1) * pageSize >= filteredOffices.length"
+              class="px-3 py-2 rounded-lg border text-sm">
+        Next
+      </button>
+    </div>
+
+  </div>
+
+</div>

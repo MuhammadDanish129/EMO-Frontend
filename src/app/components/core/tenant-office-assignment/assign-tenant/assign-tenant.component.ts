@@ -288,13 +288,39 @@ getSelectedLabel(): string {
     );
   }
 
+  // validateStep3(): boolean {
+  //   return !!(
+  //     this.agreementModel.agreementName &&
+  //     this.range.controls.start.value &&
+  //     this.range.controls.end.value
+  //   );
+  // }
+
+
   validateStep3(): boolean {
-    return !!(
-      this.agreementModel.agreementName &&
-      this.range.controls.start.value &&
-      this.range.controls.end.value
-    );
+
+  if (!this.agreementModel.agreementName) {
+    this.toaster.error('Agreement name is required');
+    return false;
   }
+
+  if (!this.range.controls.start.value) {
+    this.toaster.error('Start date is required');
+    return false;
+  }
+
+  if (!this.range.controls.end.value) {
+    this.toaster.error('End date is required');
+    return false;
+  }
+
+  if (this.range.controls.start.value > this.range.controls.end.value) {
+    this.toaster.error('Start date cannot be after end date');
+    return false;
+  }
+
+  return true;
+}
 navigateStep(step: number) {
 
   // Step 0 is always allowed
@@ -369,7 +395,7 @@ cancelAssignment() {
     }
 
     if (!this.validateStep3()) {
-      this.toaster.error('Fill agreement details');
+      // this.toaster.error('Fill agreement details');
       return;
     }
 

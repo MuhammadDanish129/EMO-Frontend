@@ -5,6 +5,7 @@ import { HttpClient } from "@angular/common/http";
 import { environment } from "../../../../environments/environment";
 import { Injectable } from "@angular/core";
 import { UserResponseDTO } from "../../management/user/user.type";
+import { OfficeResponseDTO } from "../office-management/office-management.type";
 
 @Injectable({ providedIn: 'root' })
 export class AgreementService {
@@ -24,6 +25,15 @@ export class AgreementService {
   }
 
 
+  getOfficesByAgreementId(
+      id: string
+    ): Observable<ResponseModel<OfficeResponseDTO[]>> {
+      return this.http.get<ResponseModel<OfficeResponseDTO[]>>(
+        `${this.baseUrl}/Agreement/GetOfficesByAgreementId`,
+        { params: { id } }
+      );
+    }
+
   getTenants(id: string): Observable<ResponseModel<UserResponseDTO[]>> {
       return this.http.get<ResponseModel<UserResponseDTO[]>>(
         `${this.baseUrl}/Tenant/GetTenantByAgreementId`,
@@ -33,7 +43,7 @@ export class AgreementService {
   updateAgreement(model: any) {
     return this.http.put(`${this.baseUrl}/Agreement`, model);
   }
-   getSensorByBusinessId(
+   getByBusinessId(
       id: string
     ): Observable<ResponseModel<AgreementResponseDTO[]>> {
       return this.http.get<ResponseModel<AgreementResponseDTO[]>>(

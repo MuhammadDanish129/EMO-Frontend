@@ -46,7 +46,7 @@ export class AgreementManagementComponent implements OnInit {
   loadAgreements(fkBusiness:string) {
     this.isLoading = true;
 
-    this.agreementService.getSensorByBusinessId(fkBusiness).subscribe({
+    this.agreementService.getByBusinessId(fkBusiness).subscribe({
       next: (res: any) => {
 
         if (res.success === false) {
@@ -153,6 +153,22 @@ viewTenants(agreementId: string) {
 
     this.router.navigate(
       ['/core/agreement-tenant-management'],
+      {
+        state: {
+          agreementId: agreementId
+        }
+      }
+    );
+
+  }
+
+
+  viewOffices(agreementId: string) {
+
+    console.log(agreementId);
+
+    this.router.navigate(
+      ['/core/agreement-office-management'],
       {
         state: {
           agreementId: agreementId
