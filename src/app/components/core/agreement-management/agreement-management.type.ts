@@ -27,3 +27,7 @@ export interface AgreementRequestDTO {
   fkOffice: string;
   isActive: boolean;
 }
+export interface RemoveOfficeFromAgreementRequestDTO {
+  agreementId: string;
+  officeId: string;
+}

@@ -7,6 +7,8 @@ import { ToastrService } from 'ngx-toastr';
 
 import { OfficeResponseDTO } from '../../office-management/office-management.type';
 import { AgreementService } from '../agreement-management.service';
+import { ConfirmDialogComponent } from '../../../../shared/confirmation-dialouge/confirmation-dialog.component';
+import { RemoveOfficeFromAgreementRequestDTO } from '../agreement-management.type';
 
 @Component({
   selector: 'app-agreement-office-management',
@@ -123,4 +125,44 @@ export class AgreementOfficeManagementComponent implements OnInit {
   goToAgreement() {
     this.router.navigate(['/core/agreement-management']);
   }
+
+removeRoomFromAgreement(officeId: string) {
+  const confirmationDialogRef = this.dialog.open(ConfirmDialogComponent, {
+    width: '420px',
+    disableClose: true,
+    data: {
+      title: 'Remove Room from Agreement',
+      message:
+        'Are you sure you want to remove this room from the agreement? This will unassign the room and affect linked tenants.',
+      confirmText: 'Remove',
+      cancelText: 'Cancel',
+      variant: 'danger',
+      showActions: true
+    }
+  });
+
+  confirmationDialogRef.afterClosed().subscribe((confirmed: boolean) => {
+    if (!confirmed) return;
+
+    // ✅ BUILD PAYLOAD
+    const payload: RemoveOfficeFromAgreementRequestDTO = {
+      agreementId: this.agreementId,   // <-- from component state
+      officeId: officeId
+    };
+
+    this.service.removeOfficeFromAgreement(payload).subscribe({
+      next: (res: any) => {
+        if (res.success) {
+          this.toaster.success('Room removed from agreement successfully');
+          this.loadOffices();
+        } else {
+          this.toaster.error(res.remarks || 'Failed to remove room');
+        }
+      },
+      error: () => {
+        this.toaster.error('Failed to remove room');
+      }
+    });
+  });
+}
 }

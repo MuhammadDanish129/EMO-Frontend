@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 import { ResponseModel } from "../../../shared/response.model";
-import { AgreementResponseDTO } from "./agreement-management.type";
+import { AgreementResponseDTO, RemoveOfficeFromAgreementRequestDTO } from "./agreement-management.type";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../../../environments/environment";
 import { Injectable } from "@angular/core";
@@ -48,6 +48,8 @@ export class AgreementService {
         { params: { id } }
       );
     }
+
+    
   updateAgreement(model: any) {
     return this.http.put(`${this.baseUrl}/Agreement`, model);
   }
@@ -65,4 +67,11 @@ export class AgreementService {
       params: { id }
     });
   }
+
+ removeOfficeFromAgreement(payload: RemoveOfficeFromAgreementRequestDTO) {
+  return this.http.post(
+    `${this.baseUrl}/Agreement/RemoveOfficeFromAgreement`,
+    payload
+  );
+}
 }
