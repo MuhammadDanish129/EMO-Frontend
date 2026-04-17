@@ -349,7 +349,12 @@ export class NavService implements OnDestroy {
       type: 'link',
       path: '/core/facility-management',
     },
-    
+    {
+      title: 'Tenant Management',
+      icon: 'las la-users',
+      type: 'link',
+      path: '/core/tenant-management',
+    },
     {
       title: 'Office Tenant Assignment',
       icon: 'las la-briefcase',
@@ -403,7 +408,8 @@ export class NavService implements OnDestroy {
       'Dashboards',
       'Office Tenant Assignment',
       'Sensor Management',
-      'Agreement Management'
+      'Agreement Management',
+      'Tenant Management'
     ],
 
     2: [

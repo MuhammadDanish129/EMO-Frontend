@@ -40,6 +40,14 @@ export class AgreementService {
         { params: { id } }
       );
     }
+
+
+      getTenantsByBusinessId(id: string): Observable<ResponseModel<UserResponseDTO[]>> {
+      return this.http.get<ResponseModel<UserResponseDTO[]>>(
+        `${this.baseUrl}/Tenant/GetTenantsByBusinessId`,
+        { params: { id } }
+      );
+    }
   updateAgreement(model: any) {
     return this.http.put(`${this.baseUrl}/Agreement`, model);
   }

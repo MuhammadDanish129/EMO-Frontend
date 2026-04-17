@@ -1,0 +1,303 @@
+<!-- PAGE HEADER -->
+<div class="-mt-2 mb-4">
+  <div class="px-6 py-4 bg-[rgb(var(--primary))]">
+    <div class="flex flex-col gap-4 pt-3
+             md:flex-row md:items-center md:justify-between">
+
+      <!-- TITLE -->
+      <div>
+        <h1 class="text-white text-2xl font-semibold tracking-wide">
+          Tenant Management
+        </h1>
+        <p class="mt-0.5 text-sm text-white/80 max-w-2xl">
+          Manage and view tenants.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- CARD -->
+<div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6">
+
+  <!-- SEARCH BAR -->
+  <div class="flex flex-col gap-2 p-4 border-b
+           sm:flex-row sm:items-center sm:justify-between">
+
+    <p class="text-sm text-[rgb(var(--primary))]">
+      Total Tenants:
+      <span class="font-semibold text-[rgb(var(--primary))]">
+        {{ filteredTenants.length }}
+      </span>
+    </p>
+
+    <input
+      type="text"
+      [(ngModel)]="searchText"
+      (ngModelChange)="searchUsers()"
+      placeholder="Search tenant..."
+      class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
+             border-[rgb(var(--input-border))]" />
+  </div>
+
+  <!-- LOADER -->
+  <div *ngIf="isLoading"
+       class="flex items-center justify-center py-20">
+    <div class="flex flex-col items-center gap-3 text-sm text-muted">
+      <span
+        class="h-8 w-8 rounded-full
+               border-2 border-[rgb(var(--primary))]
+               border-t-transparent animate-spin">
+      </span>
+      Loading tenants...
+    </div>
+  </div>
+
+  <!-- ================= MOBILE CARDS ================= -->
+  <div *ngIf="!isLoading"
+       class="block md:hidden p-4 space-y-3">
+
+    <div *ngFor="let u of pagedUsers"
+         class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
+
+      <div class="flex items-center gap-3">
+        <img
+          [src]="getUserAvatar(u)"
+          class="h-12 w-12 rounded-full object-cover border" />
+
+        <div class="flex-1">
+          <div class="font-semibold text-sm">
+            {{ u.name }}
+          </div>
+
+          <div class="text-xs text-gray-500">{{ u.username }}</div>
+          <div class="text-[11px] text-[rgb(var(--primary))]">
+            {{ u.subUserTypeName }}
+          </div>
+        </div>
+
+        <span
+          class="rounded-full px-3 py-1 text-xs font-semibold"
+          [ngClass]="u.isActive
+            ? 'bg-success/10 text-success'
+            : 'bg-danger/10 text-danger'">
+          {{ u.isActive ? 'Active' : 'Inactive' }}
+        </span>
+      </div>
+
+      <!-- INFO -->
+      <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
+        <div>
+          <div class="text-xs text-stone-600">Phone</div>
+          <div class="font-medium">{{ u.userPhone }}</div>
+        </div>
+
+        <div>
+          <div class="text-xs text-stone-600">Gender</div>
+          <i class="las text-lg"
+             [ngClass]="{
+               'la-mars yx-gender-male': u.genderName === 'Male',
+               'la-venus yx-gender-female': u.genderName === 'Female',
+               'la-genderless yx-gender-other':
+                 u.genderName !== 'Male' && u.genderName !== 'Female'
+             }">
+          </i>
+        </div>
+      </div>
+
+      <!-- ACTION -->
+      <div class="mt-4 flex justify-end gap-2 border-t pt-3">
+        <button
+          type="button"
+          (click)="editUser(u)"
+          class="rounded-lg p-2
+                 bg-[rgb(var(--indigo-100))]
+                 text-[rgb(var(--indigo-600))]">
+          <i class="las la-edit text-lg"></i>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= DESKTOP TABLE ================= -->
+  <div *ngIf="!isLoading"
+       class="hidden md:block overflow-x-auto">
+
+    <table class="min-w-full bg-[rgb(var(--light))]">
+
+      <thead class="bg-[rgb(var(--gray-200))] text-sm text-[rgb(var(--gray-500))]">
+        <tr>
+          <th class="px-4 py-3 text-left">Sr #</th>
+          <th class="px-4 py-3 text-left">Tenant</th>
+          <th class="px-4 py-3 text-left">Phone</th>
+          <th class="px-4 py-3 text-left">Gender</th>
+          <th class="px-4 py-3 text-left">Status</th>
+          <th class="px-4 py-3 text-center">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody class="text-sm">
+
+        <tr *ngFor="let u of pagedUsers; let i = index"
+            class="border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]">
+
+          <td class="px-4 py-3 font-medium">
+            {{ pageIndex * pageSize + i + 1 }}
+          </td>
+
+          <td class="px-4 py-3">
+            <div class="flex items-center gap-3">
+              <img
+                [src]="getUserAvatar(u)"
+                class="h-12 w-12 rounded-full object-cover border" />
+
+              <div class="flex flex-col leading-tight">
+                <span class="font-semibold">{{ u.name }}</span>
+                <span class="text-xs text-gray-500">{{ u.username }}</span>
+                <span class="text-[11px] text-[rgb(var(--primary))]">
+                  {{ u.subUserTypeName }}
+                </span>
+              </div>
+            </div>
+          </td>
+
+          <td class="px-4 py-3">{{ u.userPhone }}</td>
+
+         <td class="px-4 py-3">
+            <div class="relative inline-flex items-center group">
+
+              <!-- ICON -->
+              <i class="las text-lg cursor-pointer" [ngClass]="{
+         'la-mars yx-gender-male': u.genderName === 'Male',
+         'la-venus yx-gender-female': u.genderName === 'Female',
+         'la-transgender yx-gender-other': u.genderName === 'Other',
+         'la-user-secret yx-gender-na': u.genderName === 'Prefer Not To Say',
+         'la-genderless yx-gender-default': ![
+           'Male','Female','Other','Prefer Not To Say'
+         ].includes(u.genderName)
+       }">
+              </i>
+
+              <!-- CUSTOM TOOLTIP -->
+              <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+             hidden group-hover:flex items-center
+             px-2 py-1 text-[11px] font-medium rounded-md
+             shadow-sm whitespace-nowrap
+             
+             /* LIGHT THEME */
+             bg-[rgb(var(--primary-100))]
+             text-[rgb(var(--gray-900))]
+             border border-[rgb(var(--primary-200))]
+
+           ">
+
+                {{ u.genderName || 'Not Specified' }}
+
+              </div>
+
+            </div>
+          </td>
+
+
+          <td class="px-4 py-3">
+            <span
+              class="rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="u.isActive
+                ? 'bg-success/10 text-success'
+                : 'bg-danger/10 text-danger'">
+              {{ u.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </td>
+
+         <td class="px-3 py-3 text-center">
+  <div class="relative inline-flex group">
+
+    <button
+      type="button"
+      (click)="editUser(u)"
+      class="rounded-lg p-2
+             bg-[rgb(var(--indigo-100))]
+             text-[rgb(var(--indigo-600))]">
+
+      <i class="las la-edit text-lg"></i>
+    </button>
+
+    <!-- TOOLTIP -->
+    <div
+      class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+             flex opacity-0 group-hover:opacity-100
+             px-2 py-1 text-[11px] font-medium rounded-md
+             shadow-sm whitespace-nowrap transition duration-200
+             pointer-events-none
+             bg-[rgb(var(--primary-100))]
+             text-[rgb(var(--gray-900))]
+             border border-[rgb(var(--primary-200))]">
+
+      Edit User
+    </div>
+
+  </div>
+</td>
+
+
+        </tr>
+
+           <tr *ngIf="!isLoading && pagedUsers.length === 0">
+        <td colspan="7" class="px-6 py-20 text-center">
+
+          <p class="text-sm font-semibold">
+            No Record Found
+          </p>
+
+          <p class="text-xs text-gray-600 mt-1">
+            Try adjusting search or create a new Tenants
+          </p>
+
+        </td>
+      </tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGINATION -->
+  <div *ngIf="!isLoading"
+       class="flex items-center justify-between px-4 py-3 border-t">
+
+    <p class="text-sm text-gray-500">
+      Showing {{ pageIndex * pageSize + 1 }} – {{ pageEnd }}
+      of {{ filteredTenants.length }}
+    </p>
+
+    <div class="flex gap-1">
+      <button
+        type="button"
+        (click)="prevPage()"
+        [disabled]="pageIndex === 0"
+        class="px-3 py-2 rounded-lg border text-sm">
+        Prev
+      </button>
+
+      <button
+        type="button"
+        *ngFor="let p of pages"
+        (click)="goToPage(p)"
+        class="px-3 py-2 rounded-lg border text-sm"
+        [ngClass]="p === pageIndex
+          ? 'bg-[rgb(var(--primary))] text-white'
+          : 'hover:bg-gray-100'">
+        {{ p + 1 }}
+      </button>
+
+      <button
+        type="button"
+        (click)="nextPage()"
+        [disabled]="(pageIndex + 1) * pageSize >= filteredTenants.length"
+        class="px-3 py-2 rounded-lg border text-sm">
+        Next
+      </button>
+    </div>
+  </div>
+
+</div>

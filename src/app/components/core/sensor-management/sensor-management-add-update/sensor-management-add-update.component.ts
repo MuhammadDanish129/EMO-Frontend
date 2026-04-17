@@ -111,7 +111,7 @@ export class SensorManagementAddUpdateComponent implements OnInit {
     }
 
     this.isSaving = true;
-
+console.log(this.model);
     const api$ = this.isEditMode
       ? this.sensorService.updateSensor(this.model)
       : this.sensorService.addSensor(this.model);

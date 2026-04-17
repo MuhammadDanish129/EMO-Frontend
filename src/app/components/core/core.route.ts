@@ -84,6 +84,12 @@ export const core: Routes = [
         providers: [provideNativeDateAdapter()]
       },
       {
+        path: 'tenant-management',
+        loadComponent: () =>
+          import('./tenant-management/tenant-management.component').then((m) => m.TenantManagementComponent),
+        providers: [provideNativeDateAdapter()]
+      },
+      {
         path: 'agreement-management',
         loadComponent: () =>
           import('./agreement-management/agreement-management.component').then((m) => m.AgreementManagementComponent),

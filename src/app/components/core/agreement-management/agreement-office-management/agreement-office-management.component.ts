@@ -58,6 +58,7 @@ export class AgreementOfficeManagementComponent implements OnInit {
     this.service.getOfficesByAgreementId(this.agreementId).subscribe({
       next: res => {
         if (res.success) {
+          console.log(res.data)
           this.offices = res.data ?? [];
           this.filteredOffices = [...this.offices];
           this.pageIndex = 0;

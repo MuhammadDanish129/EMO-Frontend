@@ -263,31 +263,33 @@
               {{ o.isOcuppied ? "Occupied" : "Available" }}
             </span>
           </td>
-        <td class="px-4 py-3 text-center">
- <!-- ASSIGN -->
-<div class="relative group">
-  <button
-    class="rounded-lg p-2
-           bg-[rgb(var(--blue-100))]
-           text-[rgb(var(--blue-600))]"
-    (click)="$event.stopPropagation(); assignTenantForOffice(o)">
+       <td class="px-4 py-3 text-center">
+  <!-- ASSIGN -->
+  <div class="relative group">
+    <button
+      class="rounded-lg p-2 transition
+             bg-[rgb(var(--blue-100))]
+             text-[rgb(var(--blue-600))]
+             hover:bg-[rgb(var(--blue-200))]
+             hover:scale-105"
+      (click)="$event.stopPropagation(); assignTenantForOffice(o)">
 
-    <i class="las la-user-plus text-lg"></i>
-  </button>
+      <i class="las la-user-plus text-lg"></i>
+    </button>
 
-  <div
-    class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
-           flex opacity-0 group-hover:opacity-100
-           px-2 py-1 text-[11px] font-medium rounded-md
-           shadow-sm whitespace-nowrap transition duration-200
-           pointer-events-none
-           bg-[rgb(var(--primary-100))]
-           text-[rgb(var(--gray-900))]
-           border border-[rgb(var(--primary-200))]">
+    <div
+      class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+             flex opacity-0 group-hover:opacity-100
+             px-2 py-1 text-[11px] font-medium rounded-md
+             shadow-sm whitespace-nowrap transition duration-200
+             pointer-events-none
+             bg-[rgb(var(--primary-100))]
+             text-[rgb(var(--gray-900))]
+             border border-[rgb(var(--primary-200))]">
 
-    Assign Tenant
+      Assign Tenant
+    </div>
   </div>
-</div>
 </td>
         </tr>
 
