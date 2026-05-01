@@ -105,7 +105,7 @@ fieldErrors: {
     if (!this.model.floorName?.trim()) {
       this.fieldErrors.floorName = 'Floor Name is required';
     }
-    if (!this.model.floorNo || this.model.floorNo <= 0) {
+    if (!this.model.floorNo || this.model.floorNo <= -1) {
   this.fieldErrors.floorNo = 'Floor Number is required';
 }
 

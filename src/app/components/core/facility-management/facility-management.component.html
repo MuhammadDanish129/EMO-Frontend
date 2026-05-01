@@ -96,7 +96,7 @@
 
         <!-- DATA -->
         <div *ngFor="let st of pagedFacilities; let i = index"
-            class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
+            class="rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4">
 
             <div class="flex items-start justify-between gap-3">
 
@@ -118,7 +118,14 @@
             </div>
 
             <!-- ACTIONS -->
-            <div class="mt-4 flex justify-end gap-2 border-t pt-3">
+            <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
+
+                  <button class="rounded-lg p-2
+                       bg-[rgb(var(--blue-100))]
+                       text-[rgb(var(--blue-600))]" (click)="goToBuilding(st.facilityId)">
+                    <i class="las la-building text-lg"></i>
+                </button>
+
                 <button class="rounded-lg p-2
                  bg-[rgb(var(--indigo-100))]
                  text-[rgb(var(--indigo-600))]" (click)="edit(st)">
@@ -131,11 +138,7 @@
                     <i class="las la-trash text-lg"></i>
                 </button>
 
-                <button class="rounded-lg p-2
-                       bg-[rgb(var(--blue-100))]
-                       text-[rgb(var(--blue-600))]" (click)="goToBuilding(st.facilityId)">
-                    <i class="las la-building text-lg"></i>
-                </button>
+              
             </div>
         </div>
 
@@ -218,6 +221,32 @@
                   <td class="px-3 py-3 text-center">
   <div class="flex justify-center gap-2">
 
+
+     <!-- GO TO BUILDING -->
+    <div class="relative group">
+      <button
+        class="rounded-lg p-2
+               bg-[rgb(var(--blue-100))]
+               text-[rgb(var(--blue-600))]
+               hover:bg-[rgb(var(--blue-200))] hover:scale-105"
+        (click)="goToBuilding(st.facilityId)">
+
+        <i class="las la-building text-lg"></i>
+      </button>
+
+      <div
+        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+               flex opacity-0 group-hover:opacity-100
+               px-2 py-1 text-[11px] font-medium rounded-md
+               shadow-sm whitespace-nowrap transition duration-200
+               pointer-events-none
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--gray-900))]
+               border border-[rgb(var(--primary-200))]">
+
+        Go To Building
+      </div>
+    </div>
     <!-- EDIT -->
     <div class="relative group">
       <button
@@ -270,31 +299,7 @@
       </div>
     </div>
 
-    <!-- GO TO BUILDING -->
-    <div class="relative group">
-      <button
-        class="rounded-lg p-2
-               bg-[rgb(var(--blue-100))]
-               text-[rgb(var(--blue-600))]
-               hover:bg-[rgb(var(--blue-200))] hover:scale-105"
-        (click)="goToBuilding(st.facilityId)">
-
-        <i class="las la-building text-lg"></i>
-      </button>
-
-      <div
-        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
-               flex opacity-0 group-hover:opacity-100
-               px-2 py-1 text-[11px] font-medium rounded-md
-               shadow-sm whitespace-nowrap transition duration-200
-               pointer-events-none
-               bg-[rgb(var(--primary-100))]
-               text-[rgb(var(--gray-900))]
-               border border-[rgb(var(--primary-200))]">
-
-        Go To Building
-      </div>
-    </div>
+   
 
   </div>
 </td>

@@ -59,7 +59,7 @@
   <!-- ================= MOBILE CARDS ================= -->
   <div *ngIf="!isLoading" class="block md:hidden p-4 space-y-3">
 
-    <div *ngFor="let u of pagedUsers; let i = index" class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4"
+    <div *ngFor="let u of pagedUsers; let i = index" class="rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4"
       [ngClass]="u.userId === currentUser?.userId
            ? 'border-2 border-[rgb(var(--primary))] bg-[rgb(var(--primary-50))]'
            : ''">
@@ -111,7 +111,7 @@
       </div>
 
       <!-- ACTIONS -->
-      <div class="mt-4 flex justify-end gap-2 border-t pt-3">
+      <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
         <button type="button" (click)="editUser(u)" class="rounded-lg p-2
                  bg-[rgb(var(--indigo-100))]
                  text-[rgb(var(--indigo-600))]">

@@ -106,6 +106,11 @@ export const core: Routes = [
         loadComponent: () =>
           import('./agreement-management/agreement-office-management/agreement-office-management.component').then((m) => m.AgreementOfficeManagementComponent),
         providers: [provideNativeDateAdapter()]
+      },{
+        path: 'contact-person-management',
+        loadComponent: () =>
+          import('./agreement-management/contact-person-management/contact-person-management.component').then((m) => m.ContactPersonManagementComponent),
+        providers: [provideNativeDateAdapter()]
       },
       //   {
       //     path: 'user',

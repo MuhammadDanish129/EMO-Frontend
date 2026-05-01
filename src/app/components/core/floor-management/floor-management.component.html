@@ -118,7 +118,7 @@
 
         <!-- DATA -->
         <div *ngFor="let f of pagedFloors; let i = index"
-            class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
+            class="rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4">
 
             <div class="flex items-start justify-between">
 
@@ -138,7 +138,7 @@
             </div>
 
             <!-- ACTIONS -->
-            <div class="mt-4 flex justify-end gap-2 border-t pt-3">
+            <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
 
                 <!-- SECTION -->
                 <button class="rounded-lg p-2
@@ -228,6 +228,31 @@
                     <td class="px-3 py-3 text-center">
   <div class="flex justify-center gap-2">
 
+
+     <div class="relative group">
+      <button
+        class="rounded-lg p-2
+               bg-[rgb(var(--blue-100))]
+               text-[rgb(var(--blue-600))]
+               hover:bg-[rgb(var(--blue-200))] hover:scale-105"
+        (click)="goToSection(f.floorId)">
+
+        <i class="las la-sitemap text-lg"></i>
+      </button>
+
+      <div
+        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+               flex opacity-0 group-hover:opacity-100
+               px-2 py-1 text-[11px] font-medium rounded-md
+               shadow-sm whitespace-nowrap transition duration-200
+               pointer-events-none
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--gray-900))]
+               border border-[rgb(var(--primary-200))]">
+
+        Manage Sections
+      </div>
+    </div>
     <!-- EDIT -->
     <div class="relative group">
       <button
@@ -281,30 +306,7 @@
     </div>
 
     <!-- SECTION -->
-    <div class="relative group">
-      <button
-        class="rounded-lg p-2
-               bg-[rgb(var(--blue-100))]
-               text-[rgb(var(--blue-600))]
-               hover:bg-[rgb(var(--blue-200))] hover:scale-105"
-        (click)="goToSection(f.floorId)">
-
-        <i class="las la-sitemap text-lg"></i>
-      </button>
-
-      <div
-        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
-               flex opacity-0 group-hover:opacity-100
-               px-2 py-1 text-[11px] font-medium rounded-md
-               shadow-sm whitespace-nowrap transition duration-200
-               pointer-events-none
-               bg-[rgb(var(--primary-100))]
-               text-[rgb(var(--gray-900))]
-               border border-[rgb(var(--primary-200))]">
-
-        Manage Sections
-      </div>
-    </div>
+   
 
   </div>
 </td>

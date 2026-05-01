@@ -10,11 +10,12 @@ import { Component, OnInit } from "@angular/core";
 import { ConfirmDialogComponent } from "../../../shared/confirmation-dialouge/confirmation-dialog.component";
 import { UserService } from "../../../shared/services/user/user.service";
 import { Router } from "@angular/router";
+import { ContactPersonManagementComponent } from "./contact-person-management/contact-person-management.component";
 
 @Component({
   selector: 'app-agreement-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatSlideToggleModule, MaterialModuleModule],
+  imports: [CommonModule, FormsModule, MatSlideToggleModule, MaterialModuleModule, ContactPersonManagementComponent],
   templateUrl: './agreement-management.component.html'
 })
 export class AgreementManagementComponent implements OnInit {
@@ -27,7 +28,8 @@ export class AgreementManagementComponent implements OnInit {
 
   Agreements: AgreementResponseDTO[] = [];
   filteredAgreements: AgreementResponseDTO[] = [];
-
+  selectedAgreementId: string | null = null;
+  showContactModal = false;
   constructor(
     private agreementService: AgreementService,
     private toaster: ToastrService,
@@ -162,6 +164,15 @@ viewTenants(agreementId: string) {
 
   }
 
+
+openContacts(id: string) {
+  this.selectedAgreementId = id;
+  this.showContactModal = true;
+}
+
+closeContacts() {
+  this.showContactModal = false;
+}
 
   viewOffices(agreementId: string) {
 

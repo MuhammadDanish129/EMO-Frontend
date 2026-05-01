@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 import { ResponseModel } from "../../../shared/response.model";
-import { AgreementResponseDTO, RemoveOfficeFromAgreementRequestDTO } from "./agreement-management.type";
+import { AgreementResponseDTO, ContactPersonDTO, RemoveOfficeFromAgreementRequestDTO } from "./agreement-management.type";
 import { HttpClient } from "@angular/common/http";
 import { environment } from "../../../../environments/environment";
 import { Injectable } from "@angular/core";
@@ -34,7 +34,15 @@ export class AgreementService {
       );
     }
 
-  getTenants(id: string): Observable<ResponseModel<UserResponseDTO[]>> {
+  getContactPersons(id: string): Observable<ResponseModel<ContactPersonDTO[]>> {
+      return this.http.get<ResponseModel<ContactPersonDTO[]>>(
+        `${this.baseUrl}/ContactPerson/GetContactPersonByAgreemenId`,
+        { params: { id } }
+      );
+    }
+
+
+     getTenants(id: string): Observable<ResponseModel<UserResponseDTO[]>> {
       return this.http.get<ResponseModel<UserResponseDTO[]>>(
         `${this.baseUrl}/Tenant/GetTenantByAgreementId`,
         { params: { id } }
@@ -49,7 +57,9 @@ export class AgreementService {
       );
     }
 
-    
+    updatecontactPerson(model: any) {
+    return this.http.put(`${this.baseUrl}/ContactPerson`, model);
+  }
   updateAgreement(model: any) {
     return this.http.put(`${this.baseUrl}/Agreement`, model);
   }
@@ -64,6 +74,12 @@ export class AgreementService {
 
   deleteAgreement(id: string) {
     return this.http.delete(`${this.baseUrl}/Agreement`, {
+      params: { id }
+    });
+  }
+
+   deleteContactPerson(id: string) {
+    return this.http.delete(`${this.baseUrl}/ContactPerson`, {
       params: { id }
     });
   }

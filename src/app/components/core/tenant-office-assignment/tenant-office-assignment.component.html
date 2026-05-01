@@ -129,7 +129,7 @@
 
     <!-- DATA -->
     <div *ngFor="let o of pagedOffices" 
-         class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4"
+         class="rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4"
          [class.bg-[rgb(var(--primary-100))]]="isOfficeSelected(o.officeId)"
           [class.text-[rgb(var(--gray-900))]]="isOfficeSelected(o.officeId)">
 
@@ -158,7 +158,7 @@
             </span>
         </div>
 <!-- ACTIONS -->
-<div class="mt-4 flex justify-end gap-2 pt-3 border-t border-t"
+<div class="mt-4 flex justify-end gap-2 pt-3 border-t border-[rgb(var(--primary-200))] "
      [ngClass]="{
        'border-[rgb(var(--light))]': isOfficeSelected(o.officeId),
        'border-gray-200': !isOfficeSelected(o.officeId)

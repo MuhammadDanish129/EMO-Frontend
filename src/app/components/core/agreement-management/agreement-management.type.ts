@@ -31,3 +31,23 @@ export interface RemoveOfficeFromAgreementRequestDTO {
   agreementId: string;
   officeId: string;
 }
+
+export interface ContactPersonDTO
+{
+  contactPersonId: string;
+  contactPersonName:  string;
+  contactPersonPhone:  string;
+  contactPersonEmail:  string;
+  fkAgreement: string;
+}
+
+export interface UpdateContactPersonDTO
+{
+  contactPersonId: string;
+  contactPersonName:  string;
+  contactPersonPhone:  string;
+  contactPersonEmail:  string;
+  isActive: boolean;
+  fkAgreement: string;
+}
+

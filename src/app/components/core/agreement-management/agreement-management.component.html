@@ -83,7 +83,7 @@
     </div>
 
     <!-- DATA -->
-    <div *ngFor="let st of pagedAgreements" class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
+    <div *ngFor="let st of pagedAgreements" class="rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4">
 
       <!-- HEADER -->
       <div class="flex items-center gap-3">
@@ -119,12 +119,12 @@
           formatDate(st.agreementEndDate) }} </span> </div>
 
       <!-- ACTIONS -->
-      <div class="mt-4 flex justify-end gap-2 border-t pt-3">
+      <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
 
         <button class="rounded-lg p-2
            bg-[rgb(var(--indigo-100))]
            text-[rgb(var(--indigo-600))]" (click)="viewTenants(st.agreementId)">
-          <i class="las la-users text-lg"></i>
+          <i class="las la-user text-lg"></i>
         </button>
 
           <button class="rounded-lg p-2
@@ -138,6 +138,16 @@
            text-[rgb(var(--red-600))]" (click)="delete(st.agreementId)">
           <i class="las la-trash text-lg"></i>
         </button>
+        <button
+  class="rounded-lg p-2
+         bg-green-100
+         text-green-600
+         hover:bg-green-200
+         hover:scale-105"
+  (click)="openContacts(st.agreementId)">
+
+  <i class="las la-address-book text-lg"></i>
+</button>
 
       </div>
 
@@ -305,7 +315,16 @@
         View Tenant
       </div>
     </div>
+<button
+  class="rounded-lg p-2
+         bg-green-100
+         text-green-600
+         hover:bg-green-200
+         hover:scale-105"
+  (click)="openContacts(st.agreementId)">
 
+  <i class="las la-address-book text-lg"></i>
+</button>
 
     <!-- VIEW OFFICES -->
     <div class="relative group">
@@ -413,3 +432,8 @@
   </div>
 
 </div>
+<app-contact-person-management
+  *ngIf="showContactModal"
+  [agreementId]="selectedAgreementId!"
+  (onClose)="closeContacts()">
+</app-contact-person-management>

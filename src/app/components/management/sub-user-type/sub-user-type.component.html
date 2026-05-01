@@ -77,7 +77,7 @@
 
     <!-- DATA -->
     <div *ngFor="let st of pagedSubUserTypes; let i = index"
-      class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
+      class="rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4">
 
       <div class="flex items-start justify-between gap-3">
 
@@ -99,7 +99,7 @@
       </div>
 
       <!-- ACTIONS -->
-      <div class="mt-4 flex justify-end gap-2 border-t pt-3">
+      <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
         <button class="rounded-lg p-2
                  bg-[rgb(var(--indigo-100))]
                  text-[rgb(var(--indigo-600))]" (click)="edit(st)">
@@ -197,7 +197,8 @@
               <div class="relative group">
                 <button class="rounded-lg p-2
                bg-[rgb(var(--indigo-100))]
-               text-[rgb(var(--indigo-600))]" (click)="edit(st)">
+               text-[rgb(var(--indigo-600))]
+               hover:bg-[rgb(var(--indigo-200))] hover:scale-105" (click)="edit(st)">
 
                   <i class="las la-edit text-lg"></i>
                 </button>
@@ -219,7 +220,7 @@
               <div class="relative group">
                 <button class="rounded-lg p-2
                bg-[rgb(var(--red-100))]
-               text-[rgb(var(--red-600))]" (click)="delete(st.subUserTypeId)">
+               text-[rgb(var(--red-600))] hover:bg-[rgb(var(--red-200))] hover:scale-105" (click)="delete(st.subUserTypeId)">
 
                   <i class="las la-trash text-lg"></i>
                 </button>
