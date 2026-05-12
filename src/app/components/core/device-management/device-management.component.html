@@ -94,6 +94,11 @@
                         {{ st.deviceName }}
                     </div>
                 </div>
+                  <div>
+                    <div class="font-semibold text-indigo-600 text-sm">
+                        {{ st.deviceMacAddress }}
+                    </div>
+                </div>
 
                 <span class="rounded-full px-3 py-1 text-xs font-semibold" [ngClass]="st.isActive
                     ? 'bg-success/10 text-success'
@@ -147,6 +152,7 @@
                 <tr>
                     <th class="px-4 py-3 text-left">Sr #</th>
                     <th class="px-4 py-3 text-left">Devices</th>
+                    <th class="px-4 py-3 text-left">Mac Address</th>
                     <th class="px-4 py-3 text-left">Status</th>
                     <th class="px-4 py-3 text-center">Actions</th>
                 </tr>
@@ -186,6 +192,11 @@
                     <td class="px-4 py-3">
                         <span class="font-semibold text-indigo-600">
                             {{ st.deviceName }}
+                        </span>
+                    </td>
+                     <td class="px-4 py-3">
+                        <span class="font-semibold text-indigo-600">
+                            {{ st.deviceMacAddress }}
                         </span>
                     </td>
 

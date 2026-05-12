@@ -25,10 +25,12 @@ export class DeviceManagementAddUpdateComponent implements OnInit {
 
   fieldErrors: {
     deviceName?: string;
+    deviceMacAddress?: string;
   } = {};
 
   model: DeviceRequestDTO = {
     deviceName: '',
+    deviceMacAddress: '',
     fkBusiness: '',
     isActive: true,
   };
@@ -61,6 +63,11 @@ export class DeviceManagementAddUpdateComponent implements OnInit {
       this.fieldErrors.deviceName = '';
     }
   }
+  onAddressChange() {
+    if (this.fieldErrors.deviceMacAddress) {
+      this.fieldErrors.deviceMacAddress = '';
+    }
+  }
 
   close() {
     this.dialogRef.close();
@@ -73,7 +80,9 @@ export class DeviceManagementAddUpdateComponent implements OnInit {
     if (!this.model.deviceName?.trim()) {
       this.fieldErrors.deviceName = 'Device Name is required';
     }
-
+    if (!this.model.deviceMacAddress?.trim()) {
+      this.fieldErrors.deviceMacAddress = 'Mac Address is required';
+    }
     if (Object.keys(this.fieldErrors).length > 0) return;
 
     this.isSaving = true;

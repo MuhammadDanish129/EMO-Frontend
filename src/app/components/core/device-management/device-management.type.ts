@@ -1,6 +1,7 @@
 export interface DeviceResponseDTO {
   deviceId: string;
   deviceName: string;
+  deviceMacAddress: string;
   fkBusiness: string;
   businessName: string;
   createdAt: string;
@@ -11,6 +12,7 @@ export interface DeviceResponseDTO {
 export interface DeviceRequestDTO {
   deviceId?: string;
   deviceName: string;
+  deviceMacAddress: string;
   fkBusiness?: string;
   isActive: boolean;
 }
