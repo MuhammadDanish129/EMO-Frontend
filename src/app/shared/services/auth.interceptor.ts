@@ -44,9 +44,9 @@ export class AuthInterceptor implements HttpInterceptor {
             catchError((error) => {
               console.log('Error from interceptor', error);
               if(error.status === 0 || error.status === 500){
-                //   this._authService.signOutLocal();
+                  this._authService.signOutLocal();
                     // Reload the app
-                    // location.reload();
+                    location.reload();
                 this._toaster.error('Server is not responding. Please try again later.', 'Server Error');
               }
               if(error.status === 404){

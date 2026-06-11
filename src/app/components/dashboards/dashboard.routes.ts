@@ -1,16 +1,19 @@
 import { NgModule } from '@angular/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { RouterModule, Routes } from '@angular/router';
 
 export const admin: Routes = [
- {path:'',children:[
-{
-  path: '',
-  loadComponent: () =>
-    import('./crm/crm.component').then((m) => m.CrmComponent),
-},
+  {
+    path: '', children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./crm/crm.component').then((m) => m.CrmComponent),
+      },
 
 
-]}
+    ]
+  },
 ];
 @NgModule({
   imports: [RouterModule.forChild(admin)],

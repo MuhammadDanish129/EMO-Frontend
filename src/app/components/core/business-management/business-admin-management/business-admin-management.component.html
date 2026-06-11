@@ -18,6 +18,37 @@
   </div>
 </div>
 
+<div class="px-6 py-3 mb-4 bg-[rgb(var(--light))]
+            border-b border-[rgb(var(--gray-200))]">
+
+  <nav class="flex items-center gap-1 text-xs sm:text-sm">
+
+    <button (click)="goToBusinesses()"
+      class="flex items-center gap-1
+             text-[rgb(var(--gray-600))]
+             hover:text-[rgb(var(--primary))]
+             transition font-medium">
+
+      <i class="las la-briefcase text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Business</span>
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <!-- CURRENT -->
+    <span
+      class="flex items-center gap-1
+             text-[rgb(var(--primary))]
+             font-semibold">
+
+      <i class="las la-users text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Business Admins</span>
+    </span>
+
+  </nav>
+
+</div>
+
 <!-- CARD -->
 <div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6">
 
@@ -59,7 +90,7 @@
        class="block md:hidden p-4 space-y-3">
 
     <div *ngFor="let u of pagedUsers"
-         class="rounded-xl border bg-[rgb(var(--light))] shadow-sm p-4">
+         class="rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4">
 
       <div class="flex items-center gap-3">
         <img
@@ -89,8 +120,8 @@
       <!-- INFO -->
       <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
         <div>
-          <div class="text-xs text-stone-600">Phone</div>
-          <div class="font-medium">{{ u.userPhone }}</div>
+          <div class="text-xs text-stone-600 text-gray-500">Phone</div>
+          <div class="font-small">{{ u.userPhone }}</div>
         </div>
 
         <div>
@@ -107,7 +138,7 @@
       </div>
 
       <!-- ACTION -->
-      <div class="mt-4 flex justify-end gap-2 border-t pt-3">
+      <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
         <button
           type="button"
           (click)="editUser(u)"

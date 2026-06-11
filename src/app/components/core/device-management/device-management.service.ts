@@ -35,6 +35,15 @@ export class DeviceService {
     );
   }
 
+
+   getDeviceByOfficeId(
+    id: string
+  ): Observable<ResponseModel<DeviceResponseDTO[]>> {
+    return this.http.get<ResponseModel<DeviceResponseDTO[]>>(
+      `${this.baseUrl}/Device/GetByOfficeId`,
+      { params: { id } }
+    );
+  }
   /* ===============================
    * ADD DEVICE
    * =============================== */

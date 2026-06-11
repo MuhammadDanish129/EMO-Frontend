@@ -72,6 +72,7 @@
     "rxjs": "~7.8.0",
     "sass": "^1.69.7",
     "simplebar-angular": "^3.2.4",
+    "socket.io-client": "^4.8.3",
     "sweetalert": "^2.1.2",
     "swiper": "^8.4.7",
     "tslib": "^2.6.2",

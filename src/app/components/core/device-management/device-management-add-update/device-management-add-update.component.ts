@@ -32,6 +32,7 @@ export class DeviceManagementAddUpdateComponent implements OnInit {
     deviceName: '',
     deviceMacAddress: '',
     fkBusiness: '',
+    fkOffice: '',
     isActive: true,
   };
 
@@ -45,18 +46,23 @@ export class DeviceManagementAddUpdateComponent implements OnInit {
     private toaster: ToastrService,
     private _userService: UserService,
     @Inject(MAT_DIALOG_DATA)
-    public data: { mode: 'add' | 'edit'; value?: DeviceRequestDTO }
+    public data: {
+  mode: 'add' | 'edit';
+  value?: DeviceRequestDTO;
+  fkOffice?: string;
+  fkBusiness?: string;
+}
   ) {}
 
   async ngOnInit(): Promise<void> {
 
-    if (this.data?.mode === 'edit' && this.data.value) {
-      this.model = { ...this.data.value };
-    }
-
-    this.currentUser = await this._userService.user$;
-    this.model.fkBusiness = this.currentUser?.fkBusiness;
+  if (this.isEditMode && this.data.value) {
+    this.model = { ...this.data.value };
+  } else {
+    this.model.fkOffice = this.data?.fkOffice || '';
+    this.model.fkBusiness = this.data?.fkBusiness || '';
   }
+}
 
   onNameChange() {
     if (this.fieldErrors.deviceName) {

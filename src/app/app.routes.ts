@@ -31,6 +31,20 @@ export const App_Route: Route[] = [
     ],
   },
   {
+    path: '',
+    component: ContentLayoutComponent,
+    canActivate: [AuthGuard],         // Protects all children
+    canActivateChild: [AuthGuard],    // Optional: additional protection
+    children: [
+      {
+        path: 'live-consumption',
+        loadChildren: () =>
+          import('./components/dashboards/live-consumption/live-consumption.routes').then((m) => m.liveConsumption),
+        // canLoad: [AuthGuard],         // Ensures lazy-loaded module is protected
+      },
+    ],
+  },
+  {
     path: 'management',
     component: ContentLayoutComponent,
     canActivate: [AuthGuard],         // Protects all children
@@ -45,7 +59,7 @@ export const App_Route: Route[] = [
     ],
 
   },
-    {
+  {
     path: 'core',
     component: ContentLayoutComponent,
     canActivate: [AuthGuard],         // Protects all children

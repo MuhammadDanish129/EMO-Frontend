@@ -29,6 +29,15 @@ export class SensorService {
     );
   }
 
+  getSensorByDeviceId(
+    id: string
+  ): Observable<ResponseModel<SensorResponseDTO[]>> {
+    return this.http.get<ResponseModel<SensorResponseDTO[]>>(
+      `${this.baseUrl}/Sensor/GetByDeviceId`,
+      { params: { id } }
+    );
+  }
+
   addSensor(
     model: SensorRequestDTO
   ): Observable<ResponseModel<any>> {

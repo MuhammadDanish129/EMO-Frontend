@@ -310,11 +310,18 @@ export class NavService implements OnDestroy {
 
     { headTitle: 'MAIN' },
     {
+      title: 'Live consumptions',
+      icon: 'las la-chart-bar',
+      type: 'link',
+      path: '/live-consumption',
+    },
+    {
       title: 'Dashboards',
       icon: 'las la-chart-bar',
       type: 'link',
       path: '/dashboard',
     },
+
 
     { headTitle: 'MANAGEMENT' },
     {
@@ -368,18 +375,18 @@ export class NavService implements OnDestroy {
       type: 'link',
       path: '/core/agreement-management',
     },
-     {
-      title: 'Device Management',
-      icon: 'las la-microchip',
-      type: 'link',
-      path: '/core/device-management',
-    },
-{
-      title: 'Sensor Management',
-      icon: 'las la-briefcase',
-      type: 'link',
-      path: '/core/sensor-management',
-    },
+//      {
+//       title: 'Device Management',
+//       icon: 'las la-microchip',
+//       type: 'link',
+//       path: '/core/device-management',
+//     },
+// {
+//       title: 'Sensor Management',
+//       icon: 'las la-briefcase',
+//       type: 'link',
+//       path: '/core/sensor-management',
+//     },
     { headTitle: 'DEVICE UTILITY MANAGEMENT' },
     {
       title: 'Utility Management',
@@ -409,11 +416,13 @@ export class NavService implements OnDestroy {
       'Office Tenant Assignment',
       'Sensor Management',
       'Agreement Management',
-      'Tenant Management'
+      'Tenant Management',
+      'Live consumptions'
     ],
 
     2: [
-      'Dashboards'
+      'Dashboards',
+      'Live consumptions'
     ]
   };
 

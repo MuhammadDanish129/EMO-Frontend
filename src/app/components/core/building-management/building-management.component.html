@@ -15,10 +15,12 @@
             </div>
 
             <!-- ACTION -->
-            <div class="flex">
-                <button class="flex items-center gap-2 rounded-lg
-          bg-white/95 px-4 py-2 text-sm font-semibold
-          text-[rgb(var(--primary))]" (click)="addBuilding()">
+            <div class="flex flex-col gap-2
+               sm:flex-row sm:gap-3 md:items-center">
+                <button  class="flex items-center justify-center gap-2 rounded-lg
+                        bg-white/95 px-4 py-2
+                        text-sm font-semibold
+                        text-[rgb(var(--primary))]"  (click)="addBuilding()">
 
                     <i class="las la-plus-circle text-lg"></i>
                     Add Building
@@ -32,7 +34,7 @@
 <div class="px-6 py-3 mb-4 bg-[rgb(var(--light))]
             border-b border-[rgb(var(--gray-200))]">
 
-  <nav class="flex flex-wrap items-center gap-1 text-sm">
+  <nav class="flex items-center gap-1 text-xs sm:text-sm">
 
     <!-- Facility -->
     <button (click)="goToFacility(fkBusiness)"
@@ -41,8 +43,8 @@
              hover:text-[rgb(var(--primary))]
              transition font-medium">
 
-      <i class="las la-building text-base"></i>
-      Facility
+      <i class="las la-building text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Facility</span>
     </button>
 
     <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
@@ -53,11 +55,12 @@
              text-[rgb(var(--primary))]
              font-semibold">
 
-      <i class="las la-city text-base"></i>
-      Building
+      <i class="las la-city text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Building</span>
     </span>
 
   </nav>
+
 </div>
 
 
@@ -127,8 +130,8 @@
             <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
 
                 <button class="rounded-lg p-2
-          bg-[rgb(var(--primary-100))]
-          text-[rgb(var(--primary-600))]" (click)="goToFloor(b.buildingId)">
+          bg-[rgb(var(--blue-100))]
+          text-[rgb(var(--blue-600))]" (click)="goToFloor(b.buildingId)">
                     <i class="las la-layer-group text-lg"></i>
                 </button>
 

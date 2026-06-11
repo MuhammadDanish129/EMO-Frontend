@@ -249,7 +249,21 @@ fkBusiness!: string;
     }
   );
 }
-
+goToDevice(id: string) {
+  this.router.navigate(
+    ['/core/device-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding,
+        fkFloor: this.fkFloor,
+        fkSection: this.fkSection,
+        fkOffice: id,
+      }
+    }
+  );
+}
 
     goToFloor(id: string) {
   this.router.navigate(

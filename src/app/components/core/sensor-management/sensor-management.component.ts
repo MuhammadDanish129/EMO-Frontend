@@ -21,6 +21,14 @@ import { MaterialModuleModule } from '../../../material-module/material-module.m
 })
 export class SensorManagementComponent implements OnInit {
 
+
+  fkFloor!: string;
+  fkBuilding!: string;
+fkFacility!: string;
+fkBusiness!: string; 
+fkSection!: string;
+fkOffice!: string; 
+fkDevice!: string;
   searchText = '';
   pageIndex = 0;
   pageSize = 5;
@@ -39,15 +47,24 @@ export class SensorManagementComponent implements OnInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
+     const nav = history.state;
+    this.fkFloor = nav.fkFloor || nav.fkFloor;
+  this.fkBuilding = nav.fkBuilding;
+  this.fkFacility = nav.fkFacility;
+  this.fkBusiness = nav.fkBusiness;
+  this.fkSection = nav.fkSection;
+  this.fkOffice = nav.fkOffice;
+  this.fkDevice = nav.fkDevice;
+
     this.currentUser = await this._userService.user$;
     this.loadSensors(this.currentUser.fkBusiness);
   }
 
-  loadSensors(fkBusiness: string) {
+  loadSensors(fkDevice: string) {
     this.isLoading = true;
-    fkBusiness = this.currentUser.fkBusiness;
+    fkDevice = this.fkDevice;
 
-    this._sensorService.getSensorByBusinessId(fkBusiness).subscribe({
+    this._sensorService.getSensorByDeviceId(fkDevice).subscribe({
       next: (res) => {
         if (res.success === false) {
           this._toaster.error(res.remarks || 'Failed to load sensors');
@@ -102,11 +119,11 @@ export class SensorManagementComponent implements OnInit {
 
   addSensor() {
     const dialogRef = this.dialog.open(SensorManagementAddUpdateComponent, {
-      width: '720px',
+      width: '420px',
       disableClose: true,
       autoFocus: false,
       panelClass: 'ynex-dialog',
-      data: { mode: 'add' }
+      data: { mode: 'add',fkDevice: this.fkDevice }
     });
 
     dialogRef.afterClosed().subscribe(result => {
@@ -197,5 +214,86 @@ viewDetails(sensor: SensorResponseDTO) {
   goToPage(i: number) {
     this.pageIndex = i;
   }
+ goToSection() {
+  this.router.navigate(
+    ['/core/section-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding,
+        fkFloor: this.fkFloor
+      }
+    }
+  );
+}
+
+ goToOffice() {
+  this.router.navigate(
+    ['/core/office-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding,
+        fkFloor: this.fkFloor,
+        fkSection: this.fkSection,
+      }
+    }
+  );
+}
+
+ goToDevice() {
+  this.router.navigate(
+    ['/core/device-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding,
+        fkFloor: this.fkFloor,
+        fkSection: this.fkSection,
+        fkOffice : this.fkOffice
+      }
+    }
+  );
+}
+
+    goToFloor() {
+  this.router.navigate(
+    ['/core/floor-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding
+      }
+    }
+  )
+}
+goToBuilding() {
+  this.router.navigate(
+    ['/core/building-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility
+      }
+    }
+  );
+}
+
+
+goToFacility() {
+  this.router.navigate(
+    ['/core/facility-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness
+      }
+    }
+  )
+}
+
 
 }

@@ -13,11 +13,13 @@
         </p>
       </div>
 
-      <div class="flex">
+      <div class="flex flex-col gap-2
+               sm:flex-row sm:gap-3 md:items-center">
         <button
-          class="flex items-center gap-2 rounded-lg
-          bg-white/95 px-4 py-2 text-sm font-semibold
-          text-[rgb(var(--primary))]"
+          class="flex items-center justify-center gap-2 rounded-lg
+                        bg-white/95 px-4 py-2
+                        text-sm font-semibold
+                        text-[rgb(var(--primary))]" 
           (click)="addOffice()">
 
           <i class="las la-plus-circle text-lg"></i>
@@ -33,7 +35,7 @@
 <div class="px-6 py-3 mb-4 bg-[rgb(var(--light))]
             border-b border-[rgb(var(--gray-200))]">
 
-  <nav class="flex flex-wrap items-center gap-1 text-sm">
+  <nav class="flex items-center gap-1 text-xs sm:text-sm">
 
     <!-- Facility -->
     <button (click)="goToFacility()"
@@ -42,8 +44,8 @@
              hover:text-[rgb(var(--primary))]
              transition font-medium">
 
-      <i class="las la-building text-base"></i>
-      Facility
+      <i class="las la-building text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Facility</span>
     </button>
 
     <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
@@ -55,8 +57,8 @@
              hover:text-[rgb(var(--primary))]
              transition font-medium">
 
-      <i class="las la-city text-base"></i>
-      Building
+      <i class="las la-city text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Building</span>
     </button>
 
     <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
@@ -68,8 +70,8 @@
              hover:text-[rgb(var(--primary))]
              transition font-medium">
 
-      <i class="las la-layer-group text-base"></i>
-      Floor
+      <i class="las la-layer-group text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Floor</span>
     </button>
 
     <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
@@ -81,8 +83,8 @@
              hover:text-[rgb(var(--primary))]
              transition font-medium">
 
-      <i class="las la-sitemap text-base"></i>
-      Section
+      <i class="las la-sitemap text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Section</span>
     </button>
 
     <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
@@ -93,11 +95,12 @@
              text-[rgb(var(--primary))]
              font-semibold">
 
-      <i class="las la-briefcase text-base"></i>
-      Office
+      <i class="las la-briefcase text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Office</span>
     </span>
 
   </nav>
+
 </div>
 
 
@@ -152,8 +155,15 @@
 
         <div>
           <div class="font-semibold text-indigo-600 text-sm">
-            {{ o.officeName }}
-          </div>
+    {{ o.officeName }}
+  </div>
+
+  <div class="text-[11px] font-medium"
+     [class.text-[rgb(var(--red-600))]]="o.isOcuppied === true"
+     [class.text-[rgb(var(--success-600))]]="o.isOcuppied === false">
+  {{ o.isOcuppied ? 'Occupied' : 'Available' }}
+</div>
+
           <!-- <div class="text-xs text-[rgb(var(--text-muted))]">
             {{ o.sectionName }}
           </div> -->
@@ -170,18 +180,17 @@
       </div>
 
       <!-- OCCUPIED -->
-      <div class="mt-2">
-        <span class="rounded-full px-3 py-1 text-xs font-semibold"
-          [ngClass]="o.isOcuppied
-            ? 'bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))]'
-            : 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-700))]'">
-
-          {{ o.isOcuppied ? 'Occupied' : 'Available' }}
-        </span>
-      </div>
+      
 
       <!-- ACTIONS -->
       <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
+          <button class="rounded-lg p-2
+    bg-[rgb(var(--blue-100))]
+    text-[rgb(var(--blue-600))]" (click)="goToDevice(o.officeId)">
+
+                    <i class="las la-broadcast-tower text-lg"></i>
+
+                </button>
 
         <button class="rounded-lg p-2
           bg-[rgb(var(--indigo-100))]
@@ -279,6 +288,31 @@
           <!-- ACTIONS -->
          <td class="px-3 py-3 text-center">
   <div class="flex justify-center gap-2">
+
+     <div class="relative group">
+      <button
+        class="rounded-lg p-2
+               bg-[rgb(var(--blue-100))]
+               text-[rgb(var(--blue-600))]
+               hover:bg-[rgb(var(--blue-200))] hover:scale-105"
+        (click)="goToDevice(o.officeId)">
+
+        <i class="las la-broadcast-tower text-lg"></i>
+      </button>
+
+      <div
+        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+               flex opacity-0 group-hover:opacity-100
+               px-2 py-1 text-[11px] font-medium rounded-md
+               shadow-sm whitespace-nowrap transition duration-200
+               pointer-events-none
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--gray-900))]
+               border border-[rgb(var(--primary-200))]">
+
+        Manage Devices
+      </div>
+    </div>
 
     <!-- EDIT -->
     <div class="relative group">

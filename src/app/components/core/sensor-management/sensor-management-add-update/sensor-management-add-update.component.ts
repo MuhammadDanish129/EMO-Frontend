@@ -31,10 +31,8 @@ export class SensorManagementAddUpdateComponent implements OnInit {
 
   model: SensorRequestDTO = {
     sensorName: '',
-    modebusAddress: '',
     meterId: '',
     serialAddress: '',
-    fkOffice: '',
     fkDevice: '',
     fkutility: ''
   };
@@ -51,7 +49,7 @@ export class SensorManagementAddUpdateComponent implements OnInit {
     private userService: UserService,
     private toaster: ToastrService,
     @Inject(MAT_DIALOG_DATA)
-    public data: { mode: 'add' | 'edit' | 'view'; value?: any }
+    public data: { mode: 'add' | 'edit' | 'view'; value?: any ;fkDevice?: string;}
   ) {}
 
   async ngOnInit() {
@@ -59,14 +57,14 @@ export class SensorManagementAddUpdateComponent implements OnInit {
     this.currentUser = await this.userService.user$;
 
     await Promise.all([
-      this.loadOffices(),
-      this.loadDevices(),
       this.loadUtilities()
     ]);
 
     if (this.data?.value) {
       this.model = { ...this.data.value };
-    }
+    }  else if (this.data?.fkDevice) {
+    this.model.fkDevice = this.data.fkDevice;
+  }
   }
 
   loadOffices() {
@@ -133,9 +131,6 @@ console.log(this.model);
 
   /* ================= LOOKUP NAME HELPERS ================= */
 
-  get selectedOfficeName(): string {
-    return this.offices.find(x => x.officeId === this.model.fkOffice)?.officeName || '-';
-  }
 
   get selectedDeviceName(): string {
     return this.devices.find(x => x.deviceId === this.model.fkDevice)?.deviceName || '-';

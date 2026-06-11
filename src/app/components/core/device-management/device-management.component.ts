@@ -21,6 +21,13 @@ import { MaterialModuleModule } from '../../../material-module/material-module.m
 })
 export class DeviceManagementComponent implements OnInit {
 
+  fkFloor!: string;
+  fkBuilding!: string;
+fkFacility!: string;
+fkBusiness!: string; 
+fkSection!: string;
+fkOffice!: string; 
+
   searchText = '';
   pageIndex = 0;
   pageSize = 5;
@@ -42,20 +49,27 @@ export class DeviceManagementComponent implements OnInit {
    * INIT
    * ============================= */
   async ngOnInit(): Promise<void> {
+    const nav = history.state;
+    this.fkFloor = nav.fkFloor || nav.fkFloor;
+  this.fkBuilding = nav.fkBuilding;
+  this.fkFacility = nav.fkFacility;
+  this.fkBusiness = nav.fkBusiness;
+  this.fkSection = nav.fkSection;
+  this.fkOffice = nav.fkOffice;
     this.currentUser = await this._userService.user$;
-    this.loadDevices(this.currentUser.fkBusiness);
+    this.loadDevices(this.fkOffice);
   }
 
   /* =============================
    * LOAD
    * ============================= */
- loadDevices(fkBusiness?: string) {
+ loadDevices(fkOffice?: string) {
 
   this.isLoading = true;
 
-  const businessId = fkBusiness || this.currentUser?.fkBusiness;
+  const OfficeId = fkOffice || this.currentUser?.fkBusiness;
 
-  this._deviceService.getDeviceByBusinessId(businessId).subscribe({
+  this._deviceService.getDeviceByOfficeId(OfficeId).subscribe({
     next: (res) => {
 
       if (!res.success) {
@@ -126,12 +140,13 @@ export class DeviceManagementComponent implements OnInit {
       disableClose: true,
       autoFocus: false,
       panelClass: 'ynex-dialog',
-      data: { mode: 'add' }
+      data: { mode: 'add', fkOffice: this.fkOffice,
+      fkBusiness: this.currentUser.fkBusiness }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'saved') {
-        this.loadDevices(this.currentUser.fkBusiness);
+        this.loadDevices(this.fkOffice);
       }
     });
   }
@@ -229,5 +244,87 @@ delete(id: string) {
   goToPage(i: number) {
     this.pageIndex = i;
   }
+
+
+  
+    goToSection() {
+  this.router.navigate(
+    ['/core/section-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding,
+        fkFloor: this.fkFloor
+      }
+    }
+  );
+}
+
+ goToOffice() {
+  this.router.navigate(
+    ['/core/office-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding,
+        fkFloor: this.fkFloor,
+        fkSection: this.fkSection,
+      }
+    }
+  );
+}
+
+    goToFloor(id: string) {
+  this.router.navigate(
+    ['/core/floor-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding
+      }
+    }
+  )
+}
+goToBuilding() {
+  this.router.navigate(
+    ['/core/building-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility
+      }
+    }
+  );
+}
+goToSensors(id: string) {
+  this.router.navigate(
+    ['/core/sensor-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding,
+        fkFloor: this.fkFloor,
+        fkSection: this.fkSection,
+        fkOffice: this.fkOffice,
+        fkDevice: id
+      }
+    }
+  );
+}
+
+goToFacility() {
+  this.router.navigate(
+    ['/core/facility-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness
+      }
+    }
+  )
+}
 
 }
