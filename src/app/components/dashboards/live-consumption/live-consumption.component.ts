@@ -89,6 +89,10 @@ export class LiveConsumptionComponent implements OnInit, OnDestroy {
   sections: any[] = [];
   offices: any[] = [];
   devices: any[] = [];
+  isWaitingForLiveData=false;
+
+  tenantOfficeIds: string[] = [];
+private subscribedRooms = new Set<string>();
 
   selectedFacilityId = '';
   selectedBuildingId = '';
@@ -96,9 +100,6 @@ export class LiveConsumptionComponent implements OnInit, OnDestroy {
   selectedSectionId = '';
   selectedOfficeId = '';
   selectedDeviceId = '';
-
-
-  isWaitingForLiveData = true; 
 
   selectedScopeType: ScopeType = 'business';
   selectedScopeId = '';
@@ -146,20 +147,23 @@ export class LiveConsumptionComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.currentUser = await this.userService.user$;
-    
+
     this.selectedScopeType = 'business';
     this.selectedScopeId = this.getBusinessId();
 
     this.registerSocketListeners();
 
     this.socketService.connect();
-
+  if (this.isTenantUser()) {
+    this.loadTenantOffices();
+  } else {
     if (this.selectedScopeId) {
       this.subscribeToScope('business', this.selectedScopeId);
     } else {
       console.warn('Business id not found in current user:', this.currentUser);
       this.toaster.warning('Business id not found. Live readings cannot be subscribed.');
     }
+  }
 
     this.loadFacilities();
 
@@ -187,9 +191,82 @@ export class LiveConsumptionComponent implements OnInit, OnDestroy {
     return this.socketService.isConnected();
   }
 
+  isTenantUser(): boolean {
+  return Number(this.currentUser?.userTypeLevel) === 2;
+}
+
+isBusinessUser(): boolean {
+  return Number(this.currentUser?.userTypeLevel) === 1;
+}
+
+private getUserId(): string {
+  return String(
+    this.currentUser?.userId ??
+    this.currentUser?.user_id ??
+    this.currentUser?.id ??
+    ''
+  ).trim();
+}
+
+private loadTenantOffices(): void {
+  this.isLoading = true;
+
+  const userId = this.getUserId();
+
+  this.officeService.getOfficeByTenantId(userId).subscribe({
+    next: (res: any) => {
+      this.isLoading = false;
+
+      if (res.success === false) {
+        this.toaster.error(res.remarks || 'Failed to load tenant offices');
+        return;
+      }
+
+      this.offices = res.data ?? [];
+      this.tenantOfficeIds = this.offices.map(x => String(x.officeId));
+
+      this.subscribeToTenantOffices();
+    },
+    error: () => {
+      this.isLoading = false;
+      this.offices = [];
+      this.tenantOfficeIds = [];
+      this.toaster.error('Failed to load tenant offices');
+    }
+  });
+}
+
+private subscribeToTenantOffices(): void {
+  this.unsubscribeAllRooms();
+
+  this.selectedScopeType = 'office';
+  this.selectedScopeId = 'tenant-offices';
+
+  this.sensors = [];
+  this.filteredSensors = [];
+  this.isWaitingForLiveData = true;
+
+  this.tenantOfficeIds.forEach(officeId => {
+    const room = `office:${officeId}`;
+    this.subscribedRooms.add(room);
+    this.emitSocket('subscribe-office', officeId);
+  });
+
+  console.log('✅ Tenant subscribed offices:', this.tenantOfficeIds);
+}
+
+private unsubscribeAllRooms(): void {
+  this.subscribedRooms.forEach(room => this.unsubscribeRoom(room));
+  this.subscribedRooms.clear();
+
+  if (this.subscribedRoom) {
+    this.unsubscribeRoom(this.subscribedRoom);
+    this.subscribedRoom = null;
+  }
+}
   loadFacilities(): void {
     this.isLoading = true;
-    
+
     this.facilityService.getFacilities().subscribe({
       next: (res) => {
         this.isLoading = false;
@@ -277,29 +354,54 @@ export class LiveConsumptionComponent implements OnInit, OnDestroy {
       });
   }
 
+  // onOfficeChange(): void {
+  //   this.resetBelow('office');
+
+  //   if (!this.selectedOfficeId) {
+  //     this.subscribeToScope('section', this.selectedSectionId);
+  //     return;
+  //   }
+
+  //   this.subscribeToScope('office', this.selectedOfficeId);
+
+  //   const service: any = this.deviceService as any;
+
+  //   if (service.getDeviceByOfficeId) {
+  //     service.getDeviceByOfficeId(this.selectedOfficeId)
+  //       .subscribe((res: any) => this.devices = res.data || []);
+  //   } else if (service.getDevicesByOfficeId) {
+  //     service.getDevicesByOfficeId(this.selectedOfficeId)
+  //       .subscribe((res: any) => this.devices = res.data || []);
+  //   } else {
+  //     console.warn('DeviceService has no getDeviceByOfficeId/getDevicesByOfficeId method');
+  //   }
+  // }
+
+
   onOfficeChange(): void {
-    this.resetBelow('office');
+  this.resetBelow('office');
 
-    if (!this.selectedOfficeId) {
-      this.subscribeToScope('section', this.selectedSectionId);
-      return;
-    }
-
-    this.subscribeToScope('office', this.selectedOfficeId);
-
-    const service: any = this.deviceService as any;
-
-    if (service.getDeviceByOfficeId) {
-      service.getDeviceByOfficeId(this.selectedOfficeId)
-        .subscribe((res: any) => this.devices = res.data || []);
-    } else if (service.getDevicesByOfficeId) {
-      service.getDevicesByOfficeId(this.selectedOfficeId)
-        .subscribe((res: any) => this.devices = res.data || []);
+  if (!this.selectedOfficeId) {
+    if (this.isTenantUser()) {
+      this.subscribeToTenantOffices();
     } else {
-      console.warn('DeviceService has no getDeviceByOfficeId/getDevicesByOfficeId method');
+      this.subscribeToScope('section', this.selectedSectionId);
     }
+    return;
   }
 
+  this.subscribeToScope('office', this.selectedOfficeId);
+
+  const service: any = this.deviceService as any;
+
+  if (service.getDeviceByOfficeId) {
+    service.getDeviceByOfficeId(this.selectedOfficeId)
+      .subscribe((res: any) => this.devices = res.data || []);
+  } else if (service.getDevicesByOfficeId) {
+    service.getDevicesByOfficeId(this.selectedOfficeId)
+      .subscribe((res: any) => this.devices = res.data || []);
+  }
+}
   onDeviceChange(): void {
     if (!this.selectedDeviceId) {
       this.subscribeToScope('office', this.selectedOfficeId);
@@ -309,33 +411,53 @@ export class LiveConsumptionComponent implements OnInit, OnDestroy {
     this.subscribeToScope('device', this.selectedDeviceId);
   }
 
-  private subscribeToScope(type: ScopeType, id: string): void {
-    this.isWaitingForLiveData = true;
-    const cleanId = String(id || '').trim();
+  // private subscribeToScope(type: ScopeType, id: string): void {
+  //   const cleanId = String(id || '').trim();
 
-    if (!cleanId) {
-      console.warn(`Cannot subscribe to ${type}. Empty id received.`);
-      return;
-    }
+  //   if (!cleanId) {
+  //     console.warn(`Cannot subscribe to ${type}. Empty id received.`);
+  //     return;
+  //   }
 
-    const nextRoom = `${type}:${cleanId}`;
+  //   const nextRoom = `${type}:${cleanId}`;
 
-    if (this.subscribedRoom && this.subscribedRoom !== nextRoom) {
-      this.unsubscribeRoom(this.subscribedRoom);
-    }
+  //   if (this.subscribedRoom && this.subscribedRoom !== nextRoom) {
+  //     this.unsubscribeRoom(this.subscribedRoom);
+  //   }
 
-    this.selectedScopeType = type;
-    this.selectedScopeId = cleanId;
-    this.subscribedRoom = nextRoom;
+  //   this.selectedScopeType = type;
+  //   this.selectedScopeId = cleanId;
+  //   this.subscribedRoom = nextRoom;
 
-    this.sensors = [];
-    this.filteredSensors = [];
+  //   this.sensors = [];
+  //   this.filteredSensors = [];
 
-    this.emitSocket(`subscribe-${type}`, cleanId);
+  //   this.emitSocket(`subscribe-${type}`, cleanId);
 
-    console.log('✅ Subscribed:', `subscribe-${type}`, cleanId);
-  }
+  //   console.log('✅ Subscribed:', `subscribe-${type}`, cleanId);
+  // }
+private subscribeToScope(type: ScopeType, id: string): void {
+  this.isWaitingForLiveData = true;
 
+  const cleanId = String(id || '').trim();
+  if (!cleanId) return;
+
+  this.unsubscribeAllRooms();
+
+  const nextRoom = `${type}:${cleanId}`;
+
+  this.selectedScopeType = type;
+  this.selectedScopeId = cleanId;
+  this.subscribedRoom = nextRoom;
+  this.subscribedRooms.add(nextRoom);
+
+  this.sensors = [];
+  this.filteredSensors = [];
+
+  this.emitSocket(`subscribe-${type}`, cleanId);
+
+  console.log('✅ Subscribed:', `subscribe-${type}`, cleanId);
+}
   private unsubscribeRoom(room: string): void {
     const [type, id] = room.split(':');
     if (!type || !id) return;
@@ -385,7 +507,6 @@ export class LiveConsumptionComponent implements OnInit, OnDestroy {
   }
 
   private handleSocketData(data: any): void {
-    this.isWaitingForLiveData = false;
     const packets = Array.isArray(data) ? data : [data];
 
     packets.forEach(packet => {
@@ -658,6 +779,7 @@ export class LiveConsumptionComponent implements OnInit, OnDestroy {
       ''
     ).trim();
   }
+
 clearFilters(): void {
 
   if (this.subscribedRoom) {
@@ -701,6 +823,7 @@ clearFilters(): void {
     this.selectedScopeId
   );
 }
+  
   private toNumber(value: any): number {
     const n = Number(value);
     return Number.isFinite(n) ? n : 0;

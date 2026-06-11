@@ -35,6 +35,16 @@ export class OfficeService {
   }
 
 
+  getOfficeByTenantId(
+    id: string
+  ): Observable<ResponseModel<OfficeResponseDTO[]>> {
+    return this.http.get<ResponseModel<OfficeResponseDTO[]>>(
+      `${this.baseUrl}/Agreement/GetOfficesByTenantId`,
+      { params: { id } }
+    );
+  }
+
+
   /** ===============================
    *  GET OFFICES BY SECTION ID
    *  =============================== */

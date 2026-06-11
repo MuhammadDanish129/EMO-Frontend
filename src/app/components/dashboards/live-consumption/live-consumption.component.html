@@ -1,4 +1,4 @@
-<!-- HEADER -->
+
 <div class="-mt-2 mb-4">
   <div class="px-6 py-4 bg-[rgb(var(--primary))]">
     <div class="flex flex-col gap-3 pt-3 md:flex-row md:items-center md:justify-between">
@@ -8,7 +8,7 @@
         </h1>
 
         <p class="mt-0.5 text-xs md:text-sm text-white/80 max-w-2xl">
-          Monitor live sensor readings across business, facility, building, floor, section, office, and device levels.
+          Monitor live sensor readings.
         </p>
       </div>
 
@@ -24,9 +24,10 @@
 </div>
 
 <!-- FILTERS -->
+ 
 <div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 p-4 mb-5">
   <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-4">
-
+@if(isBusinessUser()){
     <yx-select
       [items]="facilities"
       labelKey="facilityName"
@@ -69,7 +70,7 @@
       (valueChange)="onSectionChange()"
       [disabled]="!selectedFloorId">
     </yx-select>
-
+  }
     <yx-select
       [items]="offices"
       labelKey="officeName"
@@ -78,9 +79,9 @@
       [enableSearch]="true"
       [(value)]="selectedOfficeId"
       (valueChange)="onOfficeChange()"
-      [disabled]="!selectedSectionId">
+      [disabled]="isBusinessUser() && !selectedSectionId">
     </yx-select>
-
+<!-- [disabled]="isBusinessUser() && !selectedSectionId"> -->
     <yx-select
       [items]="devices"
       labelKey="deviceName"
@@ -391,9 +392,9 @@
                 <div class="flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-medium"
                      [style.background-color]="isSensorLive(sensor) ? 'rgb(var(--primary-100))' : 'rgb(var(--danger-100))'"
                      [style.color]="isSensorLive(sensor) ? 'rgb(var(--primary-700))' : 'rgb(var(--danger-700))'">
-                  <span class="h-1.5 w-1.5 rounded-full"
-                        [style.background-color]="isSensorLive(sensor) ? 'rgb(var(--primary))' : 'rgb(var(--danger))'"></span>
-                  <span>{{ isSensorLive(sensor) ? 'RECEIVING' : 'STALE' }}</span>
+                  <!-- <span class="h-1.5 w-1.5 rounded-full"
+                        [style.background-color]="isSensorLive(sensor) ? 'rgb(var(--primary))' : 'rgb(var(--danger))'"></span> -->
+                  <!-- <span>{{ isSensorLive(sensor) ? 'RECEIVING' : 'STALE' }}</span> -->
                 </div>
 
                 @if(sensor.relayState){
@@ -413,3 +414,5 @@
     </div>
   }
 </div>
+
+
