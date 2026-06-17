@@ -1,27 +1,39 @@
-import { Component, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { forkJoin } from 'rxjs';
+
 import {
   ApexAxisChartSeries,
   ApexChart,
-  ChartComponent,
   ApexDataLabels,
-  ApexPlotOptions,
-  ApexYAxis,
-  ApexTitleSubtitle,
-  ApexXAxis,
   ApexFill,
-  NgApexchartsModule,
-  ApexLegend,
   ApexGrid,
+  ApexLegend,
+  ApexMarkers,
+  ApexPlotOptions,
+  ApexStroke,
   ApexTooltip,
+  ApexXAxis,
+  ApexYAxis,
+  ChartComponent,
+  NgApexchartsModule
 } from 'ng-apexcharts';
+
 import { SharedModule } from '../../../shared/shared.module';
-import { NgChartsModule } from 'ng2-charts';
 import { User } from '../../../shared/services/user/user.type';
 import { UserService } from '../../../shared/services/user/user.service';
 
+import {
+  EnergyConsumptionByDeviceTypeResponseDTO,
+  MonthlyDeviceTypeReportResponseDTO,
+  PeakNonPeakSummaryResponseDTO
+} from './crm.type';
 
-export type ChartOptions = {
+import { EnergyDashboardService } from './crm.services';
+
+type BarChartOptions = {
   series: ApexAxisChartSeries;
   chart: ApexChart;
   dataLabels: ApexDataLabels;
@@ -34,610 +46,377 @@ export type ChartOptions = {
   grid: ApexGrid;
   tooltip: ApexTooltip;
 };
+
+type DonutChartOptions = {
+  series: number[];
+  chart: ApexChart;
+  labels: string[];
+  colors: string[];
+  legend: ApexLegend;
+  stroke: ApexStroke;
+  tooltip: ApexTooltip;
+  plotOptions: ApexPlotOptions;
+  dataLabels: ApexDataLabels;
+};
+
+type LineChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  xaxis: ApexXAxis;
+  yaxis: ApexYAxis;
+  stroke: ApexStroke;
+  dataLabels: ApexDataLabels;
+  tooltip: ApexTooltip;
+  colors: string[];
+  grid: ApexGrid;
+  legend: ApexLegend;
+  markers: ApexMarkers;
+};
+
 @Component({
   selector: 'app-crm',
   standalone: true,
-  imports: [RouterModule, NgApexchartsModule, SharedModule, NgChartsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    NgApexchartsModule,
+    SharedModule
+  ],
   templateUrl: './crm.component.html',
   styleUrl: './crm.component.scss'
 })
-
-export class CrmComponent {
-
+export class CrmComponent implements OnInit {
   @ViewChild('chart') chart!: ChartComponent;
-  public chartOptions: Partial<ChartOptions> | any;
-  optionsCircle1: any;
-  optionsCircle: any;
-  chartOptions1: any;
-  chartOptions2: any;
-  chartOptions3: any;
-  chartOptions4: any;
-  chartOptions5: any;
-  chartOptions7: any;
-   monthlyTargetKwh = 2000;      // threshold set by user
-  currentUsageKwh = 1340;       // this month’s consumption
-  usagePercent = 0;
 
   currentUser: User | null = null;
 
-  constructor(private userService: UserService,) {
-    
-    this.usagePercent = (this.currentUsageKwh / this.monthlyTargetKwh) * 100;
-    this.chartOptions = {
-      // ABSOLUTE ENERGY VALUES PER MONTH (example data, in kWh)
-      series: [
-        {
-          name: 'HVAC',
-          data: [1200, 1150, 1300, 1400, 1500, 1480, 1600, 1580, 1520, 1490, 1550, 1620]
-        },
-        {
-          name: 'Lighting',
-          data: [600, 620, 640, 650, 660, 670, 680, 700, 720, 740, 750, 760]
-        },
-        {
-          name: 'Miscellaneous',
-          data: [300, 310, 320, 330, 340, 350, 360, 370, 380, 390, 400, 410]
-        },
-        {
-          name: 'Computation',
-          data: [450, 460, 470, 480, 490, 500, 510, 520, 530, 540, 550, 560]
-        }
-      ],
+  isDashboardReady = false;
+  isLoading = false;
+  errorMessage = '';
 
+  monthlyDeviceTypeReport: MonthlyDeviceTypeReportResponseDTO[] = [];
+  consumptionByDeviceType: EnergyConsumptionByDeviceTypeResponseDTO[] = [];
+  peakNonPeak: PeakNonPeakSummaryResponseDTO | null = null;
+  monthlyReportTotalPercentage = 0;
+
+  deviceTypeChartOptions: Partial<BarChartOptions> | any;
+  monthlyReportChartOptions: Partial<DonutChartOptions> | any;
+  peakNonPeakChartOptions: Partial<LineChartOptions> | any;
+
+  startDate = '';
+  endDate = '';
+
+  private readonly peakNonPeakMaxVisibleXAxisLabels = 10;
+
+  constructor(
+    private userService: UserService,
+    private energyDashboardService: EnergyDashboardService
+  ) {}
+
+  async ngOnInit(): Promise<void> {
+    this.currentUser = await this.userService.user$;
+    this.setDefaultDates();
+    this.loadDashboardData();
+  }
+
+  setDefaultDates(): void {
+    const today = new Date();
+    const last30Days = new Date();
+    last30Days.setDate(today.getDate() - 30);
+
+    this.endDate = this.formatDate(today);
+    this.startDate = this.formatDate(last30Days);
+  }
+
+  loadDashboardData(): void {
+    this.isLoading = true;
+    this.isDashboardReady = false;
+    this.errorMessage = '';
+
+    forkJoin({
+      monthlyDeviceTypeReport: this.energyDashboardService.getMonthlyDeviceTypeReport(),
+      consumptionByDeviceType: this.energyDashboardService.getEnergyConsumptionByDeviceTypeLast12Months(),
+      peakNonPeak: this.energyDashboardService.getPeakNonPeakAnalysis(this.startDate, this.endDate)
+    }).subscribe({
+      next: (res) => {
+        if (
+          !res.monthlyDeviceTypeReport.success ||
+          !res.consumptionByDeviceType.success ||
+          !res.peakNonPeak.success
+        ) {
+          this.errorMessage = 'Dashboard data could not be loaded properly.';
+          this.isLoading = false;
+          return;
+        }
+
+        this.monthlyDeviceTypeReport = res.monthlyDeviceTypeReport.data ?? [];
+        this.consumptionByDeviceType = res.consumptionByDeviceType.data ?? [];
+        this.peakNonPeak = res.peakNonPeak.data ?? null;
+
+        this.prepareMonthlyDeviceTypeReportChart();
+        this.prepareEnergyConsumptionChart();
+        this.preparePeakNonPeakChart();
+
+        this.isDashboardReady = true;
+        this.isLoading = false;
+      },
+      error: () => {
+        this.errorMessage = 'Something went wrong while loading dashboard data.';
+        this.isDashboardReady = false;
+        this.isLoading = false;
+      }
+    });
+  }
+
+  applyPeakNonPeakFilter(): void {
+    if (!this.startDate || !this.endDate) return;
+
+    this.isLoading = true;
+
+    this.energyDashboardService.getPeakNonPeakAnalysis(this.startDate, this.endDate).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.peakNonPeak = res.data ?? null;
+          this.preparePeakNonPeakChart();
+        }
+
+        this.isLoading = false;
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+
+  prepareMonthlyDeviceTypeReportChart(): void {
+    const labels = this.monthlyDeviceTypeReport.map(x => x.utilityName || 'Unknown');
+    const series = this.monthlyDeviceTypeReport.map(x => Number(Number(x.percentage || 0).toFixed(2)));
+    this.monthlyReportTotalPercentage = Number(series.reduce((sum, value) => sum + value, 0).toFixed(2));
+
+    this.monthlyReportChartOptions = {
+      series,
+      labels,
+      colors: [
+        'rgb(132, 90, 223)',
+        'rgb(35, 183, 229)',
+        'rgb(245, 184, 73)',
+        'rgb(38, 191, 148)',
+        'rgb(230, 83, 60)'
+      ],
+      chart: {
+        height: 220,
+        width: '100%',
+        type: 'donut'
+      },
+      dataLabels: {
+        enabled: false
+      },
+      plotOptions: {
+        pie: {
+          expandOnClick: false,
+          donut: {
+            size: '78%',
+            labels: {
+              show: true,
+              name: {
+                show: true,
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: '#8c9097',
+                offsetY: -6
+              },
+              value: {
+                show: true,
+                fontSize: '1.375rem',
+                fontWeight: 700,
+                color: '#1f2937',
+                offsetY: 6,
+                formatter: () => `${this.monthlyReportTotalPercentage.toFixed(0)}%`
+              },
+              total: {
+                show: true,
+                showAlways: true,
+                label: 'Total',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: '#8c9097',
+                formatter: () => `${this.monthlyReportTotalPercentage.toFixed(0)}%`
+              }
+            }
+          }
+        }
+      },
+      legend: {
+        show: false
+      },
+      stroke: {
+        show: true,
+        colors: '#fff',
+        width: 0
+      },
+      tooltip: {
+        y: {
+          formatter: (value: number) => `${value.toFixed(2)}%`
+        }
+      }
+    };
+  }
+
+  prepareEnergyConsumptionChart(): void {
+    const monthOrder = this.getLast12MonthLabels();
+
+    const utilities = Array.from(
+      new Set(this.consumptionByDeviceType.map(x => x.utilityName))
+    );
+
+    const series = utilities.map(utility => {
+      return {
+        name: utility,
+        data: monthOrder.map(monthLabel => {
+          const item = this.consumptionByDeviceType.find(x =>
+            `${x.month} ${x.year}` === monthLabel && x.utilityName === utility
+          );
+
+          return item ? Number(item.totalKwh.toFixed(2)) : 0;
+        })
+      };
+    });
+
+    this.deviceTypeChartOptions = {
+      series,
       chart: {
         type: 'bar',
         height: 345,
-        stacked: true           // normal stacked (NOT 100%)
-        // no stackType: '100%'
+        stacked: true,
+        toolbar: {
+          show: false
+        }
       },
-
       grid: {
         borderColor: '#f5f4f4',
         strokeDashArray: 5,
-        yaxis: { lines: { show: true } }
+        yaxis: {
+          lines: {
+            show: true
+          }
+        }
       },
-
       colors: [
-        'rgb(132, 90, 223)',        // HVAC
-        'rgba(132, 90, 223, 0.7)',  // Lighting
-        'rgba(132, 90, 223, 0.4)',  // Misc
-        '#ebeff5'                   // Computation
+        'rgb(132, 90, 223)',
+        'rgba(132, 90, 223, 0.7)',
+        'rgba(132, 90, 223, 0.4)',
+        '#ebeff5',
+        'rgb(35, 183, 229)'
       ],
-
       plotOptions: {
         bar: {
           columnWidth: '35%',
           borderRadius: 4
         }
       },
-
-      dataLabels: { enabled: false },
-
+      dataLabels: {
+        enabled: false
+      },
       legend: {
         show: true,
         position: 'top'
       },
-
       xaxis: {
-        categories: [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
-        ],
+        categories: monthOrder,
         labels: {
-          style: { fontSize: '11px' }
+          style: {
+            fontSize: '11px'
+          }
         }
       },
-
       yaxis: {
         labels: {
-          formatter: (val: number) => `${val} kWh`
+          formatter: (val: number) => `${val.toFixed(0)} kWh`
         },
         title: {
           text: 'Total Energy Consumption (kWh)'
         }
       },
-
       fill: {
         opacity: 1
       },
-
-      // TOOLTIP: show kWh + percentage per device type for that month
       tooltip: {
         shared: true,
         intersect: false,
         y: {
-          formatter: (value: number, opts: any) => {
-            const series = opts.series as number[][];
-            const dataPointIndex = opts.dataPointIndex as number;
-
-            const total = series.reduce(
-              (sum: number, s: number[]) => sum + (s[dataPointIndex] ?? 0),
-              0
-            );
-
-            const percent = total ? (value / total) * 100 : 0;
-
-            return `${value.toFixed(0)} kWh (${percent.toFixed(1)}%)`;
-          }
+          formatter: (value: number) => `${value.toFixed(2)} kWh`
         }
       }
     };
-    this.optionsCircle1 = {
-      series: [32, 27, 25, 16],
-      colors: ["rgb(132, 90, 223)", "rgb(35, 183, 229)", "rgb(245, 184, 73)", "rgb(38, 191, 148)",],
+  }
+
+  preparePeakNonPeakChart(): void {
+    const dailyData = this.peakNonPeak?.dailyData || [];
+    const chartPoints = dailyData.map((item, index) => {
+      const timestamp = this.getPeriodTimestamp(item.period, index);
+
+      return {
+        timestamp,
+        period: item.period,
+        peakKwh: Number(item.peakKwh.toFixed(2)),
+        nonPeakKwh: Number(item.nonPeakKwh.toFixed(2))
+      };
+    });
+
+    this.peakNonPeakChartOptions = {
+      series: [
+        {
+          name: 'Peak kWh',
+          data: chartPoints.map(x => ({
+            x: x.timestamp,
+            y: x.peakKwh
+          }))
+        },
+        {
+          name: 'Non-Peak kWh',
+          data: chartPoints.map(x => ({
+            x: x.timestamp,
+            y: x.nonPeakKwh
+          }))
+        }
+      ],
       chart: {
-        events: {
-          mounted: (chart: any) => {
-            chart.windowResizeHandler();
+        type: 'line',
+        height: 320,
+        zoom: {
+          enabled: true,
+          type: 'x',
+          autoScaleYaxis: true
+        },
+        toolbar: {
+          show: true,
+          autoSelected: 'zoom',
+          tools: {
+            download: true,
+            selection: true,
+            zoom: true,
+            zoomin: true,
+            zoomout: true,
+            pan: true,
+            reset: true
           }
-        },
-        height: 252,
-        type: 'donut',
-        dropShadow: {
-          enabled: false,
-          top: 5,
-          left: 0,
-          blur: 3,
-          color: '#525050',
-          opacity: 0.1,
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      plotOptions: {
-
-        pie: {
-          expandOnClick: false,
-          donut: {
-            size: '80%',
-            labels: {
-              show: false,
-              name: {
-                show: true,
-                fontSize: '20px',
-                color: '#495057',
-                offsetY: -4
-              },
-              value: {
-                show: true,
-                fontSize: '18px',
-                offsetY: 8,
-                formatter: function (val: string) {
-                  return val + "%";
-                }
-              },
-
-            }
-          }
         }
       },
-
-      legend: {
-        show: false,
-      },
+      colors: [
+        'rgb(132, 90, 223)',
+        'rgb(35, 183, 229)'
+      ],
       stroke: {
-        show: true,
         curve: 'smooth',
-        lineCap: 'round',
-        colors: '#fff',
-        width: 0,
-        dashArray: 0,
+        width: 2
       },
-
-    };
-    this.optionsCircle = {
-      chart: {
-        height: 127,
-        width: 100,
-        type: 'radialBar',
-      },
-
-      series: [67],
-      // colors: ['#fff'],
-      plotOptions: {
-        radialBar: {
-          hollow: {
-            margin: 0,
-            size: '55%',
-            background: '#fff',
-          },
-          dataLabels: {
-            name: {
-              offsetY: -10,
-              color: '#4b9bfa',
-              fontSize: '.625rem',
-              show: false,
-            },
-            value: {
-              offsetY: 5,
-              color: '#4b9bfa',
-              fontSize: '.875rem',
-              show: true,
-              fontWeight: 600,
-            },
-          },
-        },
-      },
-      stroke: {
-        lineCap: 'round',
-      },
-      labels: ['Status'],
-      colors: ['#fff']
-    }
-    this.chartOptions1 = {
-
-      series: [{
-        name: 'Value',
-        data: [20, 14, 19, 10, 23, 20, 22, 9, 12]
-      }],
-      colors: ["rgb(132, 90, 223)"],
-      chart: {
-        type: 'line',
-        height: 30,
-        width: 100,
-        sparkline: {
-          enabled: true
-        },
-
-      },
-      stroke: {
-        show: true,
-        curve: 'smooth',
-        lineCap: 'butt',
-        width: 1.5,
-        dashArray: 0,
-      },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          opacityFrom: 0.9,
-          opacityTo: 0.9,
-          stops: [0, 98],
+      markers: {
+        size: 0,
+        hover: {
+          sizeOffset: 0
         }
       },
-      yaxis: {
-        min: 0,
-        show: false,
-        axisBorder: {
-          show: false
-        },
-      },
-      xaxis: {
-        // show: false,
-        axisBorder: {
-          show: false
-        },
-      },
-      tooltip: {
-        enabled: false,
-      },
-    }
-    this.chartOptions2 = {
-      chart: {
-        type: 'line',
-        height: 40,
-        width: 100,
-        sparkline: {
-          enabled: true,
-        },
-      },
-      stroke: {
-        show: true,
-        curve: 'smooth',
-        lineCap: 'butt',
-        width: 1.5,
-        dashArray: 0,
-      },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          opacityFrom: 0.9,
-          opacityTo: 0.9,
-          stops: [0, 98],
-        },
-      },
-      series: [
-        {
-          name: 'Value',
-          data: [20, 14, 20, 22, 9, 12, 19, 10, 25],
-        },
-      ],
-      yaxis: {
-        min: 0,
-        show: false,
-        axisBorder: {
-          show: false,
-        },
-      },
-      xaxis: {
-        show: false,
-        axisBorder: {
-          show: false,
-        },
-      },
-      tooltip: {
-        enabled: false,
-      },
-      colors: ['rgb(35, 183, 229)'],
-    };
-    this.chartOptions3 = {
-      chart: {
-        type: 'line',
-        height: 40,
-        width: 100,
-        sparkline: {
-          enabled: true,
-        },
-      },
-      stroke: {
-        show: true,
-        curve: 'smooth',
-        lineCap: 'butt',
-        width: 1.5,
-        dashArray: 0,
-      },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          opacityFrom: 0.9,
-          opacityTo: 0.9,
-          stops: [0, 98],
-        },
-      },
-      series: [
-        {
-          name: 'Value',
-          data: [20, 20, 22, 9, 14, 19, 10, 25, 12],
-        },
-      ],
-      yaxis: {
-        min: 0,
-        show: false,
-        axisBorder: {
-          show: false,
-        },
-      },
-      xaxis: {
-        show: false,
-        axisBorder: {
-          show: false,
-        },
-      },
-      tooltip: {
-        enabled: false,
-      },
-      colors: ['rgb(38, 191, 148)'],
-    };
-    this.chartOptions4 = {
-      chart: {
-        type: 'line',
-        height: 40,
-        width: 100,
-        sparkline: {
-          enabled: true,
-        },
-      },
-      stroke: {
-        show: true,
-        curve: 'smooth',
-        lineCap: 'butt',
-        width: 1.5,
-        dashArray: 0,
-      },
-      fill: {
-        type: 'gradient',
-        gradient: {
-          opacityFrom: 0.9,
-          opacityTo: 0.9,
-          stops: [0, 98],
-        },
-      },
-      series: [
-        {
-          name: 'Value',
-          data: [20, 20, 22, 9, 12, 14, 19, 10, 25],
-        },
-      ],
-      yaxis: {
-        min: 0,
-        show: false,
-        axisBorder: {
-          show: false,
-        },
-      },
-      xaxis: {
-        show: false,
-        axisBorder: {
-          show: false,
-        },
-      },
-      tooltip: {
-        enabled: false,
-      },
-      colors: ['rgb(245, 184, 73)'],
-    };
-    this.chartOptions5 = {
-      series: [
-        {
-          type: 'line',
-          name: 'Profit',
-          data: [
-            {
-              x: 'Jan',
-              y: 100
-            },
-            {
-              x: 'Feb',
-              y: 210
-            },
-            {
-              x: 'Mar',
-              y: 180
-            },
-            {
-              x: 'Apr',
-              y: 454
-            },
-            {
-              x: 'May',
-              y: 230
-            },
-            {
-              x: 'Jun',
-              y: 320
-            },
-            {
-              x: 'Jul',
-              y: 656
-            },
-            {
-              x: 'Aug',
-              y: 830
-            },
-            {
-              x: 'Sep',
-              y: 350
-            },
-            {
-              x: 'Oct',
-              y: 350
-            },
-            {
-              x: 'Nov',
-              y: 210
-            },
-            {
-              x: 'Dec',
-              y: 410
-            }
-          ]
-        },
-        {
-          type: 'line',
-          name: 'Revenue',
-          data: [
-            {
-              x: 'Jan',
-              y: 180
-            },
-            {
-              x: 'Feb',
-              y: 620
-            },
-            {
-              x: 'Mar',
-              y: 476
-            },
-            {
-              x: 'Apr',
-              y: 220
-            },
-            {
-              x: 'May',
-              y: 520
-            },
-            {
-              x: 'Jun',
-              y: 780
-            },
-            {
-              x: 'Jul',
-              y: 435
-            },
-            {
-              x: 'Aug',
-              y: 515
-            },
-            {
-              x: 'Sep',
-              y: 738
-            },
-            {
-              x: 'Oct',
-              y: 454
-            },
-            {
-              x: 'Nov',
-              y: 525
-            },
-            {
-              x: 'Dec',
-              y: 230
-            }
-          ]
-        },
-        {
-          type: 'area',
-          name: 'Sales',
-          data: [
-            {
-              x: 'Jan',
-              y: 200
-            },
-            {
-              x: 'Feb',
-              y: 530
-            },
-            {
-              x: 'Mar',
-              y: 110
-            },
-            {
-              x: 'Apr',
-              y: 130
-            },
-            {
-              x: 'May',
-              y: 480
-            },
-            {
-              x: 'Jun',
-              y: 520
-            },
-            {
-              x: 'Jul',
-              y: 780
-            },
-            {
-              x: 'Aug',
-              y: 435
-            },
-            {
-              x: 'Sep',
-              y: 475
-            },
-            {
-              x: 'Oct',
-              y: 738
-            },
-            {
-              x: 'Nov',
-              y: 454
-            },
-            {
-              x: 'Dec',
-              y: 480
-            }
-          ]
-        }
-      ],
-      chart: {
-        height: 350,
-        animations: {
-          speed: 500
-        },
-        dropShadow: {
-          enabled: true,
-          top: 8,
-          left: 0,
-          blur: 3,
-          color: '#000',
-          opacity: 0.1
-        },
-
-      },
-      colors: ["rgb(132, 90, 223)", "rgba(35, 183, 229, 0.85)", "rgba(119, 119, 142, 0.05)"],
       dataLabels: {
         enabled: false
       },
@@ -645,154 +424,111 @@ export class CrmComponent {
         borderColor: '#f1f1f1',
         strokeDashArray: 3
       },
-      stroke: {
-        curve: 'smooth',
-        width: [2, 2, 0],
-        dashArray: [0, 5, 0],
-      },
       xaxis: {
-        axisTicks: {
-          show: false,
-        },
-      },
-      yaxis: {
+        type: 'datetime',
+        tickAmount: Math.min(chartPoints.length, this.peakNonPeakMaxVisibleXAxisLabels),
         labels: {
-          formatter: function (value: string) {
-            return "$" + value;
+          rotate: -35,
+          rotateAlways: chartPoints.length > 8,
+          hideOverlappingLabels: true,
+          trim: true,
+          minHeight: 58,
+          maxHeight: 80,
+          style: {
+            fontSize: '10px'
           }
-        },
-      },
-      tooltip: {
-        y: [{
-          formatter: function (e: number) {
-            return void 0 !== e ? "$" + e.toFixed(0) : e;
-          }
-        }, {
-          formatter: function (e: number) {
-            return void 0 !== e ? "$" + e.toFixed(0) : e;
-          }
-        }, {
-          formatter: function (e: number) {
-            return void 0 !== e ? e.toFixed(0) : e;
-          }
-        }]
-      },
-      legend: {
-        show: true,
-        customLegendItems: ['Profit', 'Revenue', 'Sales'],
-        inverseOrder: true
-      },
-      title: {
-        text: 'Revenue Analytics with sales & profit (USD)',
-        align: 'left',
-        style: {
-          fontSize: '.8125rem',
-          fontWeight: 'semibold',
-          color: '#8c9097'
-        },
-      },
-      markers: {
-        hover: {
-          sizeOffset: 5
         }
       },
-
-    };
-    this.chartOptions7 = {
-      series: [
-        {
-          name: 'Profit Earned',
-          data: [44, 42, 57, 86, 58, 55, 70],
-        },
-        {
-          name: 'Total Sales',
-          data: [34, 22, 37, 56, 21, 35, 60],
-        },
-      ],
-      chart: {
-        type: 'bar',
-        height: 180,
-        toolbar: {
-          show: false,
-        },
-      },
-      grid: {
-        borderColor: '#f1f1f1',
-        strokeDashArray: 3,
-      },
-      colors: ['rgb(132, 90, 223)', '#e4e7ed'],
-      plotOptions: {
-        bar: {
-          colors: {
-            ranges: [
-              {
-                from: -100,
-                to: -46,
-                color: '#ebeff5',
-              },
-              {
-                from: -45,
-                to: 0,
-                color: '#ebeff5',
-              },
-            ],
-          },
-          columnWidth: '60%',
-          borderRadius: 5,
-        },
-      },
-      dataLabels: {
-        enabled: false,
-      },
-      stroke: {
-        show: true,
-        width: 2,
+      yaxis: {
+        labels: {
+          formatter: (val: number) => `${val.toFixed(0)} kWh`
+        }
       },
       legend: {
-        show: false,
-        position: 'top',
+        show: true,
+        position: 'top'
       },
-      yaxis: {
-        title: {
-          style: {
-            color: '#adb5be',
-            fontSize: '13px',
-            fontFamily: 'poppins, sans-serif',
-            fontWeight: 600,
-            cssClass: 'apexcharts-yaxis-label',
-          },
+      tooltip: {
+        shared: true,
+        intersect: false,
+        x: {
+          formatter: (value: number) => this.formatChartDate(value, true)
         },
-        labels: {
-          formatter: function (y: number) {
-            return y.toFixed(0) + '';
-          },
-        },
-      },
-      xaxis: {
-        type: 'week',
-        categories: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
-        axisBorder: {
-          show: true,
-          color: 'rgba(119, 119, 142, 0.05)',
-          offsetX: 0,
-          offsetY: 0,
-        },
-        axisTicks: {
-          show: true,
-          borderType: 'solid',
-          color: 'rgba(119, 119, 142, 0.05)',
-          width: 6,
-          offsetX: 0,
-          offsetY: 0,
-        },
-        labels: {
-          rotate: -90,
-        },
-      },
+        y: {
+          formatter: (value: number) => `${value.toFixed(2)} kWh`
+        }
+      }
     };
   }
 
-  async ngOnInit(): Promise<void> {
-    this.currentUser = await this.userService.user$;
+  exportPeakNonPeakCsv(): void {
+    this.energyDashboardService.exportPeakNonPeakAnalysisCsv(this.startDate, this.endDate)
+      .subscribe(blob => {
+        this.downloadFile(blob, 'peak-non-peak-analysis.csv');
+      });
   }
+
+  exportEnergyConsumptionCsv(): void {
+    this.energyDashboardService.exportEnergyConsumptionByDeviceTypeCsv()
+      .subscribe(blob => {
+        this.downloadFile(blob, 'energy-consumption-by-device-type.csv');
+      });
+  }
+
+  downloadFile(blob: Blob, fileName: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+
+    anchor.href = url;
+    anchor.download = fileName;
+    anchor.click();
+
+    window.URL.revokeObjectURL(url);
+  }
+
+  getLast12MonthLabels(): string[] {
+    const labels: string[] = [];
+    const today = new Date();
+
+    for (let i = 11; i >= 0; i--) {
+      const date = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      labels.push(`${date.toLocaleString('en-US', { month: 'short' })} ${date.getFullYear()}`);
+    }
+
+    return labels;
+  }
+
+  formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  private getPeriodTimestamp(period: string, index: number): number {
+    const parsedDate = /^\d{4}-\d{2}-\d{2}/.test(period)
+      ? new Date(`${period.slice(0, 10)}T00:00:00`)
+      : new Date(period);
+
+    if (!Number.isNaN(parsedDate.getTime())) {
+      return parsedDate.getTime();
+    }
+
+    const fallbackDate = new Date(this.startDate);
+    fallbackDate.setDate(fallbackDate.getDate() + index);
+
+    return fallbackDate.getTime();
+  }
+
+  private formatChartDate(value: number, includeYear: boolean): string {
+    const date = new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+      return '';
+    }
+
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: '2-digit',
+      ...(includeYear ? { year: 'numeric' } : {})
+    });
+  }
+
 }

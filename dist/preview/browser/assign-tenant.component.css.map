@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/core/tenant-office-assignment/assign-tenant/assign-tenant.component.scss"],
+  "sourcesContent": ["/* Hide native icon ONLY — no overlay */\r\ninput[type=\"date\"]::-webkit-calendar-picker-indicator {\r\n  opacity: 0;\r\n}\r\n\r\n/* Firefox normalize */\r\ninput[type=\"date\"] {\r\n  appearance: none;\r\n  -webkit-appearance: none;\r\n}\r\n"],
+  "mappings": ";;;AACA,KAAA,CAAA,UAAA;AACE,WAAA;;AAIF,KAAA,CAAA;AACE,cAAA;AACA,sBAAA;;",
+  "names": []
+}

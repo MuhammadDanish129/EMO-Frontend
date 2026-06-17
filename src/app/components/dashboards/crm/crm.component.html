@@ -1,72 +1,94 @@
-<div class="m-10">
-<div class="md:flex block items-center justify-between my-[1.5rem] page-header-breadcrumb">
-  <div>
-    <p class="font-semibold text-[1.125rem] text-defaulttextcolor dark:text-defaulttextcolor/70 !mb-0 ">Welcome back,
-     {{ currentUser?.name }}  !</p>
-    <!-- <p class="font-normal text-[#8c9097] dark:text-white/50 text-[0.813rem]">Track your sales activity, leads and deals
-      here.</p> -->
+<div class="m-4 pb-6 sm:m-6 lg:m-10">
+
+  <div class="md:flex block items-center justify-between my-[1.5rem] page-header-breadcrumb">
+    <div>
+      <p class="font-semibold text-[1.125rem] text-defaulttextcolor dark:text-defaulttextcolor/70 !mb-0">
+        Welcome back, {{ currentUser?.name }} !
+      </p>
+    </div>
+
+    <div class="btn-list md:mt-0 mt-2">
+      <button
+        type="button"
+        class="ti-btn ti-btn-outline-secondary btn-wave !font-medium !me-[0.375rem] !ms-0 !text-[0.85rem] !rounded-[0.35rem] !py-[0.51rem] !px-[0.86rem] shadow-none"
+        (click)="exportEnergyConsumptionCsv()">
+        <i class="ri-upload-cloud-line inline-block"></i>
+        Export Consumption CSV
+      </button>
+    </div>
   </div>
-  <div class="btn-list md:mt-0 mt-2">
-    <button type="button"
-      class="ti-btn bg-primary text-white btn-wave !font-medium !me-[0.375rem] !ms-0 !text-[0.85rem] !rounded-[0.35rem] !py-[0.51rem] !px-[0.86rem] shadow-none">
-      <i class="ri-filter-3-fill  inline-block"></i>Filters
-    </button>
-    <button type="button"
-      class="ti-btn ti-btn-outline-secondary btn-wave !font-medium  !me-[0.375rem]  !ms-0 !text-[0.85rem] !rounded-[0.35rem] !py-[0.51rem] !px-[0.86rem] shadow-none">
-      <i class="ri-upload-cloud-line  inline-block"></i>Export
-    </button>
-  </div>
-</div>
 
-<div class="grid grid-cols-12 gap-x-6">
-  <div class="xxl:col-span-9 xl:col-span-12  col-span-12">
-    <div class="grid grid-cols-12 gap-x-6">
-      <div class="xxl:col-span-4 xl:col-span-4  col-span-12">
-        <div class="xxl:col-span-12 xl:col-span-12 col-span-12">
-          <div class="box crm-highlight-card">
-            <div class="box-body">
-              <div class="flex items-center justify-between">
-                <div>
-                  <div class="font-semibold text-[1.125rem] text-white mb-2">
-                    Monthly Energy Target
-                  </div>
+  <div *ngIf="isLoading && !isDashboardReady" class="dashboard-loader" role="status" aria-live="polite">
+    <div class="dashboard-loader-panel">
+      <div class="energy-loader" aria-hidden="true">
+        <span class="energy-loader-ring"></span>
+        <span class="energy-loader-core">
+          <i class="ri-flashlight-line"></i>
+        </span>
+        <span class="energy-loader-bar energy-loader-bar-one"></span>
+        <span class="energy-loader-bar energy-loader-bar-two"></span>
+        <span class="energy-loader-bar energy-loader-bar-three"></span>
+      </div>
 
-                  <span class="block text-[0.75rem] text-white">
-                    <span class="opacity-[0.7]">You have used</span>
-                    <span class="font-semibold text-warning">
-                      {{ currentUsageKwh }} kWh
-                    </span>
-                    <span class="opacity-[0.7]">out of</span>
-                    <span class="font-semibold">
-                      {{ monthlyTargetKwh }} kWh
-                    </span>
-                    <span class="opacity-[0.7]">
-                      ({{ usagePercent }}% of target)
-                    </span>.
-                  </span>
-
-                  <!-- <span class="block font-semibold mt-[0.125rem]">
-                    <a class="text-white text-[0.813rem]" href="javascript:void(0);">
-                      <u>View detailed consumption</u>
-                    </a>
-                  </span> -->
-                </div>
-
-                <div>
-                  <div id="crm-main">
-                    <apx-chart [series]="optionsCircle.series" [chart]="optionsCircle.chart"
-                      [xaxis]="optionsCircle.xaxis" [colors]="optionsCircle.colors" [labels]="optionsCircle.labels"
-                      [legend]="optionsCircle.legend" [stroke]="optionsCircle.stroke" [tooltip]="optionsCircle.tooltip"
-                      [plotOptions]="optionsCircle.plotOptions" [dataLabels]="optionsCircle.dataLabels"></apx-chart>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
+      <div class="dashboard-loader-copy">
+        <p class="font-semibold text-[1rem] text-defaulttextcolor dark:text-white mb-1">
+          Preparing energy dashboard
+        </p>
+        <p class="text-[0.78rem] text-[#8c9097] dark:text-white/50 mb-3">
+          Fetching live consumption, reports, and peak analysis.
+        </p>
+        <div class="dashboard-loader-progress">
+          <span></span>
         </div>
-        <div class="xxl:col-span-12 xl:col-span-12 col-span-12">
-          <div class="box">
+      </div>
+    </div>
+
+    <div class="dashboard-loader-grid">
+      <div class="dashboard-loader-card dashboard-loader-card-wide">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="dashboard-loader-card">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="dashboard-loader-card">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <div class="dashboard-loader-card dashboard-loader-card-chart">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="isLoading && isDashboardReady" class="dashboard-refresh-loader" role="status" aria-live="polite">
+    <span>Updating dashboard data...</span>
+    <div class="dashboard-loader-progress">
+      <span></span>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="box">
+    <div class="box-body text-center py-10">
+      <div class="text-danger font-semibold">{{ errorMessage }}</div>
+    </div>
+  </div>
+
+  <div *ngIf="isDashboardReady" class="grid grid-cols-12 gap-6 items-start">
+
+    <div class="xxl:col-span-9 xl:col-span-12 col-span-12">
+      <div class="grid grid-cols-12 gap-6 items-start">
+
+        <div class="xxl:col-span-4 xl:col-span-4 col-span-12 space-y-6">
+
+          <div class="box overflow-hidden border border-defaultborder/70 dark:border-defaultborder/10">
             <div class="box-header flex justify-between">
               <div class="box-title">
                 Idle Devices
@@ -79,8 +101,7 @@
                 <li class="mb-[0.9rem]">
                   <div class="flex items-start flex-wrap">
                     <div class="me-2">
-                      <span class="inline-flex items-center justify-center !w-[1.75rem] !h-[1.75rem]
-                            rounded-full bg-sky-500/10 text-sky-500">
+                      <span class="inline-flex items-center justify-center !w-[1.75rem] !h-[1.75rem] rounded-full bg-sky-500/10 text-sky-500">
                         <i class="ri-remote-control-2-line text-[0.9rem]"></i>
                       </span>
                     </div>
@@ -89,18 +110,15 @@
                       <p class="font-semibold mb-[1.4px] text-[0.813rem]">
                         Honeywell T7350 Thermostat
                       </p>
-                      <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem]">HVAC Controller</p>
+                      <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem]">
+                        HVAC Controller
+                      </p>
                     </div>
 
-                    <div class="hs-dropdown ti-dropdown">
-                      <a href="javascript:void(0);" class="ti-btn ti-btn-outline-success text-white !py-1 !px-2
-                            !text-[0.75rem] !m-0 !gap-0 !font-medium">
-                        Idle <i class="ri-arrow-down-s-line ms-1"></i>
-                      </a>
-                      <ul class="hs-dropdown-menu ti-dropdown-menu hidden">
-                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem]" href="javascript:void(0);">On</a></li>
-                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem]" href="javascript:void(0);">Off</a></li>
-                      </ul>
+                    <div>
+                      <span class="ti-btn ti-btn-outline-success text-white !py-1 !px-2 !text-[0.75rem] !m-0 !gap-0 !font-medium">
+                        Idle
+                      </span>
                     </div>
                   </div>
                 </li>
@@ -108,8 +126,7 @@
                 <li class="mb-[0.9rem]">
                   <div class="flex items-start flex-wrap">
                     <div class="me-2">
-                      <span class="inline-flex items-center justify-center !w-[1.75rem] !h-[1.75rem]
-                            rounded-full bg-rose-500/10 text-rose-500">
+                      <span class="inline-flex items-center justify-center !w-[1.75rem] !h-[1.75rem] rounded-full bg-rose-500/10 text-rose-500">
                         <i class="ri-battery-charge-line text-[0.9rem]"></i>
                       </span>
                     </div>
@@ -118,18 +135,15 @@
                       <p class="font-semibold mb-[1.4px] text-[0.813rem]">
                         APC Smart-UPS 5000VA
                       </p>
-                      <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem]">Backup UPS</p>
+                      <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem]">
+                        Backup UPS
+                      </p>
                     </div>
 
-                    <div class="hs-dropdown ti-dropdown">
-                      <a href="javascript:void(0);" class="ti-btn ti-btn-outline-success text-white !py-1 !px-2
-                            !text-[0.75rem] !m-0 !gap-0 !font-medium">
-                        Idle <i class="ri-arrow-down-s-line ms-1"></i>
-                      </a>
-                      <ul class="hs-dropdown-menu ti-dropdown-menu hidden">
-                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem]" href="javascript:void(0);">On</a></li>
-                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem]" href="javascript:void(0);">Off</a></li>
-                      </ul>
+                    <div>
+                      <span class="ti-btn ti-btn-outline-success text-white !py-1 !px-2 !text-[0.75rem] !m-0 !gap-0 !font-medium">
+                        Idle
+                      </span>
                     </div>
                   </div>
                 </li>
@@ -137,8 +151,7 @@
                 <li class="mb-[0.9rem]">
                   <div class="flex items-start flex-wrap">
                     <div class="me-2">
-                      <span class="inline-flex items-center justify-center !w-[1.75rem] !h-[1.75rem]
-                            rounded-full bg-slate-500/10 text-slate-500">
+                      <span class="inline-flex items-center justify-center !w-[1.75rem] !h-[1.75rem] rounded-full bg-slate-500/10 text-slate-500">
                         <i class="ri-computer-line text-[0.9rem]"></i>
                       </span>
                     </div>
@@ -147,18 +160,15 @@
                       <p class="font-semibold mb-[1.4px] text-[0.813rem]">
                         HP Z4 Workstation
                       </p>
-                      <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem]">Computation Unit</p>
+                      <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem]">
+                        Computation Unit
+                      </p>
                     </div>
 
-                    <div class="hs-dropdown ti-dropdown">
-                      <a href="javascript:void(0);" class="ti-btn ti-btn-outline-success text-white !py-1 !px-2
-                            !text-[0.75rem] !m-0 !gap-0 !font-medium">
-                        Idle <i class="ri-arrow-down-s-line ms-1"></i>
-                      </a>
-                      <ul class="hs-dropdown-menu ti-dropdown-menu hidden">
-                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem]" href="javascript:void(0);">On</a></li>
-                        <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem]" href="javascript:void(0);">Off</a></li>
-                      </ul>
+                    <div>
+                      <span class="ti-btn ti-btn-outline-success text-white !py-1 !px-2 !text-[0.75rem] !m-0 !gap-0 !font-medium">
+                        Idle
+                      </span>
                     </div>
                   </div>
                 </li>
@@ -167,518 +177,298 @@
             </div>
           </div>
 
-
-
-        </div>
-        <div class="xxl:col-span-12 xl:col-span-12 col-span-12">
-          <div class="box">
-            <!-- Header -->
+          <div class="box overflow-hidden border border-defaultborder/70 dark:border-defaultborder/10">
             <div class="box-header justify-between">
-              <div class="flex items-center gap-2">
-                <div class="box-title">Energy Meter</div>
-                <span class="text-[0.75rem] text-[#8c9097] dark:text-white/50">
-                  Smart meters – live electrical readings
-                </span>
+              <div class="box-title">
+                Active Device Alerts
+              </div>
+              <div class="hs-dropdown ti-dropdown">
+                <a href="javascript:void(0);" class="text-[0.75rem] px-2 font-normal text-[#8c9097] dark:text-white/50">
+                  Actions<i class="ri-arrow-down-s-line align-middle ms-1 inline-block"></i>
+                </a>
+                <ul class="hs-dropdown-menu ti-dropdown-menu hidden">
+                  <li>
+                    <a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block" href="javascript:void(0);">
+                      Acknowledge All
+                    </a>
+                  </li>
+                  <li>
+                    <a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block" href="javascript:void(0);">
+                      View Full Log
+                    </a>
+                  </li>
+                </ul>
               </div>
             </div>
 
-            <!-- Body -->
-            <div class="box-body !pt-2">
-              <div class="table-responsive">
-                <table class="table whitespace-nowrap min-w-full">
-                  <thead class="bg-primary/5">
-                    <tr class="border-b border-primary/10">
-                      <th class="text-start text-[0.75rem] font-semibold px-4 py-3">
-                        Meter
-                      </th>
-
-                      <th class="text-end text-[0.75rem] font-semibold px-4 py-3">
-                        Voltage (V)
-                      </th>
-
-                      <th class="text-end text-[0.75rem] font-semibold px-4 py-3">
-                        Power (W)
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    <!-- Smart Meter A -->
-                    <tr
-                      class="border-b border-defaultborder/40 hover:bg-gray-50/60 dark:hover:bg-white/5 transition-colors">
-                      <td class="px-4 py-3">
-                        <div class="flex items-center gap-2">
-                          <div class="avatar avatar-sm bg-primary text-primary avatar-rounded">
-                            <i class="ri-flashlight-line text-[0.9rem]"></i>
-                          </div>
-                          <div>
-                            <div class="font-semibold text-[0.8125rem]">
-                              HVAC
-                            </div>
-
-                          </div>
-                        </div>
-                      </td>
-
-                      <td class="px-4 py-3 text-end text-[0.80rem]">
-                        211.89
-                      </td>
-
-                      <td class="px-4 py-3 text-end">
-                        <span class="font-semibold text-[0.80rem]">
-                          1695.12
-                        </span>
-                      </td>
-                    </tr>
-
-                    <!-- Smart Meter B -->
-                    <tr
-                      class="border-b border-defaultborder/40 hover:bg-gray-50/60 dark:hover:bg:white/5 transition-colors">
-                      <td class="px-4 py-3">
-                        <div class="flex items-center gap-2">
-                          <div class="avatar avatar-sm bg-emerald-500/10 text-emerald-500 avatar-rounded">
-                            <i class="ri-flashlight-fill text-[0.9rem]"></i>
-                          </div>
-                          <div>
-                            <div class="font-semibold text-[0.8125rem]">
-                              Lighting
-                            </div>
-
-                          </div>
-                        </div>
-                      </td>
-
-                      <td class="px-4 py-3 text-end text-[0.80rem]">
-                        251.00
-                      </td>
-
-                      <td class="px-4 py-3 text-end">
-                        <span class="font-semibold text-[0.80rem]">
-                          2376.97
-                        </span>
-                      </td>
-                    </tr>
-
-                    <!-- Smart Meter C -->
-                    <tr class="hover:bg-gray-50/60 dark:hover:bg-white/5 transition-colors">
-                      <td class="px-4 py-3">
-                        <div class="flex items-center gap-2">
-                          <div class="avatar avatar-sm bg-amber-500/10 text-amber-500 avatar-rounded">
-                            <i class="ri-flashlight-line text-[0.9rem]"></i>
-                          </div>
-                          <div>
-                            <div class="font-semibold text-[0.8125rem]">
-                              Miscellaneous
-                            </div>
-
-                          </div>
-                        </div>
-                      </td>
-
-                      <td class="px-4 py-3 text-end text-[0.80rem]">
-                        202.92
-                      </td>
-
-                      <td class="px-4 py-3 text-end">
-                        <span class="font-semibold text-[0.80rem]">
-                          3394.85
-                        </span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+            <div class="box-body">
+              <div class="flex items-center mb-[0.8rem]">
+                <h4 class="font-bold mb-0 text-[1.5rem] text-danger">13</h4>
+                <div class="ms-2">
+                  <span class="py-[0.18rem] px-[0.45rem] rounded-sm text-danger !font-medium !text-[0.75em] bg-danger/10">
+                    3<i class="ri-arrow-up-s-fill align-mmiddle ms-1"></i>
+                  </span>
+                  <span class="text-[#8c9097] dark:text-white/50 text-[0.813rem] ms-1">
+                    new alerts in the last hour
+                  </span>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
 
-      </div>
-      <div class="xxl:col-span-8  xl:col-span-8  col-span-12">
-        <div class="grid grid-cols-12 gap-x-6">
-          <div class="xxl:col-span-6 xl:col-span-6 col-span-12">
-            <div class="box overflow-hidden">
-              <div class="box-body">
-                <div class="flex items-top justify-between">
-                  <div>
-                    <span
-                      class="!text-[0.8rem]  !w-[2.5rem] !h-[2.5rem] !leading-[2.5rem] !rounded-full inline-flex items-center justify-center bg-primary">
-                      <i class="ti ti-users text-[1rem] text-white"></i>
-                    </span>
-                  </div>
-                  <div class="flex-grow ms-4">
-                    <div class="flex items-center justify-between flex-wrap">
-                      <div>
-                        <p class="text-[#8c9097] dark:text-white/50 text-[0.813rem] mb-0">Lighting</p>
-                        <!-- <h4 class="font-semibold  text-[1.5rem] !mb-2 ">1,02,890</h4> -->
-                      </div>
-                      <div id="crm-total-customers">
-                        <apx-chart [series]="chartOptions1.series" [chart]="chartOptions1.chart"
-                          [xaxis]="chartOptions1.xaxis" [dataLabels]="chartOptions1.dataLabels"
-                          [colors]="chartOptions1.colors" [fill]="chartOptions1.fill" [markers]="chartOptions1.markers"
-                          [stroke]="chartOptions1.stroke"></apx-chart>
-                      </div>
+              <div class="flex w-full h-[0.3125rem] mb-6 rounded-full overflow-hidden">
+                <div class="flex flex-col justify-center rounded-s-[0.625rem] overflow-hidden bg-danger w-[15%]"></div>
+                <div class="flex flex-col justify-center rounded-none overflow-hidden bg-warning w-[30%]"></div>
+                <div class="flex flex-col justify-center rounded-e-[0.625rem] overflow-hidden bg-info w-[55%]"></div>
+              </div>
+
+              <ul class="list-none mb-0 pt-2 crm-deals-status space-y-3">
+                <li>
+                  <div class="flex items-center text-[0.875rem] justify-between p-2 rounded-md bg-danger/5">
+                    <div class="flex items-center font-semibold text-danger">
+                      <i class="ri-error-warning-line me-2"></i>
+                      Critical
                     </div>
-                    <div class="flex items-center justify-between !mt-1">
-                      <div>
-                        <a class="text-primary text-[0.813rem]" href="javascript:void(0);">View All<i
-                            class="ti ti-arrow-narrow-right ms-2 font-semibold inline-block"></i></a>
-                      </div>
-                      <div class="text-end">
-                        <p class="mb-0 text-danger text-[0.813rem] font-semibold">+40%</p>
-                        <p class="text-[#8c9097] dark:text-white/50 opacity-[0.7] text-[0.6875rem]">this month</p>
-                      </div>
-                    </div>
+                    <div class="text-[0.875rem] text-danger font-bold">2 Alerts</div>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="xxl:col-span-6 xl:col-span-6 col-span-12">
-            <div class="box overflow-hidden">
-              <div class="box-body">
-                <div class="flex items-top justify-between">
-                  <div>
-                    <span
-                      class="!text-[0.8rem]  !w-[2.5rem] !h-[2.5rem] !leading-[2.5rem] !rounded-full inline-flex items-center justify-center bg-secondary">
-                      <i class="ti ti-wallet text-[1rem] text-white"></i>
-                    </span>
-                  </div>
-                  <div class="flex-grow ms-4">
-                    <div class="flex items-center justify-between flex-wrap">
-                      <div>
-                        <p class="text-[#8c9097] dark:text-white/50 text-[0.813rem] mb-0">HAVC</p>
-                        <!-- <h4 class="font-semibold text-[1.5rem] !mb-2 ">$56,562</h4> -->
-                      </div>
-                      <div id="crm-total-revenue">
-                        <apx-chart [series]="chartOptions2.series" [chart]="chartOptions2.chart"
-                          [xaxis]="chartOptions2.xaxis" [dataLabels]="chartOptions2.dataLabels"
-                          [colors]="chartOptions2.colors" [fill]="chartOptions2.fill" [markers]="chartOptions2.markers"
-                          [stroke]="chartOptions2.stroke"></apx-chart>
-                      </div>
-                    </div>
-                    <div class="flex items-center justify-between mt-1">
-                      <div>
-                        <a class="text-secondary text-[0.813rem]" href="javascript:void(0);">View All<i
-                            class="ti ti-arrow-narrow-right ms-2 font-semibold inline-block"></i></a>
-                      </div>
-                      <div class="text-end">
-                        <p class="mb-0 text-danger text-[0.813rem] font-semibold">+25%</p>
-                        <p class="text-[#8c9097] dark:text-white/50 opacity-[0.7] text-[0.6875rem]">this month</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="xxl:col-span-6 xl:col-span-6 col-span-12">
-            <div class="box overflow-hidden">
-              <div class="box-body">
-                <div class="flex items-top justify-between">
-                  <div>
-                    <span
-                      class="!text-[0.8rem]  !w-[2.5rem] !h-[2.5rem] !leading-[2.5rem] !rounded-full inline-flex items-center justify-center bg-success">
-                      <i class="ti ti-wave-square text-[1rem] text-white"></i>
-                    </span>
-                  </div>
-                  <div class="flex-grow ms-4">
-                    <div class="flex items-center justify-between flex-wrap">
-                      <div>
-                        <p class="text-[#8c9097] dark:text-white/50 text-[0.813rem] mb-0">Miscellaneous</p>
-                        <!-- <h4 class="font-semibold text-[1.5rem] !mb-2 ">12.08%</h4> -->
-                      </div>
-                      <div id="crm-conversion-ratio">
-                        <apx-chart [series]="chartOptions3.series" [chart]="chartOptions3.chart"
-                          [xaxis]="chartOptions3.xaxis" [dataLabels]="chartOptions3.dataLabels"
-                          [colors]="chartOptions3.colors" [fill]="chartOptions3.fill" [markers]="chartOptions3.markers"
-                          [stroke]="chartOptions3.stroke"></apx-chart>
-                      </div>
-                    </div>
-                    <div class="flex items-center justify-between mt-1">
-                      <div>
-                        <a class="text-success text-[0.813rem]" href="javascript:void(0);">View All<i
-                            class="ti ti-arrow-narrow-right ms-2 font-semibold inline-block"></i></a>
-                      </div>
-                      <div class="text-end">
-                        <p class="mb-0 text-success text-[0.813rem] font-semibold">-12%</p>
-                        <p class="text-[#8c9097] dark:text-white/50 opacity-[0.7] text-[0.6875rem]">this month</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="xxl:col-span-6 xl:col-span-6 col-span-12">
-            <div class="box overflow-hidden">
-              <div class="box-body">
-                <div class="flex items-top justify-between">
-                  <div>
-                    <span
-                      class="!text-[0.8rem]  !w-[2.5rem] !h-[2.5rem] !leading-[2.5rem] !rounded-full inline-flex items-center justify-center bg-warning">
-                      <i class="ti ti-briefcase text-[1rem] text-white"></i>
-                    </span>
-                  </div>
-                  <div class="flex-grow ms-4">
-                    <div class="flex items-center justify-between flex-wrap">
-                      <div>
-                        <p class="text-[#8c9097] dark:text-white/50 text-[0.813rem] mb-0">Computational</p>
-                        <!-- <h4 class="font-semibold text-[1.5rem] !mb-2 ">2,543</h4> -->
-                      </div>
-                      <div id="crm-total-deals">
-                        <apx-chart [series]="chartOptions4.series" [chart]="chartOptions4.chart"
-                          [xaxis]="chartOptions4.xaxis" [dataLabels]="chartOptions4.dataLabels"
-                          [colors]="chartOptions4.colors" [fill]="chartOptions4.fill" [markers]="chartOptions4.markers"
-                          [stroke]="chartOptions4.stroke"></apx-chart>
-                      </div>
-                    </div>
-                    <div class="flex items-center justify-between mt-1">
-                      <div>
-                        <a class="text-warning text-[0.813rem]" href="javascript:void(0);">View All<i
-                            class="ti ti-arrow-narrow-right ms-2 font-semibold inline-block"></i></a>
-                      </div>
-                      <div class="text-end">
-                        <p class="mb-0 text-danger text-[0.813rem] font-semibold">+19%</p>
-                        <p class="text-[#8c9097] dark:text-white/50  opacity-[0.7] text-[0.6875rem]">this month</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- <div class="xxl:col-span-12 xl:col-span-12 col-span-12">
-            <div class="box">
-              <div class="box-header !gap-0 !m-0 justify-between">
-                <div class="box-title">
-                  Revenue Analytics
-                </div>
-                <div class="hs-dropdown ti-dropdown">
-                  <a href="javascript:void(0);"
-                    class="text-[0.75rem] px-2 font-normal text-[#8c9097] dark:text-white/50" aria-expanded="false">
-                    View All<i class="ri-arrow-down-s-line align-middle ms-1 inline-block"></i>
-                  </a>
-                  <ul class="hs-dropdown-menu ti-dropdown-menu hidden" role="menu">
-                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
-                        href="javascript:void(0);">Today</a></li>
-                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
-                        href="javascript:void(0);">This Week</a></li>
-                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
-                        href="javascript:void(0);">Last Week</a></li>
-                  </ul>
-                </div>
-              </div>
-              <div class="box-body !py-5">
-                <div id="crm-revenue-analytics">
-                  <div id="chart-line">
-                    <apx-chart [series]="chartOptions5.series" [chart]="chartOptions5.chart"
-                      [xaxis]="chartOptions5.xaxis" [dataLabels]="chartOptions5.dataLabels"
-                      [colors]="chartOptions5.colors" [fill]="chartOptions5.fill" [markers]="chartOptions5.markers"
-                      [stroke]="chartOptions5.stroke"></apx-chart>
-                  </div>
-                  <apx-chart [series]="chartOptions5.series" [chart]="chartOptions5.chart"
-                    [xaxis]="chartOptions5.xaxis" [dataLabels]="chartOptions5.dataLabels"
-                    [colors]="chartOptions5.colors"  [fill]="chartOptions5.fill"
-                    [markers]="chartOptions5.markers" [stroke]="chartOptions5.stroke"></apx-chart>
-                </div>
-              </div>
-            </div>
-          </div> -->
+                </li>
 
-          <div class="xxl:col-span-12 xl:col-span-12 col-span-12">
-            <div class="box">
-              <div class="box-header">
-                <div class="box-title">
-                  Energy Consumption by Device Type (Last 12 Months)
-                </div>
-                <div class="hs-dropdown ti-dropdown">
-                  <a aria-label="anchor" href="javascript:void(0);"
-                    class="flex items-center justify-center w-[1.75rem] h-[1.75rem] !!text-defaulttextcolortextcolor !text-[0.8rem] !py-1 !px-2 rounded-sm bg-light border-light shadow-none !font-medium">
-                    <i class="fe fe-more-vertical text-[0.8rem]"></i>
-                  </a>
-                  <ul class="hs-dropdown-menu ti-dropdown-menu hidden">
-                    <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
-                        href="javascript:void(0);">Last 12 Months</a></li>
-                  </ul>
-                </div>
-              </div>
+                <li>
+                  <div class="flex items-center text-[0.875rem] justify-between p-2 rounded-md bg-warning/5">
+                    <div class="flex items-center font-semibold text-warning">
+                      <i class="ri-alert-line me-2"></i>
+                      Warning
+                    </div>
+                    <div class="text-[0.875rem] text-warning font-bold">4 Alerts</div>
+                  </div>
+                </li>
 
-              <div class="box-body">
-                <div id="energyConsumption" class="chart-container">
-                  <apx-chart #chart [series]="chartOptions.series" [chart]="chartOptions.chart"
-                    [dataLabels]="chartOptions.dataLabels" [plotOptions]="chartOptions.plotOptions"
-                    [yaxis]="chartOptions.yaxis" [xaxis]="chartOptions.xaxis" [legend]="chartOptions.legend"
-                    [colors]="chartOptions.colors" [grid]="chartOptions.grid" [fill]="chartOptions.fill"
-                    [tooltip]="chartOptions.tooltip">
-                  </apx-chart>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </div>
-  </div>
-  <div class="xxl:col-span-3 xl:col-span-12 col-span-12">
-    <div class="grid grid-cols-12 gap-x-6">
-      <div class="xxl:col-span-12 xl:col-span-12  col-span-12">
-        <div class="box">
-          <div class="box-header justify-between">
-            <div class="box-title">
-              Monthly Device Type Report
-            </div>
-            <div class="hs-dropdown ti-dropdown">
-              <a aria-label="anchor" href="javascript:void(0);"
-                class="flex items-center justify-center w-[1.75rem] h-[1.75rem] ! !text-[0.8rem] !py-1 !px-2 rounded-sm bg-light border-light shadow-none !font-medium"
-                aria-expanded="false">
-                <i class="fe fe-more-vertical text-[0.8rem]"></i>
-              </a>
-              <ul class="hs-dropdown-menu ti-dropdown-menu hidden">
-                <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
-                    href="javascript:void(0);">Week</a></li>
-                <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
-                    href="javascript:void(0);">Month</a></li>
-                <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
-                    href="javascript:void(0);">Year</a></li>
-              </ul>
-            </div>
-          </div>
-          <div class="box-body !py-2 h-[272px]">
-
-            <div class="leads-source-chart flex items-center justify-center">
-              <div id="leads-source" class="chartjs-chart w-full">
-                <apx-chart [series]="optionsCircle1.series" [chart]="optionsCircle1.chart"
-                  [xaxis]="optionsCircle1.xaxis" [colors]="optionsCircle1.colors" [labels]="optionsCircle1.labels"
-                  [legend]="optionsCircle1.legend" [stroke]="optionsCircle1.stroke" [tooltip]="optionsCircle1.tooltip"
-                  [plotOptions]="optionsCircle1.plotOptions" [dataLabels]="optionsCircle1.dataLabels"></apx-chart>
-              </div>
-              <div class="lead-source-value mb-5">
-                <span class="block text-[0.875rem] ">Total</span>
-                <span class="block text-[1.5625rem] font-bold">100%</span>
-              </div>
-            </div>
-          </div>
-          <div class="grid grid-cols-4 border-t border-dashed dark:border-defaultborder/10">
-            <div class="col !p-0">
-              <div class="!ps-4 p-[0.95rem] text-center border-e border-dashed dark:border-defaultborder/10">
-                <span
-                  class="text-[#8c9097] dark:text-white/50 text-[0.75rem] mb-1 crm-lead-legend mobile inline-block">Lighting
-                </span>
-                <div><span class="text-[1rem]  font-semibold">12%</span>
-                </div>
-              </div>
-            </div>
-            <div class="col !p-0">
-              <div class="p-[0.95rem] text-center border-e border-dashed dark:border-defaultborder/10">
-                <span
-                  class="text-[#8c9097] dark:text-white/50 text-[0.75rem] mb-1 crm-lead-legend desktop inline-block">HAVC
-                </span>
-                <div><span class="text-[1rem]  font-semibold">50%</span></div>
-              </div>
-            </div>
-            <div class="col !p-0">
-              <div class="p-[0.95rem] text-center border-e border-dashed dark:border-defaultborder/10">
-                <span
-                  class="text-[#8c9097] dark:text-white/50 text-[0.65rem] mb-1 crm-lead-legend laptop inline-block">Miscellaneous
-                </span>
-                <div><span class="text-[1rem]  font-semibold">10%</span>
-                </div>
-              </div>
-            </div>
-            <div class="col !p-0">
-              <div class="!pe-4 p-[0.95rem] text-center">
-                <span
-                  class="text-[#8c9097] dark:text-white/50 text-[0.65rem] mb-1 crm-lead-legend tablet inline-block">Computational
-                </span>
-                <div><span class="text-[1rem]  font-semibold">28%</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="xxl:col-span-12 xl:col-span-6  col-span-12">
-        <div class="box">
-          <div class="box-header justify-between">
-            <div class="box-title">
-              Active Device Alerts
-            </div>
-            <div class="hs-dropdown ti-dropdown">
-              <a href="javascript:void(0);" class="text-[0.75rem] px-2 font-normal text-[#8c9097] dark:text-white/50"
-                aria-expanded="false">
-                Actions<i class="ri-arrow-down-s-line align-middle ms-1 inline-block"></i>
-              </a>
-              <ul class="hs-dropdown-menu ti-dropdown-menu hidden" role="menu">
-                <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
-                    href="javascript:void(0);">Acknowledge All</a></li>
-                <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
-                    href="javascript:void(0);">View Full Log</a></li>
-                <li><a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block"
-                    href="javascript:void(0);">System Health</a></li>
+                <li>
+                  <div class="flex items-center text-[0.875rem] justify-between p-2 rounded-md bg-info/5">
+                    <div class="flex items-center font-semibold text-info">
+                      <i class="ri-information-line me-2"></i>
+                      Informational
+                    </div>
+                    <div class="text-[0.875rem] text-info font-bold">7 Alerts</div>
+                  </div>
+                </li>
               </ul>
             </div>
           </div>
 
-          <div class="box-body">
+        </div>
 
-            <div class="flex items-center mb-[0.8rem]">
-              <h4 class="font-bold mb-0 text-[1.5rem] text-danger">13</h4>
-              <div class="ms-2">
-                <span
-                  class="py-[0.18rem] px-[0.45rem] rounded-sm text-danger !font-medium !text-[0.75em] bg-danger/10">3<i
-                    class="ri-arrow-up-s-fill align-mmiddle ms-1"></i></span>
-                <span class="text-[#8c9097] dark:text-white/50 text-[0.813rem] ms-1">new alerts in the last hour</span>
+        <div class="xxl:col-span-8 xl:col-span-8 col-span-12">
+          <div class="grid grid-cols-12 gap-6 items-start">
+
+            <div class="xxl:col-span-12 xl:col-span-12 col-span-12">
+              <div class="box overflow-hidden border border-defaultborder/70 dark:border-defaultborder/10">
+                <div class="box-header justify-between gap-3 flex-wrap">
+                  <div>
+                    <div class="box-title">
+                      Peak vs Non-Peak Analysis
+                    </div>
+                    <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem] mb-0">
+                      Default range is last 30 days.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    class="ti-btn ti-btn-outline-secondary !py-1 !px-2 !text-[0.75rem]"
+                    (click)="exportPeakNonPeakCsv()">
+                    <i class="ri-upload-cloud-line"></i>
+                    CSV
+                  </button>
+                </div>
+
+                <div class="box-body">
+                  <div class="grid grid-cols-12 gap-4 mb-5">
+                    <div class="xl:col-span-4 col-span-12">
+                      <label class="text-[0.75rem] text-[#8c9097] dark:text-white/50 mb-1 block">
+                        Start Date
+                      </label>
+                      <input
+                        type="date"
+                        [(ngModel)]="startDate"
+                        class="form-control w-full rounded-md border border-defaultborder px-3 py-2 text-[0.85rem]">
+                    </div>
+
+                    <div class="xl:col-span-4 col-span-12">
+                      <label class="text-[0.75rem] text-[#8c9097] dark:text-white/50 mb-1 block">
+                        End Date
+                      </label>
+                      <input
+                        type="date"
+                        [(ngModel)]="endDate"
+                        class="form-control w-full rounded-md border border-defaultborder px-3 py-2 text-[0.85rem]">
+                    </div>
+
+                    <div class="xl:col-span-4 col-span-12 flex items-end">
+                      <button
+                        type="button"
+                        class="ti-btn bg-primary text-white !py-2 !px-4 !text-[0.85rem] w-full"
+                        (click)="applyPeakNonPeakFilter()">
+                        Apply Filter
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-12 gap-4 mb-5">
+                    <div class="xl:col-span-4 col-span-12">
+                      <div class="p-4 rounded-md bg-primary/10 border border-primary/10 h-full">
+                        <p class="text-[0.75rem] text-[#8c9097] mb-1">Peak Usage</p>
+                        <h5 class="font-semibold text-primary mb-0">
+                          {{ peakNonPeak?.totalPeakKwh | number:'1.2-2' }} kWh
+                        </h5>
+                        <span class="text-[0.75rem] text-[#8c9097]">
+                          {{ peakNonPeak?.peakPercentage | number:'1.2-2' }}%
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="xl:col-span-4 col-span-12">
+                      <div class="p-4 rounded-md bg-info/10 border border-info/10 h-full">
+                        <p class="text-[0.75rem] text-[#8c9097] mb-1">Non-Peak Usage</p>
+                        <h5 class="font-semibold text-info mb-0">
+                          {{ peakNonPeak?.totalNonPeakKwh | number:'1.2-2' }} kWh
+                        </h5>
+                        <span class="text-[0.75rem] text-[#8c9097]">
+                          {{ peakNonPeak?.nonPeakPercentage | number:'1.2-2' }}%
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="xl:col-span-4 col-span-12">
+                      <div class="p-4 rounded-md bg-success/10 border border-success/10 h-full">
+                        <p class="text-[0.75rem] text-[#8c9097] mb-1">Total Usage</p>
+                        <h5 class="font-semibold text-success mb-0">
+                          {{ peakNonPeak?.totalKwh | number:'1.2-2' }} kWh
+                        </h5>
+                        <span class="text-[0.75rem] text-[#8c9097]">
+                          Selected range
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="peak-non-peak-chart rounded-md border border-dashed border-defaultborder bg-light/30 p-3 dark:border-defaultborder/10 dark:bg-black/10">
+                    <div class="peak-non-peak-scroll overflow-x-hidden">
+                      <apx-chart
+                        *ngIf="peakNonPeakChartOptions"
+                        [series]="peakNonPeakChartOptions.series"
+                        [chart]="peakNonPeakChartOptions.chart"
+                        [xaxis]="peakNonPeakChartOptions.xaxis"
+                        [yaxis]="peakNonPeakChartOptions.yaxis"
+                        [stroke]="peakNonPeakChartOptions.stroke"
+                        [dataLabels]="peakNonPeakChartOptions.dataLabels"
+                        [colors]="peakNonPeakChartOptions.colors"
+                        [grid]="peakNonPeakChartOptions.grid"
+                        [legend]="peakNonPeakChartOptions.legend"
+                        [markers]="peakNonPeakChartOptions.markers"
+                        [tooltip]="peakNonPeakChartOptions.tooltip">
+                      </apx-chart>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div class="flex w-full h-[0.3125rem] mb-6 rounded-full overflow-hidden">
-              <div class="flex flex-col justify-center rounded-s-[0.625rem] overflow-hidden bg-danger w-[15%]"
-                aria-valuenow="15" aria-valuemin="0" aria-valuemax="100">
-              </div>
-              <div class="flex flex-col justify-center rounded-none overflow-hidden bg-warning w-[30%]"
-                aria-valuenow="30" aria-valuemin="0" aria-valuemax="100">
-              </div>
-              <div class="flex flex-col justify-center rounded-e-[0.625rem] overflow-hidden bg-info w-[55%]"
-                aria-valuenow="55" aria-valuemin="0" aria-valuemax="100">
+            <div class="xxl:col-span-12 xl:col-span-12 col-span-12">
+              <div class="box overflow-hidden border border-defaultborder/70 dark:border-defaultborder/10">
+                <div class="box-header justify-between gap-3 flex-wrap">
+                  <div class="box-title">
+                    Energy Consumption by Device Type (Last 12 Months)
+                  </div>
+
+                  <button
+                    type="button"
+                    class="ti-btn ti-btn-outline-secondary !py-1 !px-2 !text-[0.75rem]"
+                    (click)="exportEnergyConsumptionCsv()">
+                    <i class="ri-upload-cloud-line"></i>
+                    CSV
+                  </button>
+                </div>
+
+                <div class="box-body">
+                  <div id="energyConsumption" class="chart-container">
+                    <apx-chart
+                      #chart
+                      *ngIf="deviceTypeChartOptions"
+                      [series]="deviceTypeChartOptions.series"
+                      [chart]="deviceTypeChartOptions.chart"
+                      [dataLabels]="deviceTypeChartOptions.dataLabels"
+                      [plotOptions]="deviceTypeChartOptions.plotOptions"
+                      [yaxis]="deviceTypeChartOptions.yaxis"
+                      [xaxis]="deviceTypeChartOptions.xaxis"
+                      [legend]="deviceTypeChartOptions.legend"
+                      [colors]="deviceTypeChartOptions.colors"
+                      [grid]="deviceTypeChartOptions.grid"
+                      [fill]="deviceTypeChartOptions.fill"
+                      [tooltip]="deviceTypeChartOptions.tooltip">
+                    </apx-chart>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <ul class="list-none mb-0 pt-2 crm-deals-status space-y-3">
-
-              <li class="danger">
-                <div class="flex items-center text-[0.875rem] justify-between p-2 rounded-md bg-danger/5">
-                  <div class="flex items-center font-semibold text-danger">
-                    <i class="ri-error-warning-line me-2"></i> Critical
-                  </div>
-                  <div class="text-[0.875rem] text-danger font-bold">2 Alerts</div>
-                </div>
-              </li>
-
-              <li class="warning">
-                <div class="flex items-center text-[0.875rem] justify-between p-2 rounded-md bg-warning/5">
-                  <div class="flex items-center font-semibold text-warning">
-                    <i class="ri-alert-line me-2"></i> Warning
-                  </div>
-                  <div class="text-[0.875rem] text-warning font-bold">4 Alerts</div>
-                </div>
-              </li>
-
-              <li class="info">
-                <div class="flex items-center text-[0.875rem] justify-between p-2 rounded-md bg-info/5">
-                  <div class="flex items-center font-semibold text-info">
-                    <i class="ri-information-line me-2"></i> Informational
-                  </div>
-                  <div class="text-[0.875rem] text-info font-bold">7 Alerts</div>
-                </div>
-              </li>
-
-            </ul>
           </div>
         </div>
 
       </div>
     </div>
+
+    <div class="xxl:col-span-3 xl:col-span-12 col-span-12">
+      <div class="grid grid-cols-12 gap-6">
+
+        <div class="xxl:col-span-12 xl:col-span-6 col-span-12">
+          <div class="box overflow-hidden border border-defaultborder/70 dark:border-defaultborder/10">
+            <div class="box-header justify-between">
+              <div class="box-title">
+                Monthly Device Type Report
+              </div>
+            </div>
+
+            <div class="box-body !py-3">
+              <div class="monthly-device-report-chart">
+                <apx-chart
+                  *ngIf="monthlyReportChartOptions"
+                  [series]="monthlyReportChartOptions.series"
+                  [chart]="monthlyReportChartOptions.chart"
+                  [colors]="monthlyReportChartOptions.colors"
+                  [labels]="monthlyReportChartOptions.labels"
+                  [legend]="monthlyReportChartOptions.legend"
+                  [stroke]="monthlyReportChartOptions.stroke"
+                  [tooltip]="monthlyReportChartOptions.tooltip"
+                  [plotOptions]="monthlyReportChartOptions.plotOptions"
+                  [dataLabels]="monthlyReportChartOptions.dataLabels">
+                </apx-chart>
+              </div>
+            </div>
+
+            <div class="monthly-device-report-list border-t border-dashed dark:border-defaultborder/10">
+              <div
+                *ngFor="let item of monthlyDeviceTypeReport"
+                class="col !p-0">
+                <div class="p-[0.95rem] text-center border-e border-dashed dark:border-defaultborder/10">
+                  <span class="text-[#8c9097] dark:text-white/50 text-[0.75rem] mb-1 inline-block">
+                    {{ item.utilityName }}
+                  </span>
+                  <div>
+                    <span class="text-[1rem] font-semibold">
+                      {{ item.percentage | number:'1.0-2' }}%
+                    </span>
+                  </div>
+                  <div class="text-[0.7rem] text-[#8c9097]">
+                    {{ item.totalKwh | number:'1.2-2' }} kWh
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
   </div>
-</div>
 </div>
