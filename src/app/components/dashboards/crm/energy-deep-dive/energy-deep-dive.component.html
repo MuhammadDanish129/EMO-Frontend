@@ -1,0 +1,535 @@
+<main class="explorer-page">
+  <header class="explorer-page-header">
+    <div class="explorer-page-header-inner">
+      <div>
+        <h1>Energy Explorer</h1>
+        <p>
+          Explore energy usage from business level down to individual sensors.
+        </p>
+      </div>
+
+      <div class="explorer-header-actions">
+      <div class="range-tabs" aria-label="Analysis range">
+        <button
+          type="button"
+          [class.active]="range === '24h'"
+          (click)="changeRange('24h')">
+          24h
+        </button>
+        <button
+          type="button"
+          [class.active]="range === '7d'"
+          (click)="changeRange('7d')">
+          7 days
+        </button>
+        <button
+          type="button"
+          [class.active]="range === '30d'"
+          (click)="changeRange('30d')">
+          30 days
+        </button>
+      </div>
+      </div>
+    </div>
+  </header>
+
+  <nav
+    *ngIf="breadcrumbs.length"
+    class="hierarchy-breadcrumb"
+    aria-label="Hierarchy path">
+    <ol>
+      <ng-container *ngFor="let breadcrumb of breadcrumbs; let last = last">
+        <li>
+          <button
+            *ngIf="!last; else currentBreadcrumb"
+            type="button"
+            [attr.aria-label]="'Open ' + (breadcrumb.level | titlecase)"
+            (click)="openLevel(breadcrumb.level, breadcrumb.id)">
+            <i [class]="getLevelIcon(breadcrumb.level)"></i>
+            <span>{{ breadcrumb.level | titlecase }}</span>
+          </button>
+
+          <ng-template #currentBreadcrumb>
+            <span
+              class="current-breadcrumb"
+              [attr.aria-label]="'Current level: ' + (breadcrumb.level | titlecase)">
+              <i [class]="getLevelIcon(breadcrumb.level)"></i>
+              <span>{{ breadcrumb.level | titlecase }}</span>
+            </span>
+          </ng-template>
+        </li>
+
+        <li *ngIf="!last" class="breadcrumb-divider" aria-hidden="true">
+          <i class="ri-arrow-right-s-line"></i>
+        </li>
+      </ng-container>
+    </ol>
+
+    <a routerLink="/dashboard/crm" class="breadcrumb-back-button">
+      <i class="las la-arrow-left"></i>
+      <span>CRM Dashboard</span>
+    </a>
+  </nav>
+
+  <div class="explorer-content">
+    <nav class="view-switch" aria-label="Dashboard view">
+      <button
+        type="button"
+        [class.active]="selectedView === 'hierarchy'"
+        (click)="openHierarchyView()">
+        <i class="ri-node-tree"></i>
+        Hierarchy
+      </button>
+      <button
+        type="button"
+        [class.active]="selectedView === 'overview'"
+        (click)="setView('overview')">
+        <i class="ri-dashboard-3-line"></i>
+        Overview
+      </button>
+    </nav>
+
+  <section *ngIf="errorMessage" class="error-state">
+    <span><i class="ri-error-warning-line"></i></span>
+    <div>
+      <strong>Unable to load the explorer</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
+  </section>
+
+  <section
+    *ngIf="isLoading || (selectedView === 'overview' && isOverviewLoading)"
+    class="explorer-loader"
+    role="status"
+    aria-live="polite">
+    <div class="explorer-loader-head">
+      <span class="loader-energy-icon">
+        <i class="ri-flashlight-line"></i>
+      </span>
+      <div>
+        <strong>
+          {{ selectedView === 'overview'
+            ? 'Preparing portfolio overview'
+            : selectedView === 'analysis'
+              ? 'Loading sensor analysis'
+              : 'Loading hierarchy' }}
+        </strong>
+        <p>Fetching energy data for the selected level and time range.</p>
+      </div>
+      <span class="loader-spinner" aria-hidden="true"></span>
+    </div>
+
+    <div
+      *ngIf="selectedView === 'hierarchy'"
+      class="loader-card-grid"
+      aria-hidden="true">
+      <div class="loader-hierarchy-card" *ngFor="let item of [1, 2, 3, 4, 5, 6]">
+        <span class="loader-square"></span>
+        <span class="loader-pill"></span>
+        <span class="loader-line loader-line-short"></span>
+        <span class="loader-line loader-line-title"></span>
+        <span class="loader-reading"></span>
+        <div>
+          <span class="loader-mini-card"></span>
+          <span class="loader-mini-card"></span>
+        </div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="selectedView === 'overview'"
+      class="loader-overview"
+      aria-hidden="true">
+      <div class="loader-overview-hero">
+        <span class="loader-line loader-line-short"></span>
+        <span class="loader-line loader-line-value"></span>
+        <span class="loader-line"></span>
+      </div>
+      <div class="loader-overview-cards">
+        <div *ngFor="let item of [1, 2, 3, 4]"></div>
+      </div>
+      <div class="loader-chart-grid">
+        <div class="loader-chart"></div>
+        <div class="loader-chart loader-chart-small"></div>
+      </div>
+    </div>
+
+    <div
+      *ngIf="selectedView === 'analysis'"
+      class="loader-analysis-grid"
+      aria-hidden="true">
+      <div class="loader-chart" *ngFor="let item of [1, 2, 3, 4]"></div>
+    </div>
+  </section>
+
+  <ng-container *ngIf="selectedView === 'overview' && overviewData as overview">
+    <section class="overview-hero">
+      <div class="overview-usage-card">
+        <span class="overview-kicker">
+          <i class="ri-flashlight-line"></i>
+          Portfolio usage
+        </span>
+        <h2>{{ overview.currentUsageKwh | number:'1.0-2' }} <small>kWh</small></h2>
+        <p>
+          of {{ overview.monthlyTargetKwh | number:'1.0-2' }} kWh monthly target
+        </p>
+        <div class="overview-progress" aria-hidden="true">
+          <span
+            [style.width.%]="overview.usagePercent < 0
+              ? 0
+              : overview.usagePercent > 100
+                ? 100
+                : overview.usagePercent">
+          </span>
+        </div>
+        <button type="button" (click)="setView('hierarchy')">
+          Explore locations
+          <i class="ri-arrow-right-line"></i>
+        </button>
+      </div>
+
+      <div class="target-chart" *ngIf="overviewTargetChart">
+        <apx-chart
+          [series]="overviewTargetChart.series"
+          [chart]="overviewTargetChart.chart"
+          [plotOptions]="overviewTargetChart.plotOptions"
+          [stroke]="overviewTargetChart.stroke"
+          [labels]="overviewTargetChart.labels"
+          [colors]="overviewTargetChart.colors">
+        </apx-chart>
+        <div class="target-chart-caption">
+          <strong>{{ overview.usagePercent | number:'1.0-1' }}%</strong>
+          <span>Target used</span>
+        </div>
+      </div>
+
+      <div class="overview-alerts">
+        <span class="overview-alert-icon"><i class="ri-alarm-warning-line"></i></span>
+        <div>
+          <small>Active alerts</small>
+          <strong>{{ overview.alerts.totalAlerts }}</strong>
+          <p class="overview-alert-breakdown">
+            <span>{{ overview.alerts.criticalAlerts }} critical</span>
+            <span class="alert-separator" aria-hidden="true"></span>
+            <span>{{ overview.alerts.warningAlerts }} warning</span>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="device-summary-grid">
+      <article
+        *ngFor="let summary of overview.deviceTypeSummaries; let summaryIndex = index"
+        class="device-summary-card">
+        <div class="device-summary-head">
+          <span class="device-type-icon">
+            <i
+              [class]="summaryIndex % 4 === 0
+                ? 'ri-temp-cold-line'
+                : summaryIndex % 4 === 1
+                  ? 'ri-lightbulb-flash-line'
+                  : summaryIndex % 4 === 2
+                    ? 'ri-plug-line'
+                    : 'ri-computer-line'">
+            </i>
+          </span>
+          <span
+            class="change-pill"
+            [class.negative]="summary.changePercent < 0">
+            <i [class]="summary.changePercent >= 0 ? 'ri-arrow-up-line' : 'ri-arrow-down-line'"></i>
+            {{ summary.changePercent | number:'1.0-1' }}%
+          </span>
+        </div>
+        <p>{{ summary.deviceType }}</p>
+        <h3>{{ summary.totalEnergyKwh | number:'1.0-2' }} <small>kWh</small></h3>
+        <div class="sparkline" *ngIf="deviceSparkCharts[summaryIndex] as spark">
+          <apx-chart
+            [series]="spark.series"
+            [chart]="spark.chart"
+            [colors]="spark.colors"
+            [stroke]="spark.stroke"
+            [fill]="spark.fill"
+            [dataLabels]="spark.dataLabels"
+            [tooltip]="spark.tooltip">
+          </apx-chart>
+        </div>
+        <div class="device-summary-meta">
+          <span>
+            <small>Avg voltage</small>
+            <b>{{ summary.avgVoltage | number:'1.0-1' }} V</b>
+          </span>
+          <span>
+            <small>Active power</small>
+            <b>{{ summary.avgActivePowerW | number:'1.0-1' }} W</b>
+          </span>
+        </div>
+      </article>
+    </section>
+
+    <section class="overview-chart-grid">
+      <article class="panel main-overview-chart">
+        <header class="panel-head">
+          <div>
+            <p class="section-label">Consumption profile</p>
+            <h2>Monthly energy by device type</h2>
+          </div>
+          <span>kWh</span>
+        </header>
+        <div class="chart-wrap" *ngIf="overviewMainChart">
+          <apx-chart
+            [series]="overviewMainChart.series"
+            [chart]="overviewMainChart.chart"
+            [colors]="overviewMainChart.colors"
+            [plotOptions]="overviewMainChart.plotOptions"
+            [dataLabels]="overviewMainChart.dataLabels"
+            [legend]="overviewMainChart.legend"
+            [xaxis]="overviewMainChart.xaxis"
+            [yaxis]="overviewMainChart.yaxis"
+            [fill]="overviewMainChart.fill"
+            [grid]="overviewMainChart.grid"
+            [tooltip]="overviewMainChart.tooltip">
+          </apx-chart>
+        </div>
+      </article>
+
+      <article class="panel distribution-panel">
+        <header class="panel-head">
+          <div>
+            <p class="section-label">Distribution</p>
+            <h2>Device type share</h2>
+          </div>
+        </header>
+        <div class="donut-wrap" *ngIf="overviewDonutChart">
+          <apx-chart
+            [series]="overviewDonutChart.series"
+            [chart]="overviewDonutChart.chart"
+            [colors]="overviewDonutChart.colors"
+            [labels]="overviewDonutChart.labels"
+            [dataLabels]="overviewDonutChart.dataLabels"
+            [plotOptions]="overviewDonutChart.plotOptions"
+            [legend]="overviewDonutChart.legend"
+            [stroke]="overviewDonutChart.stroke">
+          </apx-chart>
+        </div>
+        <div class="distribution-list">
+          <span><i class="marker marker-0"></i>Lighting <b>{{ overview.deviceTypeDistribution.lightingPct | number:'1.0-1' }}%</b></span>
+          <span><i class="marker marker-1"></i>HVAC <b>{{ overview.deviceTypeDistribution.hvacPct | number:'1.0-1' }}%</b></span>
+          <span><i class="marker marker-2"></i>Miscellaneous <b>{{ overview.deviceTypeDistribution.miscellaneousPct | number:'1.0-1' }}%</b></span>
+          <span><i class="marker marker-3"></i>Computation <b>{{ overview.deviceTypeDistribution.computationPct | number:'1.0-1' }}%</b></span>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel meter-panel">
+      <header class="panel-head">
+        <div>
+          <p class="section-label">Live snapshot</p>
+          <h2>Energy meters</h2>
+        </div>
+        <span>{{ overview.energyMeters.length }} meters</span>
+      </header>
+      <div class="meter-grid">
+        <article *ngFor="let meter of overview.energyMeters">
+          <span class="meter-icon"><i class="ri-speed-up-line"></i></span>
+          <div>
+            <strong>{{ meter.meterName }}</strong>
+            <small>{{ meter.voltage | number:'1.0-1' }} V</small>
+          </div>
+          <b>{{ meter.powerW | number:'1.0-1' }} W</b>
+        </article>
+      </div>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="selectedView === 'hierarchy' && data as dashboard">
+    <section *ngIf="childCards.length" class="hierarchy-section">
+      <header class="section-head">
+        <div>
+          <p class="section-label">{{ level | titlecase }} hierarchy</p>
+          <h2>Choose a location to continue</h2>
+        </div>
+        <span>{{ childCards.length }} locations</span>
+      </header>
+      <div class="child-grid">
+        <button
+          type="button"
+          class="child-card"
+          *ngFor="let child of childCards"
+          [disabled]="child.sensorCount < 1"
+          [attr.aria-label]="child.sensorCount < 1
+            ? child.name + ' has no sensors'
+            : 'Open ' + child.name"
+          (click)="openLevel(child.level, child.id)">
+          <div class="child-card-head">
+            <span class="location-icon">
+              <i [class]="getLevelIcon(child.level)"></i>
+            </span>
+            <span class="alert-pill" [class.has-alert]="child.alertCount > 0">
+              <i [class]="child.alertCount > 0 ? 'ri-alarm-warning-line' : 'ri-checkbox-circle-line'"></i>
+              {{ child.alertCount > 0 ? child.alertCount + ' alerts' : 'Healthy' }}
+            </span>
+          </div>
+          <div class="child-card-title">
+            <span>{{ child.level | titlecase }}</span>
+            <h3>{{ child.name }}</h3>
+          </div>
+          <div class="card-energy">
+            <small>Total energy</small>
+            <strong>{{ child.totalActiveEnergyKwh | number:'1.0-2' }} <b>kWh</b></strong>
+          </div>
+          <div class="child-stats">
+            <span>
+              <i class="ri-gauge-line"></i>
+              <small>Power factor</small>
+              <strong>{{ child.avgPowerFactor | number:'1.0-3' }}</strong>
+            </span>
+            <span>
+              <i class="ri-cpu-line"></i>
+              <small>Sensors</small>
+              <strong>{{ child.sensorCount }}</strong>
+            </span>
+          </div>
+          <span class="open-card">
+            {{ child.sensorCount < 1 ? 'No sensors available' : 'Open ' + child.level }}
+            <i [class]="child.sensorCount < 1 ? 'ri-forbid-line' : 'ri-arrow-right-line'"></i>
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <section *ngIf="dashboard.sensors?.length" class="hierarchy-section">
+      <header class="section-head">
+        <div>
+          <p class="section-label">Connected devices</p>
+          <h2>Sensors</h2>
+        </div>
+        <span>{{ dashboard.sensors?.length }} sensors</span>
+      </header>
+      <div class="sensor-grid">
+        <button
+          type="button"
+          class="sensor-card"
+          *ngFor="let sensor of dashboard.sensors"
+          (click)="openSensorAnalysis(sensor.sensorId)">
+          <div class="sensor-card-head">
+            <span class="sensor-icon"><i [class]="getLevelIcon('sensor')"></i></span>
+            <span class="sensor-status" [class.has-alert]="sensor.hasAlert">
+              <i [class]="sensor.hasAlert ? 'ri-alarm-warning-line' : 'ri-checkbox-circle-line'"></i>
+              {{ sensor.hasAlert ? 'Alert' : 'Normal' }}
+            </span>
+          </div>
+          <div class="child-card-title">
+            <span>Energy sensor</span>
+            <h3>{{ sensor.sensorName }}</h3>
+          </div>
+          <div class="card-energy sensor-energy">
+            <small>Active power</small>
+            <strong>{{ sensor.latestActivePower | number:'1.0-1' }} <b>W</b></strong>
+          </div>
+          <div class="sensor-values">
+            <span><i class="ri-battery-charge-line"></i><small>Voltage</small><strong>{{ sensor.latestVoltage | number:'1.0-1' }} V</strong></span>
+            <span><i class="ri-flashlight-line"></i><small>Current</small><strong>{{ sensor.latestCurrent | number:'1.0-2' }} A</strong></span>
+            <span><i class="ri-gauge-line"></i><small>Power factor</small><strong>{{ sensor.latestPowerFactor | number:'1.0-3' }}</strong></span>
+            <span><i class="ri-database-2-line"></i><small>Energy</small><strong>{{ sensor.totalActiveEnergyKwh | number:'1.0-1' }} kWh</strong></span>
+          </div>
+          <span class="open-card">
+            Analyze sensor
+            <i class="ri-arrow-right-line"></i>
+          </span>
+        </button>
+      </div>
+    </section>
+
+    <section
+      *ngIf="!childCards.length && !dashboard.sensors?.length"
+      class="hierarchy-empty">
+      <span><i class="ri-node-tree"></i></span>
+      <h2>No child locations found</h2>
+      <p>This level does not currently contain locations or sensors.</p>
+    </section>
+  </ng-container>
+
+  <ng-container *ngIf="selectedView === 'analysis' && data as dashboard">
+    <section class="analysis-summary">
+      <div>
+        <p class="section-label">Sensor analysis</p>
+        <h2>{{ dashboard.sensorName || 'Selected sensor' }}</h2>
+        <span>Electrical quality and demand analysis for the selected range.</span>
+      </div>
+      <button type="button" (click)="openHierarchyView()">
+        <i class="ri-node-tree"></i>
+        Back to hierarchy
+      </button>
+    </section>
+
+    <section class="kpi-grid sensor-kpis">
+      <article><span class="kpi-icon kpi-purple"><i class="ri-flashlight-line"></i></span><div><small>Energy</small><strong>{{ dashboard.kpis.totalActiveEnergyKwh | number:'1.0-2' }} kWh</strong></div></article>
+      <article><span class="kpi-icon kpi-blue"><i class="ri-pulse-line"></i></span><div><small>Average power</small><strong>{{ dashboard.kpis.avgActivePowerW | number:'1.0-2' }} W</strong></div></article>
+      <article><span class="kpi-icon kpi-green"><i class="ri-gauge-line"></i></span><div><small>Power factor</small><strong>{{ dashboard.kpis.avgPowerFactor | number:'1.0-3' }}</strong></div></article>
+      <article class="alert-kpi"><span class="kpi-icon kpi-red"><i class="ri-alarm-warning-line"></i></span><div><small>Alerts</small><strong>{{ dashboard.kpis.alertCount }}</strong></div></article>
+    </section>
+
+    <section class="analysis-grid">
+      <article class="panel" *ngIf="activePowerChart">
+        <header class="panel-head"><div><p class="section-label">Power</p><h2>Power analysis</h2></div><span>W / VAR / VA</span></header>
+        <div class="chart-wrap"><apx-chart [series]="activePowerChart.series" [chart]="activePowerChart.chart" [xaxis]="activePowerChart.xaxis" [stroke]="activePowerChart.stroke" [dataLabels]="activePowerChart.dataLabels" [tooltip]="activePowerChart.tooltip" [fill]="activePowerChart.fill" [colors]="activePowerChart.colors"></apx-chart></div>
+      </article>
+      <article class="panel" *ngIf="voltageCurrentChart">
+        <header class="panel-head"><div><p class="section-label">Electrical</p><h2>Voltage and current</h2></div><span>V / A</span></header>
+        <div class="chart-wrap"><apx-chart [series]="voltageCurrentChart.series" [chart]="voltageCurrentChart.chart" [xaxis]="voltageCurrentChart.xaxis" [stroke]="voltageCurrentChart.stroke" [dataLabels]="voltageCurrentChart.dataLabels" [tooltip]="voltageCurrentChart.tooltip" [fill]="voltageCurrentChart.fill" [colors]="voltageCurrentChart.colors"></apx-chart></div>
+      </article>
+      <article class="panel" *ngIf="powerFactorChart">
+        <header class="panel-head"><div><p class="section-label">Quality</p><h2>Power factor trend</h2></div><span>PF</span></header>
+        <div class="chart-wrap"><apx-chart [series]="powerFactorChart.series" [chart]="powerFactorChart.chart" [xaxis]="powerFactorChart.xaxis" [stroke]="powerFactorChart.stroke" [dataLabels]="powerFactorChart.dataLabels" [tooltip]="powerFactorChart.tooltip" [fill]="powerFactorChart.fill" [colors]="powerFactorChart.colors"></apx-chart></div>
+      </article>
+      <article class="panel donut-analysis" *ngIf="pfDonutChart">
+        <header class="panel-head"><div><p class="section-label">Quality mix</p><h2>Power factor distribution</h2></div></header>
+        <div class="donut-wrap"><apx-chart [series]="pfDonutChart.series" [chart]="pfDonutChart.chart" [labels]="pfDonutChart.labels" [dataLabels]="pfDonutChart.dataLabels" [colors]="pfDonutChart.colors"></apx-chart></div>
+      </article>
+      <article class="panel" *ngIf="frequencyChart">
+        <header class="panel-head"><div><p class="section-label">Stability</p><h2>Frequency monitoring</h2></div><span>Hz</span></header>
+        <div class="chart-wrap"><apx-chart [series]="frequencyChart.series" [chart]="frequencyChart.chart" [xaxis]="frequencyChart.xaxis" [stroke]="frequencyChart.stroke" [dataLabels]="frequencyChart.dataLabels" [tooltip]="frequencyChart.tooltip" [fill]="frequencyChart.fill" [colors]="frequencyChart.colors"></apx-chart></div>
+      </article>
+      <article class="panel" *ngIf="hourlyDemandChart">
+        <header class="panel-head"><div><p class="section-label">Demand</p><h2>Hourly demand</h2></div><span>Avg W</span></header>
+        <div class="chart-wrap"><apx-chart [series]="hourlyDemandChart.series" [chart]="hourlyDemandChart.chart" [xaxis]="hourlyDemandChart.xaxis" [stroke]="hourlyDemandChart.stroke" [dataLabels]="hourlyDemandChart.dataLabels" [tooltip]="hourlyDemandChart.tooltip" [fill]="hourlyDemandChart.fill" [colors]="hourlyDemandChart.colors"></apx-chart></div>
+      </article>
+    </section>
+
+    <section class="analysis-grid data-grid">
+      <article class="panel">
+        <header class="panel-head"><div><p class="section-label">Events</p><h2>Recent alerts</h2></div><span>{{ dashboard.alerts?.length || 0 }}</span></header>
+        <div class="alert-list" *ngIf="dashboard.alerts?.length; else noAlerts">
+          <div *ngFor="let alert of dashboard.alerts">
+            <span [class]="'alert-dot ' + alert.type"></span>
+            <div><strong>{{ alert.message }}</strong><small>{{ alert.timestamp | date:'medium' }}</small></div>
+          </div>
+        </div>
+        <ng-template #noAlerts><div class="empty-state"><i class="ri-checkbox-circle-line"></i><p>No alerts found.</p></div></ng-template>
+      </article>
+
+      <article class="panel">
+        <header class="panel-head"><div><p class="section-label">Telemetry</p><h2>Recent readings</h2></div><span>{{ dashboard.recentReadings?.length || 0 }}</span></header>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Time</th><th>V</th><th>A</th><th>W</th><th>PF</th><th>Hz</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let reading of dashboard.recentReadings">
+                <td>{{ reading.createdAt | date:'shortTime' }}</td>
+                <td>{{ reading.volt | number:'1.0-1' }}</td>
+                <td>{{ reading.current | number:'1.0-2' }}</td>
+                <td>{{ reading.activePower | number:'1.0-1' }}</td>
+                <td>{{ reading.powerFactor | number:'1.0-3' }}</td>
+                <td>{{ reading.frequency | number:'1.0-2' }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="empty-state" *ngIf="!dashboard.recentReadings?.length">
+            <i class="ri-database-2-line"></i><p>No recent readings found.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </ng-container>
+  </div>
+</main>

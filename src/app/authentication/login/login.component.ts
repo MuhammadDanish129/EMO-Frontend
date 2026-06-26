@@ -153,7 +153,14 @@ signIn() {
 
         if (res?.success) {
           this.toastr.success(res.remarks || 'Login successful');
-          this.router.navigate(['/dashboard']);
+
+          const userTypeLevel = Number(res?.data?.userTypeLevel);
+          const redirectUrl =
+            userTypeLevel === 0
+              ? '/dashboard/system-dashboard'
+              : '/dashboard';
+
+          this.router.navigate([redirectUrl]);
           console.clear();
         } else {
           this.toastr.error(res?.remarks);

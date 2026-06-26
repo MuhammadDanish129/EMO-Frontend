@@ -1,0 +1,494 @@
+<main class="system-dashboard">
+  <header class="system-page-header -mt-2 mb-4">
+    <div class="px-6 py-4 bg-[rgb(var(--primary))]">
+      <div class="flex flex-col gap-4 pt-3 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 class="text-white text-2xl font-semibold tracking-wide">
+            System Dashboard
+          </h1>
+          <p class="mt-0.5 text-sm text-white/80 max-w-2xl">
+            Monitor your entire property ecosystem, from businesses and facilities to office occupancy.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="flex items-center justify-center gap-2 rounded-lg bg-white/95 px-4 py-2 text-sm font-semibold text-[rgb(var(--primary))] disabled:cursor-wait disabled:opacity-70"
+          [disabled]="isLoading"
+          (click)="getDashboard()">
+          <i class="ri-refresh-line text-lg" [class.animate-spin]="isLoading"></i>
+          <span>{{ isLoading ? 'Refreshing' : 'Refresh data' }}</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <section
+    *ngIf="isLoading && !dashboardData"
+    class="dashboard-loading"
+    role="status"
+    aria-live="polite">
+    <div class="system-loader">
+      <div class="loader-orbit" aria-hidden="true">
+        <span class="loader-core"><i class="ri-dashboard-3-line"></i></span>
+        <span class="loader-node node-business"><i class="ri-briefcase-4-line"></i></span>
+        <span class="loader-node node-facility"><i class="ri-community-line"></i></span>
+        <span class="loader-node node-office"><i class="ri-door-open-line"></i></span>
+      </div>
+
+      <div>
+        <strong>Building your system overview</strong>
+        <p>Collecting businesses, facilities, offices, devices, and sensors.</p>
+      </div>
+    </div>
+
+    <div class="loading-progress" aria-hidden="true"><span></span></div>
+
+    <div class="dashboard-skeleton" aria-hidden="true">
+      <div class="skeleton-stat" *ngFor="let item of [1, 2, 3, 4, 5, 6]">
+        <span></span>
+        <div>
+          <i></i>
+          <b></b>
+          <small></small>
+        </div>
+      </div>
+      <div class="skeleton-business" *ngFor="let item of [1, 2, 3]">
+        <span></span>
+        <i></i>
+        <i></i>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="errorMessage && !isLoading" class="error-state">
+    <span class="error-icon"><i class="ri-error-warning-line"></i></span>
+    <div>
+      <strong>Dashboard data is unavailable</strong>
+      <p>{{ errorMessage }}</p>
+    </div>
+    <button type="button" (click)="getDashboard()">Try again</button>
+  </section>
+
+  <ng-container *ngIf="dashboardData as data">
+    <div class="dashboard-content" [class.is-refreshing]="isLoading">
+      <section class="overview-section" aria-labelledby="portfolio-heading">
+        <!-- <div class="section-heading"> -->
+          <!-- <div>
+            <span>Portfolio snapshot</span>
+            <h2 id="portfolio-heading">Everything at a glance</h2>
+          </div>
+          <span class="section-badge">
+            <i class="ri-database-2-line"></i>
+            Live system data
+          </span>
+        </div> -->
+
+        <div class="stats-grid">
+          <article class="stat-card stat-purple">
+            <span class="stat-icon"><i class="ri-briefcase-4-line"></i></span>
+            <div class="stat-copy">
+              <span>Businesses</span>
+              <strong>{{ data.counts.totalBusinesses | number }}</strong>
+              <p>Registered organizations</p>
+            </div>
+            <i class="ri-arrow-right-up-line stat-corner"></i>
+          </article>
+
+          <article class="stat-card stat-cyan">
+            <span class="stat-icon"><i class="ri-community-line"></i></span>
+            <div class="stat-copy">
+              <span>Facilities</span>
+              <strong>{{ data.counts.totalFacilities | number }}</strong>
+              <p>Managed locations</p>
+            </div>
+            <i class="ri-arrow-right-up-line stat-corner"></i>
+          </article>
+
+          <article class="stat-card stat-blue">
+            <span class="stat-icon"><i class="ri-building-4-line"></i></span>
+            <div class="stat-copy">
+              <span>Buildings</span>
+              <strong>{{ data.counts.totalBuildings | number }}</strong>
+              <p>Across all facilities</p>
+            </div>
+            <i class="ri-arrow-right-up-line stat-corner"></i>
+          </article>
+
+          <article class="stat-card stat-amber">
+            <span class="stat-icon"><i class="ri-stack-line"></i></span>
+            <div class="stat-copy">
+              <span>Floors</span>
+              <strong>{{ data.counts.totalFloors | number }}</strong>
+              <p>Configured levels</p>
+            </div>
+            <i class="ri-arrow-right-up-line stat-corner"></i>
+          </article>
+
+          <article class="stat-card stat-pink">
+            <span class="stat-icon"><i class="ri-layout-grid-line"></i></span>
+            <div class="stat-copy">
+              <span>Sections</span>
+              <strong>{{ data.counts.totalSections | number }}</strong>
+              <p>Operational zones</p>
+            </div>
+            <i class="ri-arrow-right-up-line stat-corner"></i>
+          </article>
+
+          <article class="stat-card stat-green">
+            <span class="stat-icon"><i class="ri-door-open-line"></i></span>
+            <div class="stat-copy">
+              <span>Offices</span>
+              <strong>{{ data.counts.totalOffices | number }}</strong>
+              <p>Total office inventory</p>
+            </div>
+            <i class="ri-arrow-right-up-line stat-corner"></i>
+          </article>
+        </div>
+      </section>
+
+      <!-- <section class="insights-grid">
+        <article class="panel occupancy-panel">
+          <header class="panel-header">
+            <div class="panel-title">
+              <span class="panel-icon panel-icon-purple">
+                <i class="ri-pie-chart-2-line"></i>
+              </span>
+              <div>
+                <h2>Office occupancy</h2>
+                <p>Availability and utilization across the portfolio.</p>
+              </div>
+            </div>
+            <span class="total-pill">{{ data.counts.totalOffices | number }} total</span>
+          </header>
+
+          <div class="occupancy-overview">
+            <div
+              class="occupancy-ring"
+              [style.--occupancy]="data.officeStatus.occupiedPercentage">
+              <div>
+                <strong>{{ data.officeStatus.occupiedPercentage | number:'1.0-1' }}%</strong>
+                <span>occupied</span>
+              </div>
+            </div>
+
+            <div class="occupancy-summary">
+              <div class="summary-row">
+                <span><i class="summary-dot dot-green"></i> Active offices</span>
+                <strong>{{ data.officeStatus.activeOffices | number }}</strong>
+              </div>
+              <div class="summary-row">
+                <span><i class="summary-dot dot-slate"></i> Inactive offices</span>
+                <strong>{{ data.officeStatus.inactiveOffices | number }}</strong>
+              </div>
+              <div class="summary-row">
+                <span><i class="summary-dot dot-purple"></i> Occupied offices</span>
+                <strong>{{ data.officeStatus.occupiedOffices | number }}</strong>
+              </div>
+              <div class="summary-row">
+                <span><i class="summary-dot dot-cyan"></i> Vacant offices</span>
+                <strong>{{ data.officeStatus.vacantOffices | number }}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="utilization-bars">
+            <div class="utilization-row">
+              <div>
+                <span>Occupied capacity</span>
+                <strong>{{ data.officeStatus.occupiedPercentage | number:'1.0-1' }}%</strong>
+              </div>
+              <div class="progress-track">
+                <span
+                  class="progress-fill progress-purple"
+                  [style.width.%]="data.officeStatus.occupiedPercentage"></span>
+              </div>
+            </div>
+
+            <div class="utilization-row">
+              <div>
+                <span>Available capacity</span>
+                <strong>{{ data.officeStatus.vacantPercentage | number:'1.0-1' }}%</strong>
+              </div>
+              <div class="progress-track">
+                <span
+                  class="progress-fill progress-cyan"
+                  [style.width.%]="data.officeStatus.vacantPercentage"></span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel activity-panel">
+          <header class="panel-header">
+            <div class="panel-title">
+              <span class="panel-icon panel-icon-cyan">
+                <i class="ri-pulse-line"></i>
+              </span>
+              <div>
+                <h2>Recent activity</h2>
+                <p>The latest changes across your system.</p>
+              </div>
+            </div>
+            <span class="activity-count">{{ recentActivities.length }}</span>
+          </header>
+
+          <div class="activity-list" *ngIf="recentActivities.length > 0; else noActivity">
+            <article
+              class="activity-item"
+              *ngFor="let item of recentActivities; let first = first">
+              <div class="activity-marker" [class.is-latest]="first">
+                <span>{{ item.type.charAt(0) }}</span>
+              </div>
+              <div class="activity-copy">
+                <div>
+                  <h3>{{ item.title }}</h3>
+                  <span *ngIf="first" class="new-pill">Latest</span>
+                </div>
+                <p>{{ item.type }} <i></i> {{ item.businessName }}</p>
+                <time><i class="ri-time-line"></i>{{ item.createdAt }}</time>
+              </div>
+            </article>
+          </div>
+
+          <ng-template #noActivity>
+            <div class="empty-state">
+              <span><i class="ri-inbox-2-line"></i></span>
+              <strong>No recent activity</strong>
+              <p>New system events will appear here.</p>
+            </div>
+          </ng-template>
+        </article>
+      </section> -->
+
+      <section class="panel business-panel">
+        <header class="panel-header business-header">
+          <!-- <div class="panel-title">
+            <span class="panel-icon panel-icon-green">
+              <i class="ri-bar-chart-grouped-line"></i>
+            </span>
+            <div>
+              <h2>Business performance</h2>
+              <p>Compare property coverage and office utilization by business.</p>
+            </div>
+          </div> -->
+          <div class="business-header-tools">
+            <p class="business-count">
+              Total Businesses:
+              <span>{{ filteredBusinessWiseSummary.length }}</span>
+            </p>
+
+            <input
+              type="text"
+              aria-label="Search business cards"
+              placeholder="Search Businesses.."
+              [value]="businessSearchTerm"
+              (input)="onBusinessSearch($event)"
+              class="business-search yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm border-[rgb(var(--input-border))]" />
+          </div>
+        </header>
+
+        <div
+          class="business-card-grid"
+          *ngIf="filteredBusinessWiseSummary.length > 0; else noBusinessData">
+          <article
+            class="business-summary-card"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="'View admins for ' + (item.businessName || 'Unnamed business')"
+            *ngFor="let item of filteredBusinessWiseSummary"
+            (click)="openBusinessDetails(item)"
+            (keydown.enter)="openBusinessDetails(item)"
+            (keydown.space)="openBusinessDetails(item); $event.preventDefault()">
+            <header class="business-card-header">
+              <div class="business-card-title">
+                <span class="business-avatar">
+                  {{ item.businessName ? item.businessName.charAt(0) : 'B' }}
+                </span>
+                <div>
+                  <h3 [attr.title]="item.businessName || 'Unnamed business'">
+                    {{ item.businessName || 'Unnamed business' }}
+                  </h3>
+                  <!-- <p>Business portfolio</p> -->
+                </div>
+              </div>
+
+              <!-- <span class="office-total-badge">
+                <i class="ri-door-open-line"></i>
+                {{ item.officeCount | number }} {{ item.officeCount === 1 ? 'office' : 'offices' }}
+              </span> -->
+            </header>
+
+            <div class="business-property-grid" aria-label="Property coverage">
+              <div class="business-property-item">
+                <span><i class="ri-community-line"></i> Facilities</span>
+                <strong>{{ item.facilityCount | number }}</strong>
+              </div>
+              <div class="business-property-item">
+                <span><i class="ri-building-4-line"></i> Buildings</span>
+                <strong>{{ item.buildingCount | number }}</strong>
+              </div>
+              <div class="business-property-item">
+                <span><i class="ri-stack-line"></i> Floors</span>
+                <strong>{{ item.floorCount | number }}</strong>
+              </div>
+              <div class="business-property-item">
+                <span><i class="ri-layout-grid-line"></i> Sections</span>
+                <strong>{{ item.sectionCount | number }}</strong>
+              </div>
+              <div class="business-property-item">
+                <span><i class="ri-remote-control-2-line"></i> Devices</span>
+                <strong>{{ (item.devicesCount || 0) | number }}</strong>
+              </div>
+              <div class="business-property-item">
+                <span><i class="ri-cpu-line"></i> Sensors</span>
+                <strong>{{ (item.sensorsCount || 0) | number }}</strong>
+              </div>
+            </div>
+
+            <div class="office-status-grid" aria-label="Office utilization">
+              <div class="office-status-item status-active">
+                <span>Active</span>
+                <strong>{{ item.activeOfficeCount | number }}</strong>
+              </div>
+              <div class="office-status-item status-occupied">
+                <span>Occupied</span>
+                <strong>{{ item.occupiedOfficeCount | number }}</strong>
+              </div>
+              <div class="office-status-item status-vacant">
+                <span>Vacant</span>
+                <strong>{{ item.vacantOfficeCount | number }}</strong>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <ng-template #noBusinessData>
+          <div class="empty-state empty-state-wide">
+            <span><i [class]="hasBusinessSearch ? 'ri-search-line' : 'ri-building-2-line'"></i></span>
+            <strong>
+              {{ hasBusinessSearch ? 'No matching businesses found' : 'No business summary available' }}
+            </strong>
+            <p>
+              {{
+                hasBusinessSearch
+                  ? 'Try another business name or clear the search.'
+                  : 'Business-level property data will appear here once available.'
+              }}
+            </p>
+          </div>
+        </ng-template>
+      </section>
+    </div>
+  </ng-container>
+
+  <section
+    *ngIf="selectedBusiness as business"
+    class="business-detail-backdrop"
+    role="presentation"
+    (click)="closeBusinessDetails()">
+    <article
+      class="business-detail-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="business-detail-title"
+      (click)="$event.stopPropagation()">
+      <header class="business-detail-header">
+        <div class="business-detail-title">
+          <span class="business-avatar business-detail-avatar">
+            <i class="las la-users"></i>
+          </span>
+          <div>
+            <span>Business admins</span>
+            <h2 id="business-detail-title">{{ business.businessName || 'Unnamed business' }}</h2>
+            <p>Assigned admins</p>
+          </div>
+        </div>
+
+        <div class="business-detail-actions">
+          <span class="admin-count-pill">
+            {{ businessAdmins.length }}
+            {{ businessAdmins.length === 1 ? 'admin' : 'admins' }}
+          </span>
+
+          <button
+            type="button"
+            class="business-detail-close"
+            aria-label="Close business admins"
+            (click)="closeBusinessDetails()">
+            <i class="ri-close-line"></i>
+          </button>
+        </div>
+      </header>
+
+      <div class="business-detail-body">
+        <section class="admin-module">
+          <div class="admin-module-head">
+            <div>
+              <h3>Assigned admins</h3>
+              <p>Users who can manage this business.</p>
+            </div>
+          </div>
+
+          <div *ngIf="isAdminLoading" class="detail-loading" role="status" aria-live="polite">
+            <span></span>
+            Loading admins...
+          </div>
+
+          <div *ngIf="!isAdminLoading && adminErrorMessage" class="detail-error">
+            <i class="ri-error-warning-line"></i>
+            {{ adminErrorMessage }}
+          </div>
+
+          <div
+            *ngIf="!isAdminLoading && !adminErrorMessage && businessAdmins.length > 0"
+            class="admin-list">
+            <article class="admin-row" *ngFor="let admin of businessAdmins">
+              <div class="admin-person">
+                <img [src]="getUserAvatar(admin)" [alt]="admin.name || 'Business admin'" />
+                <div>
+                  <h4>{{ admin.name || 'Unnamed admin' }}</h4>
+                  <p>{{ admin.userName || 'No username' }}</p>
+                </div>
+              </div>
+
+              <span
+                class="admin-status"
+                [class.is-active]="admin.isActive"
+                [class.is-inactive]="!admin.isActive">
+                {{ admin.isActive ? 'Active' : 'Inactive' }}
+              </span>
+
+              <div class="admin-row-details">
+                <div class="admin-detail-item">
+                  <i class="las la-id-badge"></i>
+                  <span>{{ admin.subUserTypeName || 'N/A' }}</span>
+                </div>
+                <div class="admin-detail-item">
+                  <i class="las la-phone"></i>
+                  <span>{{ admin.userPhone || 'N/A' }}</span>
+                </div>
+                <div class="admin-detail-item">
+                  <i class="las la-user"></i>
+                  <span>{{ admin.genderName || 'N/A' }}</span>
+                </div>
+                <div class="admin-detail-item">
+                  <i class="las la-user-cog"></i>
+                  <span>{{ admin.handlerName || 'N/A' }}</span>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <div
+            *ngIf="!isAdminLoading && !adminErrorMessage && businessAdmins.length === 0"
+            class="detail-empty">
+            <span><i class="las la-users"></i></span>
+            <strong>No admins found</strong>
+            <p>This business does not have admins assigned yet.</p>
+          </div>
+        </section>
+      </div>
+    </article>
+  </section>
+</main>

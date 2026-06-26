@@ -16,7 +16,7 @@ export interface UserRequestDTO {
 export interface UserResponseDTO {
   userId: string;
   name: string;
-  username: string;
+  userName: string;
   userPhone: string;
   fkSubUserType: string;
   subUserTypeName: string;

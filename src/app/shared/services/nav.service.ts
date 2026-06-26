@@ -321,6 +321,12 @@ export class NavService implements OnDestroy {
       type: 'link',
       path: '/dashboard',
     },
+     {
+  title: 'System Dashboards',
+  icon: 'las la-chart-bar',
+  type: 'link',
+  path: '/dashboard/system-dashboard',
+},
 
 
     { headTitle: 'MANAGEMENT' },
@@ -346,13 +352,13 @@ export class NavService implements OnDestroy {
     { headTitle: 'CORE MANAGEMENT' },
     {
       title: 'Business Management',
-      icon: 'las la-briefcase',
+      icon: 'ri-briefcase-4-line',
       type: 'link',
       path: '/core/business-management',
     },
     {
       title: 'Facility Management',
-      icon: 'las la-building',
+      icon: 'ri-community-line',
       type: 'link',
       path: '/core/facility-management',
     },
@@ -364,7 +370,7 @@ export class NavService implements OnDestroy {
     },
     {
       title: 'Office Tenant Assignment',
-      icon: 'las la-briefcase',
+      icon: 'ri-door-open-line',
       type: 'link',
       path: '/core/tenant-office-assignment',
     },
@@ -390,7 +396,7 @@ export class NavService implements OnDestroy {
     { headTitle: 'DEVICE UTILITY MANAGEMENT' },
     {
       title: 'Utility Management',
-      icon: 'las la-briefcase',
+      icon: 'ri-plug-line',
       type: 'link',
       path: '/device/utility-management',
     },
@@ -404,7 +410,8 @@ export class NavService implements OnDestroy {
       'User Sub Type',
       'Users',
       'Utility Management',
-      'Business Management'
+      'Business Management',
+      'System Dashboards'
     ],
 
     1: [

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/authentication/login/login.component.scss"],
-  "sourcesContent": ["::ng-deep{\r\n\r\n\r\n    .firebase {\r\n        width: 30px;\r\n        height: 30px;\r\n    }\r\n    \r\n    .rounded-lg{\r\n                width: 120px;\r\n                justify-content: center;\r\n                margin: auto;\r\n                border-radius: 0.75rem;\r\n            }           \r\n    }"],
-  "mappings": ";AAGI,UAAA,CAAA;AACI,SAAA;AACA,UAAA;;AAGJ,UAAA,CAAA;AACY,SAAA;AACA,mBAAA;AACA,UAAA;AACA,iBAAA;;",
-  "names": []
-}

@@ -99,7 +99,7 @@ getUserAvatar(u: any): string {
       ? [...this.tenants]
       : this.tenants.filter(u =>
           u.name.toLowerCase().includes(term) ||
-          u.username.toLowerCase().includes(term) ||
+          u.userName.toLowerCase().includes(term) ||
           u.subUserTypeName.toLowerCase().includes(term)
         );
 

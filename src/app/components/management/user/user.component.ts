@@ -107,7 +107,7 @@ export class UserComponent implements OnInit {
       ? [...this.users]
       : this.users.filter(u =>
           u.name.toLowerCase().includes(term) ||
-          u.username.toLowerCase().includes(term) ||
+          u.userName.toLowerCase().includes(term) ||
           u.subUserTypeName.toLowerCase().includes(term)
         );
 

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/dashboards/live-consumption/live-consumption.routes.ts"],
-  "sourcesContent": ["import { NgModule } from \"@angular/core\";\r\nimport { provideNativeDateAdapter } from \"@angular/material/core\";\r\nimport { RouterModule, Routes } from \"@angular/router\";\r\n\r\nexport const liveConsumption: Routes = [\r\n  {\r\n    path: '', children: [\r\n      {\r\n          path: '',\r\n          loadComponent: () =>\r\n            import('./live-consumption.component').then((m) => m.LiveConsumptionComponent),\r\n          providers: [provideNativeDateAdapter()]\r\n        }\r\n      \r\n\r\n\r\n    ]\r\n  }\r\n]\r\n\r\n@NgModule({\r\n  imports: [RouterModule.forChild(liveConsumption)],\r\n  exports: [RouterModule],\r\n})\r\nexport class LiveConsumptionRoutingModule {\r\n  static routes = liveConsumption;\r\n}\r\n"],
-  "mappings": ";;;;;;;;;;;;;AAIO,IAAM,kBAA0B;EACrC;IACE,MAAM;IAAI,UAAU;MAClB;QACI,MAAM;QACN,eAAe,MACb,OAAO,qBAA8B,EAAE,KAAK,CAAC,MAAM,EAAE,wBAAwB;QAC/E,WAAW,CAAC,yBAAwB,CAAE;;;;;AAa1C,IAAO,+BAAP,MAAO,8BAA4B;;AAChC,SAAA,SAAS;EAAgB;;;uBADrB,+BAA4B;IAAA;EAAA;;wEAA5B,8BAA4B,CAAA;EAAA;;4EAH7B,aAAa,SAAS,eAAe,GACrC,YAAY,EAAA,CAAA;EAAA;;",
-  "names": []
-}

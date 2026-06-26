@@ -73,6 +73,44 @@ type LineChartOptions = {
   markers: ApexMarkers;
 };
 
+type HeatmapViewMode = 'kwh' | 'share';
+
+type HeatmapChartOptions = {
+  series: ApexAxisChartSeries;
+  chart: ApexChart;
+  dataLabels: ApexDataLabels;
+  plotOptions: ApexPlotOptions;
+  xaxis: ApexXAxis;
+  grid: ApexGrid;
+  legend: ApexLegend;
+  tooltip: ApexTooltip;
+  colors: string[];
+};
+
+interface MonthBucket {
+  key: string;
+  label: string;
+  sortValue: number;
+  total: number;
+  utilities: Map<string, number>;
+}
+
+interface UtilityRanking {
+  name: string;
+  total: number;
+  average: number;
+  share: number;
+  trend: number | null;
+  color: string;
+}
+
+interface DeepDiveInsight {
+  icon: string;
+  title: string;
+  description: string;
+  tone: 'primary' | 'info' | 'warning';
+}
+
 @Component({
   selector: 'app-crm',
   standalone: true,
@@ -103,11 +141,34 @@ export class CrmComponent implements OnInit {
   deviceTypeChartOptions: Partial<BarChartOptions> | any;
   monthlyReportChartOptions: Partial<DonutChartOptions> | any;
   peakNonPeakChartOptions: Partial<LineChartOptions> | any;
+  heatmapChartOptions: Partial<HeatmapChartOptions> | null = null;
+
+  viewMode: HeatmapViewMode = 'kwh';
+  utilityRanking: UtilityRanking[] = [];
+  insights: DeepDiveInsight[] = [];
+  totalConsumption = 0;
+  monthlyAverage = 0;
+  highestMonthLabel = 'No data';
+  highestMonthValue = 0;
+  topUtilityName = 'No data';
+  topUtilityShare = 0;
+  periodTrend: number | null = null;
 
   startDate = '';
   endDate = '';
+  dateRangeError = '';
 
+  private monthBuckets: MonthBucket[] = [];
   private readonly peakNonPeakMaxVisibleXAxisLabels = 10;
+  private readonly deepDiveChartColors = [
+    'rgb(132, 90, 223)',
+    'rgb(35, 183, 229)',
+    'rgb(38, 191, 148)',
+    'rgb(245, 184, 73)',
+    'rgb(230, 83, 60)',
+    'rgb(73, 182, 245)',
+    'rgb(151, 186, 72)'
+  ];
 
   constructor(
     private userService: UserService,
@@ -157,6 +218,7 @@ export class CrmComponent implements OnInit {
         this.prepareMonthlyDeviceTypeReportChart();
         this.prepareEnergyConsumptionChart();
         this.preparePeakNonPeakChart();
+        this.prepareDeepDive();
 
         this.isDashboardReady = true;
         this.isLoading = false;
@@ -170,7 +232,9 @@ export class CrmComponent implements OnInit {
   }
 
   applyPeakNonPeakFilter(): void {
-    if (!this.startDate || !this.endDate) return;
+    if (!this.validateDateRange()) {
+      return;
+    }
 
     this.isLoading = true;
 
@@ -179,6 +243,7 @@ export class CrmComponent implements OnInit {
         if (res.success) {
           this.peakNonPeak = res.data ?? null;
           this.preparePeakNonPeakChart();
+          this.prepareInsights();
         }
 
         this.isLoading = false;
@@ -187,6 +252,60 @@ export class CrmComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  get minimumStartDate(): string {
+    const endDate = this.parseInputDate(this.endDate);
+
+    if (!endDate) {
+      return '';
+    }
+
+    endDate.setFullYear(endDate.getFullYear() - 1);
+    return this.formatDate(endDate);
+  }
+
+  get maximumEndDate(): string {
+    const startDate = this.parseInputDate(this.startDate);
+
+    if (!startDate) {
+      return '';
+    }
+
+    startDate.setFullYear(startDate.getFullYear() + 1);
+    return this.formatDate(startDate);
+  }
+
+  validateDateRange(): boolean {
+    this.dateRangeError = '';
+
+    const startDate = this.parseInputDate(this.startDate);
+    const endDate = this.parseInputDate(this.endDate);
+
+    if (!startDate || !endDate) {
+      this.dateRangeError = 'Select both a start date and an end date.';
+      return false;
+    }
+
+    if (startDate > endDate) {
+      this.dateRangeError = 'The start date must be before the end date.';
+      return false;
+    }
+
+    const maximumEndDate = new Date(startDate);
+    maximumEndDate.setFullYear(maximumEndDate.getFullYear() + 1);
+
+    if (endDate > maximumEndDate) {
+      this.dateRangeError = 'The selected date range cannot exceed one year.';
+      return false;
+    }
+
+    return true;
+  }
+
+  blockChartPageScroll(event: WheelEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
   }
 
   prepareMonthlyDeviceTypeReportChart(): void {
@@ -205,9 +324,13 @@ export class CrmComponent implements OnInit {
         'rgb(230, 83, 60)'
       ],
       chart: {
-        height: 220,
+        height: 210,
         width: '100%',
-        type: 'donut'
+        type: 'donut',
+        fontFamily: 'inherit',
+        animations: {
+          enabled: false
+        }
       },
       dataLabels: {
         enabled: false
@@ -287,8 +410,12 @@ export class CrmComponent implements OnInit {
       series,
       chart: {
         type: 'bar',
-        height: 345,
+        height: 320,
         stacked: true,
+        fontFamily: 'inherit',
+        animations: {
+          enabled: false
+        },
         toolbar: {
           show: false
         }
@@ -333,9 +460,6 @@ export class CrmComponent implements OnInit {
       yaxis: {
         labels: {
           formatter: (val: number) => `${val.toFixed(0)} kWh`
-        },
-        title: {
-          text: 'Total Energy Consumption (kWh)'
         }
       },
       fill: {
@@ -383,7 +507,11 @@ export class CrmComponent implements OnInit {
       ],
       chart: {
         type: 'line',
-        height: 320,
+        height: 300,
+        fontFamily: 'inherit',
+        animations: {
+          enabled: false
+        },
         zoom: {
           enabled: true,
           type: 'x',
@@ -461,6 +589,267 @@ export class CrmComponent implements OnInit {
     };
   }
 
+  setViewMode(mode: HeatmapViewMode): void {
+    if (this.viewMode === mode) {
+      return;
+    }
+
+    this.viewMode = mode;
+    this.prepareHeatmap();
+  }
+
+  private prepareDeepDive(): void {
+    this.monthBuckets = this.buildMonthBuckets();
+    this.prepareDeepDiveSummary();
+    this.prepareUtilityRanking();
+    this.prepareHeatmap();
+    this.prepareInsights();
+  }
+
+  private buildMonthBuckets(): MonthBucket[] {
+    const buckets = new Map<string, MonthBucket>();
+
+    this.consumptionByDeviceType.forEach(item => {
+      const monthIndex = this.getMonthIndex(item.month);
+      const safeMonthIndex = monthIndex >= 0 ? monthIndex : 0;
+      const key = `${item.year}-${safeMonthIndex}-${item.month}`;
+      const label = monthIndex >= 0
+        ? new Date(item.year, monthIndex, 1).toLocaleDateString('en-US', {
+            month: 'short',
+            year: '2-digit'
+          })
+        : `${item.month} ${item.year}`;
+
+      if (!buckets.has(key)) {
+        buckets.set(key, {
+          key,
+          label,
+          sortValue: new Date(item.year, safeMonthIndex, 1).getTime(),
+          total: 0,
+          utilities: new Map<string, number>()
+        });
+      }
+
+      const bucket = buckets.get(key);
+      if (!bucket) {
+        return;
+      }
+
+      const utilityName = item.utilityName || 'Unknown';
+      const value = Number(item.totalKwh) || 0;
+
+      bucket.total += value;
+      bucket.utilities.set(
+        utilityName,
+        (bucket.utilities.get(utilityName) || 0) + value
+      );
+    });
+
+    return Array.from(buckets.values())
+      .sort((first, second) => first.sortValue - second.sortValue);
+  }
+
+  private prepareDeepDiveSummary(): void {
+    this.totalConsumption = this.monthBuckets.reduce(
+      (sum, bucket) => sum + bucket.total,
+      0
+    );
+    this.monthlyAverage = this.monthBuckets.length
+      ? this.totalConsumption / this.monthBuckets.length
+      : 0;
+
+    const highestMonth = this.monthBuckets.reduce<MonthBucket | null>(
+      (highest, bucket) => !highest || bucket.total > highest.total ? bucket : highest,
+      null
+    );
+
+    this.highestMonthLabel = highestMonth?.label || 'No data';
+    this.highestMonthValue = highestMonth?.total || 0;
+
+    const latestMonth = this.monthBuckets.at(-1);
+    const previousMonth = this.monthBuckets.at(-2);
+    this.periodTrend = latestMonth && previousMonth && previousMonth.total > 0
+      ? ((latestMonth.total - previousMonth.total) / previousMonth.total) * 100
+      : null;
+  }
+
+  private prepareUtilityRanking(): void {
+    const utilities = Array.from(
+      new Set(this.consumptionByDeviceType.map(item => item.utilityName || 'Unknown'))
+    );
+
+    this.utilityRanking = utilities
+      .map((utilityName, index) => {
+        const monthlyValues = this.monthBuckets.map(
+          bucket => bucket.utilities.get(utilityName) || 0
+        );
+        const total = monthlyValues.reduce((sum, value) => sum + value, 0);
+        const latest = monthlyValues.at(-1) || 0;
+        const previous = monthlyValues.at(-2) || 0;
+
+        return {
+          name: utilityName,
+          total,
+          average: this.monthBuckets.length ? total / this.monthBuckets.length : 0,
+          share: this.totalConsumption > 0 ? (total / this.totalConsumption) * 100 : 0,
+          trend: previous > 0 ? ((latest - previous) / previous) * 100 : null,
+          color: this.deepDiveChartColors[index % this.deepDiveChartColors.length]
+        };
+      })
+      .sort((first, second) => second.total - first.total);
+
+    const topUtility = this.utilityRanking[0];
+    this.topUtilityName = topUtility?.name || 'No data';
+    this.topUtilityShare = topUtility?.share || 0;
+  }
+
+  private prepareHeatmap(): void {
+    if (!this.monthBuckets.length || !this.utilityRanking.length) {
+      this.heatmapChartOptions = null;
+      return;
+    }
+
+    const series = [...this.utilityRanking]
+      .reverse()
+      .map(utility => ({
+        name: utility.name,
+        data: this.monthBuckets.map(bucket => {
+          const consumption = bucket.utilities.get(utility.name) || 0;
+          const value = this.viewMode === 'share' && bucket.total > 0
+            ? (consumption / bucket.total) * 100
+            : consumption;
+
+          return {
+            x: bucket.label,
+            y: Number(value.toFixed(2))
+          };
+        })
+      }));
+
+    const maxValue = Math.max(
+      ...series.flatMap(item => item.data.map(point => point.y)),
+      1
+    );
+    const unit = this.viewMode === 'share' ? '%' : ' kWh';
+
+    this.heatmapChartOptions = {
+      series,
+      chart: {
+        type: 'heatmap',
+        height: Math.max(300, this.utilityRanking.length * 48 + 130),
+        fontFamily: 'inherit',
+        animations: {
+          enabled: false
+        },
+        toolbar: {
+          show: false
+        }
+      },
+      colors: ['rgb(132, 90, 223)'],
+      dataLabels: {
+        enabled: false
+      },
+      plotOptions: {
+        heatmap: {
+          radius: 4,
+          shadeIntensity: 0.25,
+          useFillColorAsStroke: false,
+          colorScale: {
+            ranges: [
+              {
+                from: 0,
+                to: maxValue * 0.25,
+                color: '#e9e3fa',
+                name: 'Low'
+              },
+              {
+                from: maxValue * 0.25,
+                to: maxValue * 0.5,
+                color: '#c6b6ef',
+                name: 'Moderate'
+              },
+              {
+                from: maxValue * 0.5,
+                to: maxValue * 0.75,
+                color: '#9e82e3',
+                name: 'High'
+              },
+              {
+                from: maxValue * 0.75,
+                to: maxValue,
+                color: '#7047cf',
+                name: 'Very high'
+              }
+            ]
+          }
+        }
+      },
+      grid: {
+        show: false,
+        padding: {
+          left: 8,
+          right: 8
+        }
+      },
+      legend: {
+        show: true,
+        position: 'bottom',
+        horizontalAlign: 'left',
+        fontSize: '11px'
+      },
+      xaxis: {
+        type: 'category',
+        labels: {
+          rotate: -35,
+          rotateAlways: this.monthBuckets.length > 7,
+          trim: true,
+          style: {
+            fontSize: '10px'
+          }
+        }
+      },
+      tooltip: {
+        y: {
+          formatter: (value: number) => `${value.toFixed(2)}${unit}`
+        }
+      }
+    };
+  }
+
+  private prepareInsights(): void {
+    const peakShare = Number(this.peakNonPeak?.peakPercentage || 0);
+    const trendDirection = this.periodTrend === null
+      ? 'There is not enough month-over-month data to calculate momentum.'
+      : `Consumption ${this.periodTrend >= 0 ? 'increased' : 'decreased'} by ${Math.abs(this.periodTrend).toFixed(1)}% in the latest month.`;
+    const concentration = this.topUtilityShare >= 50
+      ? `${this.topUtilityName} is highly concentrated at ${this.topUtilityShare.toFixed(1)}% of measured consumption.`
+      : `${this.topUtilityName} is the largest category at ${this.topUtilityShare.toFixed(1)}%, with consumption spread across other types.`;
+    const peakPattern = peakShare >= 60
+      ? `${peakShare.toFixed(1)}% of selected-period energy occurs during peak hours, indicating strong peak dependence.`
+      : `${peakShare.toFixed(1)}% of selected-period energy occurs during peak hours, leaving room to compare load-shifting opportunities.`;
+
+    this.insights = [
+      {
+        icon: 'ri-line-chart-line',
+        title: 'Consumption momentum',
+        description: trendDirection,
+        tone: 'primary'
+      },
+      {
+        icon: 'ri-pie-chart-2-line',
+        title: 'Device concentration',
+        description: concentration,
+        tone: 'info'
+      },
+      {
+        icon: 'ri-flashlight-line',
+        title: 'Peak-hour exposure',
+        description: peakPattern,
+        tone: 'warning'
+      }
+    ];
+  }
+
   exportPeakNonPeakCsv(): void {
     this.energyDashboardService.exportPeakNonPeakAnalysisCsv(this.startDate, this.endDate)
       .subscribe(blob => {
@@ -499,7 +888,11 @@ export class CrmComponent implements OnInit {
   }
 
   formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 
   private getPeriodTimestamp(period: string, index: number): number {
@@ -517,6 +910,17 @@ export class CrmComponent implements OnInit {
     return fallbackDate.getTime();
   }
 
+  private parseInputDate(value: string): Date | null {
+    if (!value) {
+      return null;
+    }
+
+    const [year, month, day] = value.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
   private formatChartDate(value: number, includeYear: boolean): string {
     const date = new Date(value);
 
@@ -529,6 +933,16 @@ export class CrmComponent implements OnInit {
       day: '2-digit',
       ...(includeYear ? { year: 'numeric' } : {})
     });
+  }
+
+  private getMonthIndex(month: string): number {
+    const normalizedMonth = String(month || '').trim().slice(0, 3).toLowerCase();
+    const months = [
+      'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+      'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+    ];
+
+    return months.indexOf(normalizedMonth);
   }
 
 }

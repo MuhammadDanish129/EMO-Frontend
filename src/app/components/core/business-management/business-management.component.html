@@ -21,7 +21,7 @@
         <button class="flex items-center justify-center gap-2 rounded-lg
                  bg-white px-4 py-2
                  text-sm font-semibold text-[rgb(var(--primary))]" (click)="add()">
-          <i class="las la-sitemap text-lg"></i>
+          <i class="ri-briefcase-4-line text-lg"></i>
           Add Business
         </button>
 
@@ -78,12 +78,17 @@
 
       <div class="flex items-start justify-between gap-3">
 
-        <div>
-          <div class="font-semibold text-indigo-600 text-sm">
-            {{ st.businessName }}
-          </div>
-          <div class="text-xs text-gray-500">
-            {{ st.userName }}
+        <div class="flex items-start gap-2 min-w-0">
+          <span class="grid h-9 w-9 min-w-[2.25rem] place-items-center rounded-lg bg-[rgb(var(--primary-100))] text-[rgb(var(--primary))]">
+            <i class="ri-briefcase-4-line text-lg"></i>
+          </span>
+          <div class="min-w-0">
+            <div class="font-semibold text-indigo-600 text-sm truncate">
+              {{ st.businessName }}
+            </div>
+            <div class="text-xs text-gray-500 truncate">
+              {{ st.userName }}
+            </div>
           </div>
         </div>
 
@@ -154,7 +159,12 @@
       <thead class="bg-[rgb(var(--gray-200))] text-sm text-[rgb(var(--gray-500))]">
         <tr>
           <th class="px-4 py-3 text-left">Sr #</th>
-          <th class="px-4 py-3 text-left">Business</th>
+          <th class="px-4 py-3 text-left">
+            <span class="inline-flex items-center gap-1">
+              <i class="ri-briefcase-4-line text-base"></i>
+              Business
+            </span>
+          </th>
           <th class="px-4 py-3 text-left">Email</th>
           <th class="px-4 py-3 text-left">Contact</th>
           <th class="px-4 py-3 text-left">Status</th>
@@ -187,13 +197,18 @@
           </td>
 
           <td class="px-4 py-3">
-            <div class="flex flex-col">
-              <span class="font-semibold text-indigo-600">
-                {{ st.businessName }}
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="grid h-9 w-9 min-w-[2.25rem] place-items-center rounded-lg bg-[rgb(var(--primary-100))] text-[rgb(var(--primary))]">
+                <i class="ri-briefcase-4-line text-lg"></i>
               </span>
-              <span class="text-xs text-[rgb(var(--primary))]">
-                {{ st.userName }}
-              </span>
+              <div class="flex min-w-0 flex-col">
+                <span class="font-semibold text-indigo-600 truncate">
+                  {{ st.businessName }}
+                </span>
+                <span class="text-xs text-[rgb(var(--primary))] truncate">
+                  {{ st.userName }}
+                </span>
+              </div>
             </div>
           </td>
           <td class="px-4 py-3">

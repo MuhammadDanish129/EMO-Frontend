@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/dashboards/dashboard.routes.ts"],
-  "sourcesContent": ["import { NgModule } from '@angular/core';\r\nimport { provideNativeDateAdapter } from '@angular/material/core';\r\nimport { RouterModule, Routes } from '@angular/router';\r\n\r\nexport const admin: Routes = [\r\n  {\r\n    path: '', children: [\r\n      {\r\n        path: '',\r\n        loadComponent: () =>\r\n          import('./crm/crm.component').then((m) => m.CrmComponent),\r\n      },\r\n\r\n\r\n    ]\r\n  },\r\n];\r\n@NgModule({\r\n  imports: [RouterModule.forChild(admin)],\r\n  exports: [RouterModule],\r\n})\r\nexport class dashboardRoutingModule {\r\n  static routes = admin;\r\n}\r\n"],
-  "mappings": ";;;;;;;;;;AAIO,IAAM,QAAgB;EAC3B;IACE,MAAM;IAAI,UAAU;MAClB;QACE,MAAM;QACN,eAAe,MACb,OAAO,qBAAqB,EAAE,KAAK,CAAC,MAAM,EAAE,YAAY;;;;;AAW5D,IAAO,yBAAP,MAAO,wBAAsB;;AAC1B,SAAA,SAAS;EAAM;;;uBADX,yBAAsB;IAAA;EAAA;;wEAAtB,wBAAsB,CAAA;EAAA;;4EAHvB,aAAa,SAAS,KAAK,GAC3B,YAAY,EAAA,CAAA;EAAA;;",
-  "names": []
-}

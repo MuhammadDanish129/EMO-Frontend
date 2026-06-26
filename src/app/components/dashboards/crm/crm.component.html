@@ -1,474 +1,463 @@
-<div class="m-4 pb-6 sm:m-6 lg:m-10">
-
-  <div class="md:flex block items-center justify-between my-[1.5rem] page-header-breadcrumb">
-    <div>
-      <p class="font-semibold text-[1.125rem] text-defaulttextcolor dark:text-defaulttextcolor/70 !mb-0">
-        Welcome back, {{ currentUser?.name }} !
-      </p>
+<main class="crm-dashboard">
+  <header class="crm-hero">
+    <div class="crm-hero-copy">
+      <div class="crm-eyebrow">
+        <span class="crm-live-dot" aria-hidden="true"></span>
+        Energy command center
+      </div>
+      <h1>Energy Dashboard</h1>
+      <p>Welcome back, {{ currentUser?.name || 'there' }}. Monitor demand and energy performance.</p>
     </div>
 
-    <div class="btn-list md:mt-0 mt-2">
-      <button
-        type="button"
-        class="ti-btn ti-btn-outline-secondary btn-wave !font-medium !me-[0.375rem] !ms-0 !text-[0.85rem] !rounded-[0.35rem] !py-[0.51rem] !px-[0.86rem] shadow-none"
-        (click)="exportEnergyConsumptionCsv()">
-        <i class="ri-upload-cloud-line inline-block"></i>
-        Export Consumption CSV
-      </button>
-    </div>
-  </div>
+    <div class="crm-hero-actions">
 
-  <div *ngIf="isLoading && !isDashboardReady" class="dashboard-loader" role="status" aria-live="polite">
+      <a routerLink="/dashboard/crm/deep-dive" class="crm-explorer-button">
+        <i class="las la-sitemap"></i>
+        <span>Energy Explorer</span>
+      </a>
+    </div>
+  </header>
+
+  <section
+    *ngIf="isLoading && !isDashboardReady"
+    class="dashboard-loader"
+    role="status"
+    aria-live="polite">
     <div class="dashboard-loader-panel">
       <div class="energy-loader" aria-hidden="true">
         <span class="energy-loader-ring"></span>
-        <span class="energy-loader-core">
-          <i class="ri-flashlight-line"></i>
-        </span>
-        <span class="energy-loader-bar energy-loader-bar-one"></span>
-        <span class="energy-loader-bar energy-loader-bar-two"></span>
-        <span class="energy-loader-bar energy-loader-bar-three"></span>
+        <span class="energy-loader-core"><i class="ri-flashlight-line"></i></span>
       </div>
-
       <div class="dashboard-loader-copy">
-        <p class="font-semibold text-[1rem] text-defaulttextcolor dark:text-white mb-1">
-          Preparing energy dashboard
-        </p>
-        <p class="text-[0.78rem] text-[#8c9097] dark:text-white/50 mb-3">
-          Fetching live consumption, reports, and peak analysis.
-        </p>
-        <div class="dashboard-loader-progress">
-          <span></span>
-        </div>
+        <p>Preparing your energy workspace</p>
+        <span>Loading consumption, device mix, and peak-hour analysis.</span>
+        <div class="dashboard-loader-progress"><i></i></div>
       </div>
     </div>
 
-    <div class="dashboard-loader-grid">
-      <div class="dashboard-loader-card dashboard-loader-card-wide">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      <div class="dashboard-loader-card">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      <div class="dashboard-loader-card">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-      <div class="dashboard-loader-card dashboard-loader-card-chart">
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
+    <div class="dashboard-loader-grid" aria-hidden="true">
+      <div class="dashboard-loader-card"></div>
+      <div class="dashboard-loader-card"></div>
+      <div class="dashboard-loader-card"></div>
+      <div class="dashboard-loader-card"></div>
+      <div class="dashboard-loader-card dashboard-loader-card-wide"></div>
+      <div class="dashboard-loader-card dashboard-loader-card-wide"></div>
     </div>
+  </section>
+
+  <div
+    *ngIf="isLoading && isDashboardReady"
+    class="dashboard-refresh-loader"
+    role="status"
+    aria-live="polite">
+    <span><i class="ri-loader-4-line"></i> Updating analysis</span>
+    <div class="dashboard-loader-progress"><i></i></div>
   </div>
 
-  <div *ngIf="isLoading && isDashboardReady" class="dashboard-refresh-loader" role="status" aria-live="polite">
-    <span>Updating dashboard data...</span>
-    <div class="dashboard-loader-progress">
-      <span></span>
+  <section *ngIf="errorMessage" class="crm-error-state">
+    <span><i class="ri-error-warning-line"></i></span>
+    <div>
+      <h2>Dashboard unavailable</h2>
+      <p>{{ errorMessage }}</p>
     </div>
-  </div>
+  </section>
 
-  <div *ngIf="errorMessage" class="box">
-    <div class="box-body text-center py-10">
-      <div class="text-danger font-semibold">{{ errorMessage }}</div>
-    </div>
-  </div>
+  <div *ngIf="isDashboardReady" class="crm-dashboard-content">
+    <section class="crm-overview-section" aria-labelledby="annual-summary-title">
 
-  <div *ngIf="isDashboardReady" class="grid grid-cols-12 gap-6 items-start">
+      <div class="crm-overview-grid">
+        <article class="crm-stat-card crm-stat-primary">
+          <div class="crm-stat-icon"><i class="ri-flashlight-line"></i></div>
+          <div class="crm-stat-copy">
+            <span>12-month energy consumption</span>
+            <strong>{{ totalConsumption | number:'1.0-1' }} <small>kWh</small></strong>
+            <p>Total consumption across all device categories</p>
+          </div>
+          <i class="ri-arrow-right-up-line crm-stat-corner"></i>
+        </article> 
 
-    <div class="xxl:col-span-9 xl:col-span-12 col-span-12">
-      <div class="grid grid-cols-12 gap-6 items-start">
+        <article class="crm-stat-card crm-stat-cyan">
+          <div class="crm-stat-icon"><i class="ri-calendar-2-line"></i></div>
+          <div class="crm-stat-copy">
+            <span>Average monthly consumption</span>
+            <strong>{{ monthlyAverage | number:'1.0-1' }} <small>kWh</small></strong>
+            <p>Average across the latest 12 months</p>
+          </div>
+          <i class="ri-arrow-right-up-line crm-stat-corner"></i>
+        </article>
 
-        <div class="xxl:col-span-4 xl:col-span-4 col-span-12 space-y-6">
+        <article class="crm-stat-card crm-stat-green">
+          <div class="crm-stat-icon"><i class="ri-bar-chart-box-line"></i></div>
+          <div class="crm-stat-copy">
+            <span>Highest-consumption month</span>
+            <strong>{{ highestMonthValue | number:'1.0-1' }} <small>kWh</small></strong>
+            <p>{{ highestMonthLabel }}</p>
+          </div>
+          <i class="ri-arrow-right-up-line crm-stat-corner"></i>
+        </article>
 
-          <div class="box overflow-hidden border border-defaultborder/70 dark:border-defaultborder/10">
-            <div class="box-header flex justify-between">
-              <div class="box-title">
-                Idle Devices
-              </div>
-            </div>
+        <article class="crm-stat-card crm-stat-amber">
+          <div class="crm-stat-icon"><i class="ri-pie-chart-2-line"></i></div>
+          <div class="crm-stat-copy">
+            <span>Top energy-consuming category</span>
+            <strong>{{ topUtilityShare | number:'1.0-1' }}<small>%</small></strong>
+            <p>{{ topUtilityName }} · share of 12-month consumption</p>
+          </div>
+          <i class="ri-arrow-right-up-line crm-stat-corner"></i>
+        </article>
+      </div>
+    </section>
 
-            <div class="box-body">
-              <ul class="list-none crm-top-deals mb-0">
-
-                <li class="mb-[0.9rem]">
-                  <div class="flex items-start flex-wrap">
-                    <div class="me-2">
-                      <span class="inline-flex items-center justify-center !w-[1.75rem] !h-[1.75rem] rounded-full bg-sky-500/10 text-sky-500">
-                        <i class="ri-remote-control-2-line text-[0.9rem]"></i>
-                      </span>
-                    </div>
-
-                    <div class="flex-grow">
-                      <p class="font-semibold mb-[1.4px] text-[0.813rem]">
-                        Honeywell T7350 Thermostat
-                      </p>
-                      <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem]">
-                        HVAC Controller
-                      </p>
-                    </div>
-
-                    <div>
-                      <span class="ti-btn ti-btn-outline-success text-white !py-1 !px-2 !text-[0.75rem] !m-0 !gap-0 !font-medium">
-                        Idle
-                      </span>
-                    </div>
-                  </div>
-                </li>
-
-                <li class="mb-[0.9rem]">
-                  <div class="flex items-start flex-wrap">
-                    <div class="me-2">
-                      <span class="inline-flex items-center justify-center !w-[1.75rem] !h-[1.75rem] rounded-full bg-rose-500/10 text-rose-500">
-                        <i class="ri-battery-charge-line text-[0.9rem]"></i>
-                      </span>
-                    </div>
-
-                    <div class="flex-grow">
-                      <p class="font-semibold mb-[1.4px] text-[0.813rem]">
-                        APC Smart-UPS 5000VA
-                      </p>
-                      <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem]">
-                        Backup UPS
-                      </p>
-                    </div>
-
-                    <div>
-                      <span class="ti-btn ti-btn-outline-success text-white !py-1 !px-2 !text-[0.75rem] !m-0 !gap-0 !font-medium">
-                        Idle
-                      </span>
-                    </div>
-                  </div>
-                </li>
-
-                <li class="mb-[0.9rem]">
-                  <div class="flex items-start flex-wrap">
-                    <div class="me-2">
-                      <span class="inline-flex items-center justify-center !w-[1.75rem] !h-[1.75rem] rounded-full bg-slate-500/10 text-slate-500">
-                        <i class="ri-computer-line text-[0.9rem]"></i>
-                      </span>
-                    </div>
-
-                    <div class="flex-grow">
-                      <p class="font-semibold mb-[1.4px] text-[0.813rem]">
-                        HP Z4 Workstation
-                      </p>
-                      <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem]">
-                        Computation Unit
-                      </p>
-                    </div>
-
-                    <div>
-                      <span class="ti-btn ti-btn-outline-success text-white !py-1 !px-2 !text-[0.75rem] !m-0 !gap-0 !font-medium">
-                        Idle
-                      </span>
-                    </div>
-                  </div>
-                </li>
-
-              </ul>
+    <section class="crm-primary-grid">
+      <article class="crm-card crm-peak-card">
+        <header class="crm-card-header">
+          <div class="crm-card-heading">
+            <span class="crm-card-icon crm-card-icon-primary">
+              <i class="ri-pulse-line"></i>
+            </span>
+            <div>
+              <h2>Peak vs non-peak demand</h2>
+              <p>Compare how consumption shifts across the selected date range.</p>
             </div>
           </div>
+          <button
+            type="button"
+            class="crm-icon-button"
+            aria-label="Export peak and non-peak analysis"
+            (click)="exportPeakNonPeakCsv()">
+            <i class="ri-download-2-line"></i>
+          </button>
+        </header>
 
-          <div class="box overflow-hidden border border-defaultborder/70 dark:border-defaultborder/10">
-            <div class="box-header justify-between">
-              <div class="box-title">
-                Active Device Alerts
-              </div>
-              <div class="hs-dropdown ti-dropdown">
-                <a href="javascript:void(0);" class="text-[0.75rem] px-2 font-normal text-[#8c9097] dark:text-white/50">
-                  Actions<i class="ri-arrow-down-s-line align-middle ms-1 inline-block"></i>
-                </a>
-                <ul class="hs-dropdown-menu ti-dropdown-menu hidden">
-                  <li>
-                    <a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block" href="javascript:void(0);">
-                      Acknowledge All
-                    </a>
-                  </li>
-                  <li>
-                    <a class="ti-dropdown-item !py-2 !px-[0.9375rem] !text-[0.8125rem] !font-medium block" href="javascript:void(0);">
-                      View Full Log
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            <div class="box-body">
-              <div class="flex items-center mb-[0.8rem]">
-                <h4 class="font-bold mb-0 text-[1.5rem] text-danger">13</h4>
-                <div class="ms-2">
-                  <span class="py-[0.18rem] px-[0.45rem] rounded-sm text-danger !font-medium !text-[0.75em] bg-danger/10">
-                    3<i class="ri-arrow-up-s-fill align-mmiddle ms-1"></i>
-                  </span>
-                  <span class="text-[#8c9097] dark:text-white/50 text-[0.813rem] ms-1">
-                    new alerts in the last hour
-                  </span>
-                </div>
-              </div>
-
-              <div class="flex w-full h-[0.3125rem] mb-6 rounded-full overflow-hidden">
-                <div class="flex flex-col justify-center rounded-s-[0.625rem] overflow-hidden bg-danger w-[15%]"></div>
-                <div class="flex flex-col justify-center rounded-none overflow-hidden bg-warning w-[30%]"></div>
-                <div class="flex flex-col justify-center rounded-e-[0.625rem] overflow-hidden bg-info w-[55%]"></div>
-              </div>
-
-              <ul class="list-none mb-0 pt-2 crm-deals-status space-y-3">
-                <li>
-                  <div class="flex items-center text-[0.875rem] justify-between p-2 rounded-md bg-danger/5">
-                    <div class="flex items-center font-semibold text-danger">
-                      <i class="ri-error-warning-line me-2"></i>
-                      Critical
-                    </div>
-                    <div class="text-[0.875rem] text-danger font-bold">2 Alerts</div>
-                  </div>
-                </li>
-
-                <li>
-                  <div class="flex items-center text-[0.875rem] justify-between p-2 rounded-md bg-warning/5">
-                    <div class="flex items-center font-semibold text-warning">
-                      <i class="ri-alert-line me-2"></i>
-                      Warning
-                    </div>
-                    <div class="text-[0.875rem] text-warning font-bold">4 Alerts</div>
-                  </div>
-                </li>
-
-                <li>
-                  <div class="flex items-center text-[0.875rem] justify-between p-2 rounded-md bg-info/5">
-                    <div class="flex items-center font-semibold text-info">
-                      <i class="ri-information-line me-2"></i>
-                      Informational
-                    </div>
-                    <div class="text-[0.875rem] text-info font-bold">7 Alerts</div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-
+        <div class="crm-filter-bar">
+          <label>
+            <span>From</span>
+            <input
+              type="date"
+              [(ngModel)]="startDate"
+              [min]="minimumStartDate"
+              [max]="endDate"
+              (ngModelChange)="validateDateRange()">
+          </label>
+          <span class="crm-filter-separator"><i class="ri-arrow-right-line"></i></span>
+          <label>
+            <span>To</span>
+            <input
+              type="date"
+              [(ngModel)]="endDate"
+              [min]="startDate"
+              [max]="maximumEndDate"
+              (ngModelChange)="validateDateRange()">
+          </label>
+          <button type="button" (click)="applyPeakNonPeakFilter()">
+            <i class="ri-equalizer-2-line"></i>
+            Apply
+          </button>
+          <p *ngIf="dateRangeError" class="crm-date-range-error">
+            <i class="ri-error-warning-line"></i>
+            {{ dateRangeError }}
+          </p>
         </div>
 
-        <div class="xxl:col-span-8 xl:col-span-8 col-span-12">
-          <div class="grid grid-cols-12 gap-6 items-start">
-
-            <div class="xxl:col-span-12 xl:col-span-12 col-span-12">
-              <div class="box overflow-hidden border border-defaultborder/70 dark:border-defaultborder/10">
-                <div class="box-header justify-between gap-3 flex-wrap">
-                  <div>
-                    <div class="box-title">
-                      Peak vs Non-Peak Analysis
-                    </div>
-                    <p class="text-[#8c9097] dark:text-white/50 text-[0.75rem] mb-0">
-                      Default range is last 30 days.
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    class="ti-btn ti-btn-outline-secondary !py-1 !px-2 !text-[0.75rem]"
-                    (click)="exportPeakNonPeakCsv()">
-                    <i class="ri-upload-cloud-line"></i>
-                    CSV
-                  </button>
-                </div>
-
-                <div class="box-body">
-                  <div class="grid grid-cols-12 gap-4 mb-5">
-                    <div class="xl:col-span-4 col-span-12">
-                      <label class="text-[0.75rem] text-[#8c9097] dark:text-white/50 mb-1 block">
-                        Start Date
-                      </label>
-                      <input
-                        type="date"
-                        [(ngModel)]="startDate"
-                        class="form-control w-full rounded-md border border-defaultborder px-3 py-2 text-[0.85rem]">
-                    </div>
-
-                    <div class="xl:col-span-4 col-span-12">
-                      <label class="text-[0.75rem] text-[#8c9097] dark:text-white/50 mb-1 block">
-                        End Date
-                      </label>
-                      <input
-                        type="date"
-                        [(ngModel)]="endDate"
-                        class="form-control w-full rounded-md border border-defaultborder px-3 py-2 text-[0.85rem]">
-                    </div>
-
-                    <div class="xl:col-span-4 col-span-12 flex items-end">
-                      <button
-                        type="button"
-                        class="ti-btn bg-primary text-white !py-2 !px-4 !text-[0.85rem] w-full"
-                        (click)="applyPeakNonPeakFilter()">
-                        Apply Filter
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="grid grid-cols-12 gap-4 mb-5">
-                    <div class="xl:col-span-4 col-span-12">
-                      <div class="p-4 rounded-md bg-primary/10 border border-primary/10 h-full">
-                        <p class="text-[0.75rem] text-[#8c9097] mb-1">Peak Usage</p>
-                        <h5 class="font-semibold text-primary mb-0">
-                          {{ peakNonPeak?.totalPeakKwh | number:'1.2-2' }} kWh
-                        </h5>
-                        <span class="text-[0.75rem] text-[#8c9097]">
-                          {{ peakNonPeak?.peakPercentage | number:'1.2-2' }}%
-                        </span>
-                      </div>
-                    </div>
-
-                    <div class="xl:col-span-4 col-span-12">
-                      <div class="p-4 rounded-md bg-info/10 border border-info/10 h-full">
-                        <p class="text-[0.75rem] text-[#8c9097] mb-1">Non-Peak Usage</p>
-                        <h5 class="font-semibold text-info mb-0">
-                          {{ peakNonPeak?.totalNonPeakKwh | number:'1.2-2' }} kWh
-                        </h5>
-                        <span class="text-[0.75rem] text-[#8c9097]">
-                          {{ peakNonPeak?.nonPeakPercentage | number:'1.2-2' }}%
-                        </span>
-                      </div>
-                    </div>
-
-                    <div class="xl:col-span-4 col-span-12">
-                      <div class="p-4 rounded-md bg-success/10 border border-success/10 h-full">
-                        <p class="text-[0.75rem] text-[#8c9097] mb-1">Total Usage</p>
-                        <h5 class="font-semibold text-success mb-0">
-                          {{ peakNonPeak?.totalKwh | number:'1.2-2' }} kWh
-                        </h5>
-                        <span class="text-[0.75rem] text-[#8c9097]">
-                          Selected range
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="peak-non-peak-chart rounded-md border border-dashed border-defaultborder bg-light/30 p-3 dark:border-defaultborder/10 dark:bg-black/10">
-                    <div class="peak-non-peak-scroll overflow-x-hidden">
-                      <apx-chart
-                        *ngIf="peakNonPeakChartOptions"
-                        [series]="peakNonPeakChartOptions.series"
-                        [chart]="peakNonPeakChartOptions.chart"
-                        [xaxis]="peakNonPeakChartOptions.xaxis"
-                        [yaxis]="peakNonPeakChartOptions.yaxis"
-                        [stroke]="peakNonPeakChartOptions.stroke"
-                        [dataLabels]="peakNonPeakChartOptions.dataLabels"
-                        [colors]="peakNonPeakChartOptions.colors"
-                        [grid]="peakNonPeakChartOptions.grid"
-                        [legend]="peakNonPeakChartOptions.legend"
-                        [markers]="peakNonPeakChartOptions.markers"
-                        [tooltip]="peakNonPeakChartOptions.tooltip">
-                      </apx-chart>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="xxl:col-span-12 xl:col-span-12 col-span-12">
-              <div class="box overflow-hidden border border-defaultborder/70 dark:border-defaultborder/10">
-                <div class="box-header justify-between gap-3 flex-wrap">
-                  <div class="box-title">
-                    Energy Consumption by Device Type (Last 12 Months)
-                  </div>
-
-                  <button
-                    type="button"
-                    class="ti-btn ti-btn-outline-secondary !py-1 !px-2 !text-[0.75rem]"
-                    (click)="exportEnergyConsumptionCsv()">
-                    <i class="ri-upload-cloud-line"></i>
-                    CSV
-                  </button>
-                </div>
-
-                <div class="box-body">
-                  <div id="energyConsumption" class="chart-container">
-                    <apx-chart
-                      #chart
-                      *ngIf="deviceTypeChartOptions"
-                      [series]="deviceTypeChartOptions.series"
-                      [chart]="deviceTypeChartOptions.chart"
-                      [dataLabels]="deviceTypeChartOptions.dataLabels"
-                      [plotOptions]="deviceTypeChartOptions.plotOptions"
-                      [yaxis]="deviceTypeChartOptions.yaxis"
-                      [xaxis]="deviceTypeChartOptions.xaxis"
-                      [legend]="deviceTypeChartOptions.legend"
-                      [colors]="deviceTypeChartOptions.colors"
-                      [grid]="deviceTypeChartOptions.grid"
-                      [fill]="deviceTypeChartOptions.fill"
-                      [tooltip]="deviceTypeChartOptions.tooltip">
-                    </apx-chart>
-                  </div>
-                </div>
-              </div>
-            </div>
-
+        <div class="crm-inline-metrics">
+          <div>
+            <span class="crm-metric-dot crm-metric-primary"></span>
+            <p>Peak usage</p>
+            <strong>{{ peakNonPeak?.totalPeakKwh | number:'1.0-1' }} kWh</strong>
+            <small>{{ peakNonPeak?.peakPercentage | number:'1.0-1' }}% of total</small>
+          </div>
+          <div>
+            <span class="crm-metric-dot crm-metric-cyan"></span>
+            <p>Non-peak usage</p>
+            <strong>{{ peakNonPeak?.totalNonPeakKwh | number:'1.0-1' }} kWh</strong>
+            <small>{{ peakNonPeak?.nonPeakPercentage | number:'1.0-1' }}% of total</small>
+          </div>
+          <div>
+            <span class="crm-metric-dot crm-metric-green"></span>
+            <p>Combined usage</p>
+            <strong>{{ peakNonPeak?.totalKwh | number:'1.0-1' }} kWh</strong>
+            <small>Selected period</small>
           </div>
         </div>
 
-      </div>
-    </div>
+        <div
+          class="crm-chart-shell crm-line-chart-shell"
+          (wheel)="blockChartPageScroll($event)">
+          <apx-chart
+            *ngIf="peakNonPeakChartOptions"
+            [series]="peakNonPeakChartOptions.series"
+            [chart]="peakNonPeakChartOptions.chart"
+            [xaxis]="peakNonPeakChartOptions.xaxis"
+            [yaxis]="peakNonPeakChartOptions.yaxis"
+            [stroke]="peakNonPeakChartOptions.stroke"
+            [dataLabels]="peakNonPeakChartOptions.dataLabels"
+            [colors]="peakNonPeakChartOptions.colors"
+            [grid]="peakNonPeakChartOptions.grid"
+            [legend]="peakNonPeakChartOptions.legend"
+            [markers]="peakNonPeakChartOptions.markers"
+            [tooltip]="peakNonPeakChartOptions.tooltip">
+          </apx-chart>
+        </div>
+      </article>
 
-    <div class="xxl:col-span-3 xl:col-span-12 col-span-12">
-      <div class="grid grid-cols-12 gap-6">
-
-        <div class="xxl:col-span-12 xl:col-span-6 col-span-12">
-          <div class="box overflow-hidden border border-defaultborder/70 dark:border-defaultborder/10">
-            <div class="box-header justify-between">
-              <div class="box-title">
-                Monthly Device Type Report
-              </div>
+      <aside class="crm-card crm-operations-card">
+        <header class="crm-card-header">
+          <div class="crm-card-heading">
+            <span class="crm-card-icon crm-card-icon-danger">
+              <i class="ri-alarm-warning-line"></i>
+            </span>
+            <div>
+              <h2>Operations health</h2>
+              <p>Devices that need attention now.</p>
             </div>
+          </div>
+          <span class="crm-alert-total">13</span>
+        </header>
 
-            <div class="box-body !py-3">
-              <div class="monthly-device-report-chart">
-                <apx-chart
-                  *ngIf="monthlyReportChartOptions"
-                  [series]="monthlyReportChartOptions.series"
-                  [chart]="monthlyReportChartOptions.chart"
-                  [colors]="monthlyReportChartOptions.colors"
-                  [labels]="monthlyReportChartOptions.labels"
-                  [legend]="monthlyReportChartOptions.legend"
-                  [stroke]="monthlyReportChartOptions.stroke"
-                  [tooltip]="monthlyReportChartOptions.tooltip"
-                  [plotOptions]="monthlyReportChartOptions.plotOptions"
-                  [dataLabels]="monthlyReportChartOptions.dataLabels">
-                </apx-chart>
-              </div>
-            </div>
-
-            <div class="monthly-device-report-list border-t border-dashed dark:border-defaultborder/10">
-              <div
-                *ngFor="let item of monthlyDeviceTypeReport"
-                class="col !p-0">
-                <div class="p-[0.95rem] text-center border-e border-dashed dark:border-defaultborder/10">
-                  <span class="text-[#8c9097] dark:text-white/50 text-[0.75rem] mb-1 inline-block">
-                    {{ item.utilityName }}
-                  </span>
-                  <div>
-                    <span class="text-[1rem] font-semibold">
-                      {{ item.percentage | number:'1.0-2' }}%
-                    </span>
-                  </div>
-                  <div class="text-[0.7rem] text-[#8c9097]">
-                    {{ item.totalKwh | number:'1.2-2' }} kWh
-                  </div>
-                </div>
-              </div>
-            </div>
-
+        <div class="crm-alert-summary">
+          <div class="crm-alert-bar" aria-label="Alert distribution">
+            <span class="crm-alert-critical"></span>
+            <span class="crm-alert-warning"></span>
+            <span class="crm-alert-info"></span>
+          </div>
+          <div class="crm-alert-legend">
+            <span><i class="crm-alert-critical"></i>2 critical</span>
+            <span><i class="crm-alert-warning"></i>4 warning</span>
+            <span><i class="crm-alert-info"></i>7 info</span>
           </div>
         </div>
 
-      </div>
-    </div>
+        <div class="crm-section-label">
+          <span>Idle devices</span>
+          <small>3 detected</small>
+        </div>
 
+        <div class="crm-device-list">
+          <article class="crm-device-row">
+            <span class="crm-device-icon crm-device-blue"><i class="ri-remote-control-2-line"></i></span>
+            <div>
+              <strong>Honeywell T7350</strong>
+              <small>HVAC controller</small>
+            </div>
+            <span class="crm-status-pill">Idle</span>
+          </article>
+          <article class="crm-device-row">
+            <span class="crm-device-icon crm-device-red"><i class="ri-battery-charge-line"></i></span>
+            <div>
+              <strong>APC Smart-UPS 5000VA</strong>
+              <small>Backup UPS</small>
+            </div>
+            <span class="crm-status-pill">Idle</span>
+          </article>
+          <article class="crm-device-row">
+            <span class="crm-device-icon crm-device-slate"><i class="ri-computer-line"></i></span>
+            <div>
+              <strong>HP Z4 Workstation</strong>
+              <small>Computation unit</small>
+            </div>
+            <span class="crm-status-pill">Idle</span>
+          </article>
+        </div>
+
+        <div class="crm-operation-note">
+          <span><i class="ri-lightbulb-flash-line"></i></span>
+          <p>Three idle devices may be candidates for automated shutdown rules.</p>
+        </div>
+      </aside>
+    </section>
+
+    <section class="crm-secondary-grid">
+      <article class="crm-card crm-consumption-card">
+        <header class="crm-card-header">
+          <div class="crm-card-heading">
+            <span class="crm-card-icon crm-card-icon-cyan">
+              <i class="ri-bar-chart-grouped-line"></i>
+            </span>
+            <div>
+              <h2>Consumption by device type</h2>
+              <p>Monthly usage composition across the last 12 months.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="crm-icon-button"
+            aria-label="Export consumption data"
+            (click)="exportEnergyConsumptionCsv()">
+            <i class="ri-download-2-line"></i>
+          </button>
+        </header>
+
+        <div class="crm-chart-shell crm-bar-chart-shell">
+          <apx-chart
+            #chart
+            *ngIf="deviceTypeChartOptions"
+            [series]="deviceTypeChartOptions.series"
+            [chart]="deviceTypeChartOptions.chart"
+            [dataLabels]="deviceTypeChartOptions.dataLabels"
+            [plotOptions]="deviceTypeChartOptions.plotOptions"
+            [yaxis]="deviceTypeChartOptions.yaxis"
+            [xaxis]="deviceTypeChartOptions.xaxis"
+            [legend]="deviceTypeChartOptions.legend"
+            [colors]="deviceTypeChartOptions.colors"
+            [grid]="deviceTypeChartOptions.grid"
+            [fill]="deviceTypeChartOptions.fill"
+            [tooltip]="deviceTypeChartOptions.tooltip">
+          </apx-chart>
+        </div>
+      </article>
+
+      <article class="crm-card crm-mix-card">
+        <header class="crm-card-header">
+          <div class="crm-card-heading">
+            <span class="crm-card-icon crm-card-icon-green">
+              <i class="ri-donut-chart-line"></i>
+            </span>
+            <div>
+              <h2>Monthly device mix</h2>
+              <p>Share of energy by category.</p>
+            </div>
+          </div>
+        </header>
+
+        <div class="monthly-device-report-chart">
+          <apx-chart
+            *ngIf="monthlyReportChartOptions"
+            [series]="monthlyReportChartOptions.series"
+            [chart]="monthlyReportChartOptions.chart"
+            [colors]="monthlyReportChartOptions.colors"
+            [labels]="monthlyReportChartOptions.labels"
+            [legend]="monthlyReportChartOptions.legend"
+            [stroke]="monthlyReportChartOptions.stroke"
+            [tooltip]="monthlyReportChartOptions.tooltip"
+            [plotOptions]="monthlyReportChartOptions.plotOptions"
+            [dataLabels]="monthlyReportChartOptions.dataLabels">
+          </apx-chart>
+        </div>
+
+        <div class="crm-mix-list">
+          <div *ngFor="let item of monthlyDeviceTypeReport; let itemIndex = index">
+            <span class="crm-mix-marker" [class]="'crm-mix-marker crm-mix-marker-' + (itemIndex % 5)"></span>
+            <div>
+              <strong>{{ item.utilityName }}</strong>
+              <small>{{ item.totalKwh | number:'1.0-1' }} kWh</small>
+            </div>
+            <b>{{ item.percentage | number:'1.0-1' }}%</b>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="crm-card crm-intelligence-card">
+      <header class="crm-card-header crm-intelligence-header">
+        <div class="crm-card-heading">
+          <span class="crm-card-icon crm-card-icon-primary">
+            <i class="ri-bubble-chart-line"></i>
+          </span>
+          <div>
+            <h2>Energy intelligence</h2>
+            <p>Explore intensity, concentration, and month-over-month movement.</p>
+          </div>
+        </div>
+
+        <div class="deep-dive-toggle" aria-label="Heatmap measurement">
+          <button
+            type="button"
+            [class.deep-dive-toggle-active]="viewMode === 'kwh'"
+            [attr.aria-pressed]="viewMode === 'kwh'"
+            (click)="setViewMode('kwh')">
+            Absolute kWh
+          </button>
+          <button
+            type="button"
+            [class.deep-dive-toggle-active]="viewMode === 'share'"
+            [attr.aria-pressed]="viewMode === 'share'"
+            (click)="setViewMode('share')">
+            Monthly share
+          </button>
+        </div>
+      </header>
+
+      <div class="crm-insight-strip">
+        <article
+          *ngFor="let insight of insights"
+          [class.crm-insight-primary]="insight.tone === 'primary'"
+          [class.crm-insight-info]="insight.tone === 'info'"
+          [class.crm-insight-warning]="insight.tone === 'warning'">
+          <span><i [class]="insight.icon"></i></span>
+          <div>
+            <strong>{{ insight.title }}</strong>
+            <p>{{ insight.description }}</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="crm-intelligence-grid">
+        <div class="crm-heatmap-panel">
+          <div class="crm-panel-heading">
+            <div>
+              <h3>Consumption intensity</h3>
+              <p>Darker cells represent higher {{ viewMode === 'kwh' ? 'consumption' : 'monthly share' }}.</p>
+            </div>
+            <span>{{ viewMode === 'kwh' ? 'kWh view' : 'Share view' }}</span>
+          </div>
+
+          <div *ngIf="heatmapChartOptions; else noHeatmapData" class="crm-chart-shell crm-heatmap-shell">
+            <apx-chart
+              [series]="heatmapChartOptions.series!"
+              [chart]="heatmapChartOptions.chart!"
+              [colors]="heatmapChartOptions.colors!"
+              [dataLabels]="heatmapChartOptions.dataLabels!"
+              [plotOptions]="heatmapChartOptions.plotOptions!"
+              [xaxis]="heatmapChartOptions.xaxis!"
+              [grid]="heatmapChartOptions.grid!"
+              [legend]="heatmapChartOptions.legend!"
+              [tooltip]="heatmapChartOptions.tooltip!">
+            </apx-chart>
+          </div>
+
+          <ng-template #noHeatmapData>
+            <div class="crm-empty-state">
+              <i class="ri-bar-chart-grouped-line"></i>
+              <p>No consumption history is available.</p>
+            </div>
+          </ng-template>
+        </div>
+
+        <aside class="crm-ranking-panel">
+          <div class="crm-panel-heading">
+            <div>
+              <h3>Device type ranking</h3>
+              <p>Contribution across the observed period.</p>
+            </div>
+          </div>
+
+          <div class="crm-ranking-list">
+            <article *ngFor="let utility of utilityRanking; let rank = index">
+              <div class="crm-ranking-row">
+                <span class="crm-ranking-number">{{ rank + 1 }}</span>
+                <div class="crm-ranking-name">
+                  <strong>{{ utility.name }}</strong>
+                  <small>{{ utility.total | number:'1.0-1' }} kWh total</small>
+                </div>
+                <div class="crm-ranking-value">
+                  <strong>{{ utility.share | number:'1.0-1' }}%</strong>
+                  <small
+                    *ngIf="utility.trend !== null; else noTrend"
+                    [class.crm-trend-up]="utility.trend! > 0"
+                    [class.crm-trend-down]="utility.trend! < 0">
+                    <i [class]="utility.trend! >= 0 ? 'ri-arrow-up-line' : 'ri-arrow-down-line'"></i>
+                    {{ utility.trend! | number:'1.0-1' }}%
+                  </small>
+                  <ng-template #noTrend><small>New</small></ng-template>
+                </div>
+              </div>
+              <div class="crm-ranking-track">
+                <span [style.width.%]="utility.share" [style.background]="utility.color"></span>
+              </div>
+            </article>
+          </div>
+        </aside>
+      </div>
+    </section>
   </div>
-</div>
+</main>
