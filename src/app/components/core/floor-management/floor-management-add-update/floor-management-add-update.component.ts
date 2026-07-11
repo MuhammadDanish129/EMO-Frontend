@@ -105,9 +105,11 @@ fieldErrors: {
     if (!this.model.floorName?.trim()) {
       this.fieldErrors.floorName = 'Floor Name is required';
     }
-    if (!this.model.floorNo || this.model.floorNo <= -1) {
-  this.fieldErrors.floorNo = 'Floor Number is required';
-}
+    if (this.model.floorNo === null || this.model.floorNo === undefined || Number.isNaN(Number(this.model.floorNo))) {
+      this.fieldErrors.floorNo = 'Floor Number is required';
+    } else if (this.model.floorNo < 0) {
+      this.fieldErrors.floorNo = 'Floor Number cannot be negative';
+    }
 
 
     if (Object.keys(this.fieldErrors).length > 0) return;

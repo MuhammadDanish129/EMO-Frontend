@@ -152,6 +152,70 @@
         <!-- End light and dark theme -->
 
 
+        <!-- Header Live Alerts -->
+        <div class="header-element header-live-alerts md:px-[0.65rem] px-2">
+          <button
+            type="button"
+            class="header-alert-toggle"
+            [class.has-alerts]="unreadAlertCount > 0"
+            aria-label="Live alerts"
+            (click)="toggleAlertPanel($event)">
+            <i class="ri-notification-3-line header-link-icon"></i>
+            <span *ngIf="unreadAlertCount > 0" class="header-alert-badge">{{ unreadAlertCount > 99 ? '99+' : unreadAlertCount }}</span>
+          </button>
+
+          <div
+            class="header-alert-panel"
+            [class.open]="isAlertPanelOpen"
+            (click)="handleAlertPanelClick($event)">
+            <div class="header-alert-panel-header">
+              <div>
+                <h3>Operations alerts</h3>
+                <p>{{ liveAlertTotal }} active</p>
+              </div>
+              <span class="header-alert-live-dot"></span>
+            </div>
+
+            <div class="header-alert-filters">
+              <button type="button" [class.active]="selectedAlertSeverityFilter === 'all'" (click)="setAlertFilter('all')">
+                All {{ liveAlertTotal }}
+              </button>
+              <button type="button" [class.active]="selectedAlertSeverityFilter === 'critical'" (click)="setAlertFilter('critical')">
+                Critical {{ criticalAlertCount }}
+              </button>
+              <button type="button" [class.active]="selectedAlertSeverityFilter === 'warning'" (click)="setAlertFilter('warning')">
+                Warning {{ warningAlertCount }}
+              </button>
+              <button type="button" [class.active]="selectedAlertSeverityFilter === 'info'" (click)="setAlertFilter('info')">
+                Info {{ infoAlertCount }}
+              </button>
+            </div>
+
+            <div class="header-alert-list" *ngIf="filteredLiveAlerts.length > 0; else noHeaderAlerts">
+              <article class="header-alert-item" *ngFor="let alert of filteredLiveAlerts; trackBy: trackByAlert" [ngClass]="getAlertTone(alert.severity)">
+                <span class="header-alert-icon"><i [class]="getAlertIcon(alert.type)"></i></span>
+                <div>
+                  <div class="header-alert-title-row">
+                    <strong>{{ alert.title }}</strong>
+                    <small>{{ formatAlertTime(alert) }}</small>
+                  </div>
+                  <p>{{ alert.message }}</p>
+                  <span>{{ alert.applianceName || alert.sensorName }}</span>
+                </div>
+              </article>
+            </div>
+
+            <ng-template #noHeaderAlerts>
+              <div class="header-alert-empty">
+                <i class="ri-checkbox-circle-line"></i>
+                <strong>No alerts right now</strong>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+        <!-- End Header Live Alerts -->
+
+
 
         <!--Header Notifictaion -->
         <!-- <div class="header-element py-[1rem] md:px-[0.65rem] px-2 notifications-dropdown header-notification hs-dropdown ti-dropdown !hidden md:!block [--placement:bottom-left]">

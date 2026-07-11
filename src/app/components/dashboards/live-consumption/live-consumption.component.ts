@@ -21,6 +21,8 @@ import { SectionService } from '../../core/section-management/section-management
 import { OfficeService } from '../../core/office-management/office-management.service';
 import { DeviceService } from '../../core/device-management/device-management.service';
 import { SocketService } from './socket.services';
+import { SensorCommandService } from '../crm/sensor-command.service';
+import { LiveAlertsService } from '../crm/live-alerts.service';
 
 type ScopeType =
   | 'business'
@@ -51,6 +53,8 @@ interface LiveSensorCard {
   businessName?: string;
   utilityId?: string;
   utilityName?: string;
+  applianceId?: string;
+  applianceName?: string;
   voltage: number;
   current: number;
   activePower: number;
@@ -61,6 +65,8 @@ interface LiveSensorCard {
   activeEnergy: number;
   isLive: boolean;
   relayState?: string | null;
+  relayEnabled?: boolean;
+  isCommanding?: boolean;
   lastSeen: number;
   pulse: boolean;
   raw?: any;
@@ -142,7 +148,9 @@ private subscribedRooms = new Set<string>();
     private router: Router,
     private userService: UserService,
     private toaster: ToastrService,
-    private socketService: SocketService
+    private socketService: SocketService,
+    private sensorCommandService: SensorCommandService,
+    private liveAlertsService: LiveAlertsService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -603,6 +611,8 @@ private subscribeToScope(type: ScopeType, id: string): void {
 
       utilityId: chain.utilityId,
       utilityName: chain.utilityName,
+      applianceId: chain.applianceId,
+      applianceName: chain.applianceName,
 
       voltage: this.toNumber(sensor.voltage ?? sensor.v),
       current: this.toNumber(sensor.current ?? sensor.c),
@@ -627,6 +637,7 @@ private subscribeToScope(type: ScopeType, id: string): void {
       // If packet reached this component, treat it as live unless server explicitly says false.
       isLive: Boolean(sensor.isLive ?? sensor.live ?? true),
       relayState: sensor.relayState ?? sensor.rs ?? null,
+      relayEnabled: sensor.relayEnabled ?? sensor.re ?? undefined,
 
       lastSeen: Date.now(),
       pulse: true,
@@ -678,6 +689,7 @@ private subscribeToScope(type: ScopeType, id: string): void {
     this.filteredSensors = this.sensors.filter(x =>
       x.sensorName?.toLowerCase().includes(term) ||
       x.label?.toLowerCase().includes(term) ||
+      x.applianceName?.toLowerCase().includes(term) ||
       x.deviceName?.toLowerCase().includes(term) ||
       x.officeName?.toLowerCase().includes(term) ||
       x.utilityName?.toLowerCase().includes(term) ||
@@ -691,6 +703,81 @@ private subscribeToScope(type: ScopeType, id: string): void {
 
   isSensorLive(sensor: LiveSensorCard): boolean {
     return Date.now() - sensor.lastSeen < this.SENSOR_TIMEOUT;
+  }
+
+  getApplianceLabel(sensor: LiveSensorCard): string {
+    return sensor.applianceName || sensor.sensorName || sensor.deviceName || 'Unassigned appliance';
+  }
+
+  isRelayOn(sensor: LiveSensorCard): boolean {
+    const state = String(sensor.relayState || '').trim().toUpperCase();
+    if (['ON', 'POWER_ON', 'STANDBY', 'TRUE', '1'].includes(state)) {
+      return true;
+    }
+    if (['OFF', 'POWER_OFF', 'FALSE', '0'].includes(state)) {
+      return false;
+    }
+
+    return Boolean(sensor.relayEnabled);
+  }
+
+  getRelayStateText(sensor: LiveSensorCard): string {
+    const state = String(sensor.relayState || '').trim().toUpperCase();
+    if (state === 'STANDBY') {
+      return 'STANDBY';
+    }
+
+    return this.isRelayOn(sensor) ? 'ON' : 'OFF';
+  }
+
+  toggleRelay(sensor: LiveSensorCard): void {
+    if (!sensor.sensorId || sensor.isCommanding) {
+      return;
+    }
+
+    const command: 'ON' | 'OFF' = this.isRelayOn(sensor) ? 'OFF' : 'ON';
+    const action = command === 'ON' ? 'turn on' : 'turn off';
+    const applianceName = this.getApplianceLabel(sensor);
+    const confirmed = window.confirm(`Do you want to ${action} ${applianceName}?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    sensor.isCommanding = true;
+
+    this.sensorCommandService.sendRelayCommand({
+      sensorId: sensor.sensorId,
+      command,
+      reason: `live_consumption_manual_${command.toLowerCase()}`
+    }).subscribe({
+      next: (res) => {
+        sensor.isCommanding = false;
+
+        if (!res.success) {
+          this.toaster.error(res.remarks || `Failed to ${action} appliance`);
+          return;
+        }
+
+        this.applyRelayState(sensor, command);
+
+        if (command === 'OFF') {
+          this.liveAlertsService.resolveIdleAlertForSensor(sensor.sensorId);
+        }
+
+        this.toaster.success(`${applianceName} ${command === 'ON' ? 'turned on' : 'turned off'}`);
+      },
+      error: () => {
+        sensor.isCommanding = false;
+        this.toaster.error(`Failed to ${action} appliance`);
+      }
+    });
+  }
+
+  private applyRelayState(sensor: LiveSensorCard, command: 'ON' | 'OFF'): void {
+    sensor.relayState = command;
+    sensor.relayEnabled = command === 'ON';
+    this.refreshFilteredSensors();
   }
 
   getLastSeenText(sensor: LiveSensorCard): string {

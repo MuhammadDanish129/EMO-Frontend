@@ -1,239 +1,191 @@
 <!-- PAGE HEADER -->
 <div class="-mt-2 mb-4">
   <div class="px-6 py-4 bg-[rgb(var(--primary))]">
-    <div class="flex flex-col gap-4 pt-3
-         md:flex-row md:items-center md:justify-between">
-
+    <div class="flex flex-col gap-4 pt-3 md:flex-row md:items-center md:justify-between">
       <div>
         <h1 class="text-white text-2xl font-semibold tracking-wide">
           Office Management
         </h1>
         <p class="mt-0.5 text-sm text-white/80 max-w-2xl">
-          Manage offices linked with selected section.
+          Manage offices linked with selected section and define office hours for after-hours energy alerts.
         </p>
       </div>
 
-      <div class="flex flex-col gap-2
-               sm:flex-row sm:gap-3 md:items-center">
-        <button
-          class="flex items-center justify-center gap-2 rounded-lg
-                        bg-white/95 px-4 py-2
-                        text-sm font-semibold
-                        text-[rgb(var(--primary))]" 
-          (click)="addOffice()">
-
+      <div class="flex flex-col gap-2 sm:flex-row sm:gap-3 md:items-center">
+        <button class="flex items-center justify-center gap-2 rounded-lg bg-white/95 px-4 py-2 text-sm font-semibold text-[rgb(var(--primary))]"
+                (click)="addOffice()">
           <i class="ri-door-open-line text-lg"></i>
           Add Office
         </button>
       </div>
-
     </div>
   </div>
 </div>
 
-
-<div class="px-6 py-3 mb-4 bg-[rgb(var(--light))]
-            border-b border-[rgb(var(--gray-200))]">
-
+<div class="px-6 py-3 mb-4 bg-[rgb(var(--light))] border-b border-[rgb(var(--gray-200))]">
   <nav class="flex items-center gap-1 text-xs sm:text-sm">
-
-    <!-- Facility -->
     <button (click)="goToFacility()"
-      class="flex items-center gap-1
-             text-[rgb(var(--gray-600))]
-             hover:text-[rgb(var(--primary))]
-             transition font-medium">
-
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
       <i class="ri-community-line text-sm sm:text-base"></i>
       <span class="hidden sm:inline">Facility</span>
     </button>
 
     <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
 
-    <!-- Building -->
     <button (click)="goToBuilding()"
-      class="flex items-center gap-1
-             text-[rgb(var(--gray-600))]
-             hover:text-[rgb(var(--primary))]
-             transition font-medium">
-
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
       <i class="ri-building-4-line text-sm sm:text-base"></i>
       <span class="hidden sm:inline">Building</span>
     </button>
 
     <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
 
-    <!-- Floor -->
     <button (click)="goToFloor(fkBuilding)"
-      class="flex items-center gap-1
-             text-[rgb(var(--gray-600))]
-             hover:text-[rgb(var(--primary))]
-             transition font-medium">
-
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
       <i class="ri-stack-line text-sm sm:text-base"></i>
       <span class="hidden sm:inline">Floor</span>
     </button>
 
     <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
 
-    <!-- Section -->
     <button (click)="goToSection()"
-      class="flex items-center gap-1
-             text-[rgb(var(--gray-600))]
-             hover:text-[rgb(var(--primary))]
-             transition font-medium">
-
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
       <i class="ri-layout-grid-line text-sm sm:text-base"></i>
       <span class="hidden sm:inline">Section</span>
     </button>
 
     <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
 
-    <!-- Current -->
-    <span
-      class="flex items-center gap-1
-             text-[rgb(var(--primary))]
-             font-semibold">
-
+    <span class="flex items-center gap-1 text-[rgb(var(--primary))] font-semibold">
       <i class="ri-door-open-line text-sm sm:text-base"></i>
       <span class="hidden sm:inline">Office</span>
     </span>
-
   </nav>
-
 </div>
-
-
-
 
 <!-- CARD -->
 <div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6">
 
   <!-- SEARCH + COUNT -->
-  <div class="flex flex-col gap-2 p-4 border-b
-         sm:flex-row sm:items-center sm:justify-between">
-
+  <div class="flex flex-col gap-2 p-4 border-b sm:flex-row sm:items-center sm:justify-between">
     <p class="text-sm text-[rgb(var(--primary))]">
       Total Offices:
-      <span class="font-semibold">
-        {{ filteredOffices.length }}
-      </span>
+      <span class="font-semibold">{{ filteredOffices.length }}</span>
     </p>
 
-    <input
-      type="text"
-      [(ngModel)]="searchText"
-      (ngModelChange)="searchOffices()"
-      placeholder="Search Offices.."
-      class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm
-      border-[rgb(var(--input-border))]" />
+    <input type="text"
+           [(ngModel)]="searchText"
+           (ngModelChange)="searchOffices()"
+           placeholder="Search Offices.."
+           class="yx-input w-full sm:w-64 rounded-lg border px-3 py-2 text-sm border-[rgb(var(--input-border))]" />
   </div>
-
 
   <!-- ================= MOBILE ================= -->
   <div class="block md:hidden p-4 space-y-3">
 
-    <!-- LOADING -->
     <div *ngIf="isLoading" class="py-14 text-center">
       <div class="flex flex-col items-center gap-3">
-        <div class="h-10 w-10 animate-spin rounded-full
-         border-4 border-gray-200
-         border-t-[rgb(var(--primary))]"></div>
-
-        <p class="text-sm text-gray-500">
-          Loading Offices...
-        </p>
+        <div class="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-[rgb(var(--primary))]"></div>
+        <p class="text-sm text-gray-500">Loading Offices...</p>
       </div>
     </div>
 
-
-    <!-- DATA -->
-    <div *ngFor="let o of pagedOffices"
+    <div *ngFor="let o of pagedOffices; let i = index"
       class="rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4">
 
-      <div class="flex items-start justify-between">
+      <div class="flex items-start gap-3">
+        <!-- <span class="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-[rgb(var(--primary-100))] text-[rgb(var(--primary))]">
+          <i class="ri-door-open-line text-xl leading-none"></i>
+        </span> -->
 
-        <div>
-          <div class="font-semibold text-indigo-600 text-sm">
-    {{ o.officeName }}
-  </div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-start justify-between gap-2">
+            <div class="min-w-0">
+              <div class="truncate text-sm font-semibold text-indigo-600">
+                {{ o.officeName }}
+              </div>
+            </div>
 
-  <div class="text-[11px] font-medium"
-     [class.text-[rgb(var(--red-600))]]="o.isOcuppied === true"
-     [class.text-[rgb(var(--success-600))]]="o.isOcuppied === false">
-  {{ o.isOcuppied ? 'Occupied' : 'Available' }}
-</div>
+            <span class="flex-shrink-0 rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="o.isActive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'">
+              {{ o.isActive ? 'Active' : 'Inactive' }}
+            </span>
+          </div>
 
-          <!-- <div class="text-xs text-[rgb(var(--text-muted))]">
-            {{ o.sectionName }}
-          </div> -->
+          <div class="mt-3 flex flex-wrap gap-2">
+            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+              [ngClass]="o.isOcuppied
+                ? 'bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))]'
+                : 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-700))]'">
+              <i [class]="o.isOcuppied ? 'ri-lock-line' : 'ri-checkbox-circle-line'"></i>
+              {{ o.isOcuppied ? 'Occupied' : 'Available' }}
+            </span>
+
+            <span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+              [ngClass]="o.afterHoursAlertEnabled
+                ? 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-700))]'
+                : 'bg-[rgb(var(--gray-200))] text-[rgb(var(--gray-600))]'">
+              <i [class]="o.afterHoursAlertEnabled ? 'ri-notification-3-line' : 'ri-notification-off-line'"></i>
+              Alerts {{ o.afterHoursAlertEnabled ? 'On' : 'Off' }}
+            </span>
+          </div>
         </div>
-
-        <span class="rounded-full px-3 py-1 text-xs font-semibold"
-          [ngClass]="o.isActive
-            ? 'bg-success/10 text-success'
-            : 'bg-danger/10 text-danger'">
-
-          {{ o.isActive ? 'Active' : 'Inactive' }}
-        </span>
-
       </div>
 
-      <!-- OCCUPIED -->
-      
+      <div class="mt-4 grid grid-cols-1 gap-2 text-xs sm:grid-cols-2">
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] bg-[rgb(var(--gray-50))] px-3 py-2">
+          <span class="block text-[11px] font-medium text-gray-500">Working hours</span>
+          <strong class="mt-1 block break-words text-[rgb(var(--dark))]">
+            {{ o.is24Hours ? '24 Hours' : (o.openingTime + ' - ' + o.closingTime) }}
+          </strong>
+        </div>
 
-      <!-- ACTIONS -->
+        <button
+          type="button"
+          class="rounded-lg border border-[rgb(var(--primary-200))] bg-[rgb(var(--primary-100))] px-3 py-2 text-left"
+          (click)="openWorkingDays(o, $event)">
+          <span class="block text-[11px] font-medium text-[rgb(var(--primary))]">Working days</span>
+          <strong class="mt-1 flex items-center justify-between gap-2 text-[rgb(var(--primary))]">
+            {{ getWorkingDaysSummary(o.workingDays) }}
+            <i class="las la-angle-right text-xs"></i>
+          </strong>
+        </button>
+      </div>
+
       <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
-          <button class="rounded-lg p-2
-    bg-[rgb(var(--blue-100))]
-    text-[rgb(var(--blue-600))]" (click)="goToDevice(o.officeId)">
-
-                    <i class="las la-broadcast-tower text-lg"></i>
-
-                </button>
-
-        <button class="rounded-lg p-2
-          bg-[rgb(var(--indigo-100))]
-          text-[rgb(var(--indigo-600))]"
-          (click)="edit(o)">
-          <i class="las la-edit text-lg"></i>
+        <button class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[rgb(var(--blue-100))] text-[rgb(var(--blue-600))]"
+                (click)="goToDevice(o.officeId)">
+          <i class="las la-broadcast-tower text-lg leading-none"></i>
         </button>
 
-        <button class="rounded-lg p-2
-          bg-[rgb(var(--red-100))]
-          text-[rgb(var(--red-600))]"
-          (click)="delete(o.officeId)">
-          <i class="las la-trash text-lg"></i>
+        <button class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[rgb(var(--indigo-100))] text-[rgb(var(--indigo-600))]"
+                (click)="edit(o)">
+          <i class="las la-edit text-lg leading-none"></i>
         </button>
 
+        <button class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))]"
+                (click)="delete(o.officeId)">
+          <i class="las la-trash text-lg leading-none"></i>
+        </button>
       </div>
-
     </div>
-      <div *ngIf="!isLoading && pagedOffices.length === 0" class="py-16 text-center">
 
-            <p class="text-sm font-semibold">
-                No Record Found
-            </p>
-
-            <p class="text-xs text-gray-600 mt-1">
-                Try adjusting search or add a new offices.
-            </p>
-
-        </div>
-
+    <div *ngIf="!isLoading && pagedOffices.length === 0" class="py-16 text-center">
+      <p class="text-sm font-semibold">No Record Found</p>
+      <p class="text-xs text-gray-600 mt-1">Try adjusting search or add a new office.</p>
+    </div>
   </div>
-
 
   <!-- ================= DESKTOP TABLE ================= -->
   <div class="hidden md:block overflow-x-auto">
-
     <table class="min-w-full bg-[rgb(var(--light))]">
-
       <thead class="bg-[rgb(var(--gray-200))] text-sm text-[rgb(var(--gray-500))]">
         <tr>
           <th class="px-4 py-3 text-left">Sr #</th>
           <th class="px-4 py-3 text-left">Office</th>
-          <!-- <th class="px-4 py-3 text-left">Section</th> -->
+          <th class="px-4 py-3 text-left">Working Hours</th>
+          <th class="px-4 py-3 text-left">Working Days</th>
+          <th class="px-4 py-3 text-left">Alerts</th>
           <th class="px-4 py-3 text-left">Occupied</th>
           <th class="px-4 py-3 text-left">Status</th>
           <th class="px-4 py-3 text-center">Actions</th>
@@ -241,184 +193,186 @@
       </thead>
 
       <tbody>
-
         <tr *ngIf="isLoading">
-          <td colspan="6" class="px-6 py-14 text-center">
-            Loading Offices...
-          </td>
+          <td colspan="8" class="px-6 py-14 text-center">Loading Offices...</td>
         </tr>
 
         <tr *ngFor="let o of pagedOffices; let i = index"
           class="border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]">
 
-          <td class="px-4 py-3 font-medium">
-            {{ pageIndex * pageSize + i + 1 }}
+          <td class="px-4 py-3 font-medium">{{ pageIndex * pageSize + i + 1 }}</td>
+
+          <td class="px-4 py-3 font-semibold text-indigo-600">{{ o.officeName }}</td>
+
+          <td class="px-4 py-3 text-sm">
+            {{ o.is24Hours ? '24 Hours' : (o.openingTime + ' - ' + o.closingTime) }}
           </td>
 
-          <td class="px-4 py-3 font-semibold text-indigo-600">
-            {{ o.officeName }}
+          <td class="px-4 py-3">
+            <button
+              type="button"
+              class="inline-flex min-w-[76px] items-center justify-center rounded-full border border-[rgb(var(--primary-200))] bg-[rgb(var(--primary-100))] px-3 py-1 text-xs font-semibold text-[rgb(var(--primary))] transition hover:bg-[rgb(var(--primary-200))]"
+              (click)="openWorkingDays(o, $event)">
+              {{ getWorkingDaysSummary(o.workingDays) }}
+            </button>
           </td>
 
-          <!-- <td class="px-4 py-3">
-            {{ o.sectionName }}
-          </td> -->
+          <td class="px-4 py-3">
+            <span class="rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="o.afterHoursAlertEnabled
+                ? 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-700))]'
+                : 'bg-[rgb(var(--gray-200))] text-[rgb(var(--gray-600))]'">
+              {{ o.afterHoursAlertEnabled ? 'Enabled' : 'Disabled' }}
+            </span>
+          </td>
 
-          <!-- OCCUPIED -->
           <td class="px-4 py-3">
             <span class="rounded-full px-3 py-1 text-xs font-semibold"
               [ngClass]="o.isOcuppied
                 ? 'bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))]'
                 : 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-700))]'">
-
               {{ o.isOcuppied ? 'Occupied' : 'Available' }}
             </span>
           </td>
 
-          <!-- ACTIVE -->
           <td class="px-4 py-3">
             <span class="rounded-full px-3 py-1 text-xs font-semibold"
-              [ngClass]="o.isActive
-                ? 'bg-success/10 text-success'
-                : 'bg-danger/10 text-danger'">
-
+              [ngClass]="o.isActive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'">
               {{ o.isActive ? 'Active' : 'Inactive' }}
             </span>
           </td>
 
-          <!-- ACTIONS -->
-         <td class="px-3 py-3 text-center">
-  <div class="flex justify-center gap-2">
+          <td class="px-3 py-3 text-center">
+            <div class="flex justify-center gap-2">
+              <div class="relative group">
+                <button class="rounded-lg p-2 bg-[rgb(var(--blue-100))] text-[rgb(var(--blue-600))] hover:bg-[rgb(var(--blue-200))] hover:scale-105"
+                        (click)="goToDevice(o.officeId)">
+                  <i class="las la-broadcast-tower text-lg"></i>
+                </button>
+                <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2 flex opacity-0 group-hover:opacity-100 px-2 py-1 text-[11px] font-medium rounded-md shadow-sm whitespace-nowrap transition duration-200 pointer-events-none bg-[rgb(var(--primary-100))] text-[rgb(var(--gray-900))] border border-[rgb(var(--primary-200))]">
+                  Manage Devices
+                </div>
+              </div>
 
-     <div class="relative group">
-      <button
-        class="rounded-lg p-2
-               bg-[rgb(var(--blue-100))]
-               text-[rgb(var(--blue-600))]
-               hover:bg-[rgb(var(--blue-200))] hover:scale-105"
-        (click)="goToDevice(o.officeId)">
+              <div class="relative group">
+                <button class="rounded-lg p-2 bg-[rgb(var(--indigo-100))] text-[rgb(var(--indigo-600))] hover:bg-[rgb(var(--indigo-200))] hover:scale-105"
+                        (click)="edit(o)">
+                  <i class="las la-edit text-lg"></i>
+                </button>
+                <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2 flex opacity-0 group-hover:opacity-100 px-2 py-1 text-[11px] font-medium rounded-md shadow-sm whitespace-nowrap transition duration-200 pointer-events-none bg-[rgb(var(--primary-100))] text-[rgb(var(--gray-900))] border border-[rgb(var(--primary-200))]">
+                  Edit Office
+                </div>
+              </div>
 
-        <i class="las la-broadcast-tower text-lg"></i>
-      </button>
-
-      <div
-        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
-               flex opacity-0 group-hover:opacity-100
-               px-2 py-1 text-[11px] font-medium rounded-md
-               shadow-sm whitespace-nowrap transition duration-200
-               pointer-events-none
-               bg-[rgb(var(--primary-100))]
-               text-[rgb(var(--gray-900))]
-               border border-[rgb(var(--primary-200))]">
-
-        Manage Devices
-      </div>
-    </div>
-
-    <!-- EDIT -->
-    <div class="relative group">
-      <button
-        class="rounded-lg p-2
-               bg-[rgb(var(--indigo-100))]
-               text-[rgb(var(--indigo-600))]
-               hover:bg-[rgb(var(--indigo-200))] hover:scale-105"
-        (click)="edit(o)">
-
-        <i class="las la-edit text-lg"></i>
-      </button>
-
-      <div
-        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
-               flex opacity-0 group-hover:opacity-100
-               px-2 py-1 text-[11px] font-medium rounded-md
-               shadow-sm whitespace-nowrap transition duration-200
-               pointer-events-none
-               bg-[rgb(var(--primary-100))]
-               text-[rgb(var(--gray-900))]
-               border border-[rgb(var(--primary-200))]">
-
-        Edit Office
-      </div>
-    </div>
-
-    <!-- DELETE -->
-    <div class="relative group">
-      <button
-        class="rounded-lg p-2
-               bg-[rgb(var(--red-100))]
-               text-[rgb(var(--red-600))]
-               hover:bg-[rgb(var(--red-200))] hover:scale-105"
-        (click)="delete(o.officeId)">
-
-        <i class="las la-trash text-lg"></i>
-      </button>
-
-      <div
-        class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
-               flex opacity-0 group-hover:opacity-100
-               px-2 py-1 text-[11px] font-medium rounded-md
-               shadow-sm whitespace-nowrap transition duration-200
-               pointer-events-none
-               bg-[rgb(var(--primary-100))]
-               text-[rgb(var(--gray-900))]
-               border border-[rgb(var(--primary-200))]">
-
-        Delete Office
-      </div>
-    </div>
-
-  </div>
-</td>
-
-
+              <div class="relative group">
+                <button class="rounded-lg p-2 bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))] hover:bg-[rgb(var(--red-200))] hover:scale-105"
+                        (click)="delete(o.officeId)">
+                  <i class="las la-trash text-lg"></i>
+                </button>
+                <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2 flex opacity-0 group-hover:opacity-100 px-2 py-1 text-[11px] font-medium rounded-md shadow-sm whitespace-nowrap transition duration-200 pointer-events-none bg-[rgb(var(--primary-100))] text-[rgb(var(--gray-900))] border border-[rgb(var(--primary-200))]">
+                  Delete Office
+                </div>
+              </div>
+            </div>
+          </td>
         </tr>
 
-                          <tr *ngIf="!isLoading && pagedOffices.length === 0">
-        <td colspan="7" class="px-6 py-20 text-center">
-
-          <p class="text-sm font-semibold">
-            No Record Found
-          </p>
-
-          <p class="text-xs text-gray-600 mt-1">
-            Try adjusting search or create a new Office.
-          </p>
-
-        </td>
-      </tr>
-
+        <tr *ngIf="!isLoading && pagedOffices.length === 0">
+          <td colspan="8" class="px-6 py-20 text-center">
+            <p class="text-sm font-semibold">No Record Found</p>
+            <p class="text-xs text-gray-600 mt-1">Try adjusting search or create a new Office.</p>
+          </td>
+        </tr>
       </tbody>
-
     </table>
-
   </div>
-   <div class="flex items-center justify-between px-4 py-3 border-t">
 
-        <p class="text-sm text-gray-500">
-            Showing {{ pageIndex * pageSize + 1 }} – {{ pageEnd }}
-            of {{ filteredOffices.length }}
+  <div class="flex items-center justify-between px-4 py-3 border-t">
+    <p class="text-sm text-gray-500">
+      Showing {{ filteredOffices.length ? pageIndex * pageSize + 1 : 0 }} - {{ pageEnd }}
+      of {{ filteredOffices.length }}
+    </p>
+
+    <div class="flex gap-1">
+      <button (click)="prevPage()" [disabled]="pageIndex === 0" class="px-3 py-2 rounded-lg border text-sm">
+        Prev
+      </button>
+
+      <button *ngFor="let p of pages" (click)="goToPage(p)" class="px-3 py-2 rounded-lg border text-sm"
+        [ngClass]="p === pageIndex ? 'bg-[rgb(var(--primary))] text-white' : 'hover:bg-gray-100'">
+        {{ p + 1 }}
+      </button>
+
+      <button (click)="nextPage()" [disabled]="(pageIndex + 1) * pageSize >= filteredOffices.length" class="px-3 py-2 rounded-lg border text-sm">
+        Next
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- WORKING DAYS DETAILS -->
+<div
+  *ngIf="selectedWorkingDaysOffice"
+  class="working-days-overlay fixed inset-0 z-[1000] flex items-center justify-center bg-black/45 px-4 py-6 backdrop-blur-sm"
+  (click)="closeWorkingDays()">
+
+  <div
+    class="working-days-popup w-full max-w-md overflow-hidden border border-white/20 bg-[rgb(var(--light))] shadow-2xl"
+    (click)="$event.stopPropagation()">
+
+    <div class="working-days-popup-header flex items-center justify-between gap-3 bg-[rgb(var(--primary))] px-6 py-3">
+      <div class="min-w-0">
+        <span class="text-sm font-semibold text-white">
+          Working Days
+        </span>
+        <p class="mt-0.5 truncate text-xs text-white/75">
+          {{ selectedWorkingDaysOffice.officeName }}
         </p>
+      </div>
 
-        <div class="flex gap-1">
-
-            <button (click)="prevPage()" [disabled]="pageIndex === 0" class="px-3 py-2 rounded-lg border text-sm">
-                Prev
-            </button>
-
-            <button *ngFor="let p of pages" (click)="goToPage(p)" class="px-3 py-2 rounded-lg border text-sm" [ngClass]="p === pageIndex
-          ? 'bg-[rgb(var(--primary))] text-white'
-          : 'hover:bg-gray-100'">
-
-                {{ p + 1 }}
-            </button>
-
-            <button (click)="nextPage()" [disabled]="(pageIndex + 1) * pageSize >= filteredOffices.length"
-                class="px-3 py-2 rounded-lg border text-sm">
-                Next
-            </button>
-
-        </div>
-
+      <button
+        type="button"
+        class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-red transition"
+        (click)="closeWorkingDays()">
+        <i class="las la-times text-lg"></i>
+      </button>
     </div>
 
+    <div class="working-days-popup-body space-y-4 px-5 py-5">
+      <div class="rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] px-4 py-3">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+          Selected schedule
+        </p>
+        <p class="mt-1 text-sm font-semibold text-[rgb(var(--dark))]">
+          {{ getWorkingDaysSummary(selectedWorkingDaysOffice.workingDays) }}
+        </p>
+      </div>
 
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-3" *ngIf="getWorkingDays(selectedWorkingDaysOffice.workingDays).length; else noWorkingDays">
+        <span
+          *ngFor="let day of getWorkingDays(selectedWorkingDaysOffice.workingDays)"
+          class="inline-flex min-h-10 items-center justify-center rounded-xl border border-[rgb(var(--primary-200))] bg-dark px-3 py-2 text-center text-xs font-semibold text-[rgb(var(--primary))] shadow-sm">
+          {{ day }}
+        </span>
+      </div>
+
+      <ng-template #noWorkingDays>
+        <div class="rounded-xl border border-[rgb(var(--gray-200))] bg-[rgb(var(--gray-50))] px-4 py-6 text-center">
+          <i class="las la-calendar-times text-2xl text-gray-400"></i>
+          <p class="mt-2 text-xs font-semibold text-muted">
+            No working days configured.
+          </p>
+        </div>
+      </ng-template>
+
+      <div class="flex justify-end border-t border-[rgb(var(--gray-200))] pt-4">
+        <button
+          type="button"
+          class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white hover:bg-[rgb(var(--primary-700))]"
+          (click)="closeWorkingDays()">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

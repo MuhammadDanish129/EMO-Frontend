@@ -1,0 +1,20 @@
+.office-dialog-body {
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.office-dialog-body::-webkit-scrollbar {
+  width: 0.45rem;
+}
+
+.office-dialog-body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(var(--gray-300));
+}
+
+@media (max-height: 700px) {
+  .office-dialog-body {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}

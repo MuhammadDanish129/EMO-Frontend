@@ -6,6 +6,7 @@ import { SensorResponseDTO } from './sensor-management.type';
 import { SensorService } from './sensor-management.service';
 import { ConfirmDialogComponent } from '../../../shared/confirmation-dialouge/confirmation-dialog.component';
 import { SensorManagementAddUpdateComponent } from './sensor-management-add-update/sensor-management-add-update.component';
+import { HvacLoopSettingDialogComponent } from './hvac-loop-setting-dialog/hvac-loop-setting-dialog.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -37,6 +38,7 @@ fkDevice!: string;
 
   Sensors: SensorResponseDTO[] = [];
   filteredSensors: SensorResponseDTO[] = [];
+  selectedSensor: SensorResponseDTO | null = null;
 
   constructor(
     private _sensorService: SensorService,
@@ -110,8 +112,9 @@ fkDevice!: string;
 
     this.filteredSensors = !term
       ? [...this.Sensors]
-      : this.filteredSensors.filter(st =>
-          st.sensorName.toLowerCase().includes(term)
+      : this.Sensors.filter(st =>
+          (st.sensorName || '').toLowerCase().includes(term) ||
+          (st.utilityName || '').toLowerCase().includes(term)
         );
 
     this.pageIndex = 0;
@@ -132,20 +135,45 @@ fkDevice!: string;
       }
     });
   }
-viewDetails(sensor: SensorResponseDTO) {
+  viewDetails(sensor: SensorResponseDTO) {
+    this.selectedSensor = sensor;
+  }
 
-  const dialogRef = this.dialog.open(SensorManagementAddUpdateComponent, {
-    width: '420px',
-    disableClose: true,
-    autoFocus: false,
-    panelClass: 'ynex-dialog',
-    data: {
-      mode: 'view',
-      value: sensor
+  closeSensorDetails() {
+    this.selectedSensor = null;
+  }
+
+  isHvacSensor(sensor: SensorResponseDTO): boolean {
+    const utilityName = sensor?.utilityName || '';
+    return utilityName.trim().toLowerCase() === 'hvac';
+  }
+
+  openHvacLoopSetting(sensor: SensorResponseDTO) {
+    if (!this.isHvacSensor(sensor)) {
+      this._toaster.error('Loop setting is only available for HVAC sensors');
+      return;
     }
-  });
 
-}
+    const dialogRef = this.dialog.open(HvacLoopSettingDialogComponent, {
+      width: '460px',
+      disableClose: true,
+      autoFocus: false,
+      panelClass: 'ynex-dialog',
+      data: {
+        fkSensor: sensor.sensorId,
+        sensorName: sensor.sensorName,
+        utilityName: sensor.utilityName
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === 'saved') {
+        this._toaster.success('HVAC loop setting updated');
+        this.loadSensors(this.currentUser.fkBusiness);
+      }
+    });
+  }
+
   edit(st: SensorResponseDTO) {
     const dialogRef = this.dialog.open(SensorManagementAddUpdateComponent, {
       width: '420px',
@@ -243,7 +271,7 @@ viewDetails(sensor: SensorResponseDTO) {
   );
 }
 
- goToDevice() {
+  goToDevice() {
   this.router.navigate(
     ['/core/device-management'],
     {
@@ -254,6 +282,27 @@ viewDetails(sensor: SensorResponseDTO) {
         fkFloor: this.fkFloor,
         fkSection: this.fkSection,
         fkOffice : this.fkOffice
+      }
+    }
+  );
+}
+
+goToAppliance(sensor: SensorResponseDTO) {
+  this.router.navigate(
+    ['/core/appliance-management'],
+    {
+      state: {
+        fkBusiness: this.fkBusiness,
+        fkFacility: this.fkFacility,
+        fkBuilding: this.fkBuilding,
+        fkFloor: this.fkFloor,
+        fkSection: this.fkSection,
+        fkOffice: this.fkOffice,
+        fkDevice: this.fkDevice,
+        fkSensor: sensor.sensorId,
+        fkUtility: sensor.fkutility,
+        sensorName: sensor.sensorName,
+        utilityName: sensor.utilityName
       }
     }
   );

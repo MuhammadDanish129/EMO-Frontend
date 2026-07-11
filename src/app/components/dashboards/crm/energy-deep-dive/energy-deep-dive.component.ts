@@ -16,6 +16,8 @@ import {
 import { UserService } from '../../../../shared/services/user/user.service';
 import { User } from '../../../../shared/services/user/user.type';
 import { EnergyDeepDiveService } from './energy-deep-dive.service';
+import { OptimizationDashboardService } from './optimization-insights/optimization-dashboard.service';
+import { OptimizationDashboardResponseDTO } from './optimization-insights/optimization-dashboard.type';
 import {
   BreadcrumbDto,
   ChildCardDto,
@@ -58,6 +60,7 @@ type DonutChartOptions = {
 export class EnergyDeepDiveComponent implements OnInit {
   isLoading = false;
   isOverviewLoading = false;
+  isOptimizationLoading = false;
   errorMessage = '';
 
   level: DashboardLevel = 'business';
@@ -67,6 +70,7 @@ export class EnergyDeepDiveComponent implements OnInit {
 
   data?: DashboardResponse;
   overviewData?: EnergyOverviewDashboardDto;
+  optimizationDashboard: OptimizationDashboardResponseDTO | null = null;
   breadcrumbs: BreadcrumbDto[] = [];
   childCards: ChildCardDto[] = [];
   currentUser: User | null = null;
@@ -93,6 +97,7 @@ export class EnergyDeepDiveComponent implements OnInit {
 
   constructor(
     private dashboardService: EnergyDeepDiveService,
+    private optimizationDashboardService: OptimizationDashboardService,
     private userService: UserService
   ) {}
 
@@ -124,11 +129,38 @@ export class EnergyDeepDiveComponent implements OnInit {
           this.prepareChildCards(response);
           this.prepareCharts(response);
           this.loadBreadcrumb();
+          this.loadOptimizationDashboard(this.level, this.currentId, this.range);
           this.isLoading = false;
         },
         error: () => {
           this.errorMessage = 'The detailed dashboard could not be loaded.';
+          this.optimizationDashboard = null;
           this.isLoading = false;
+        }
+      });
+  }
+
+  loadOptimizationDashboard(
+    level: string,
+    id: string,
+    range: DashboardRange = '24h'
+  ): void {
+    if (!level || !id) {
+      return;
+    }
+
+    this.isOptimizationLoading = true;
+
+    this.optimizationDashboardService
+      .getOptimizationDashboard(level, id, range)
+      .subscribe({
+        next: res => {
+          this.optimizationDashboard = res.success ? res.data ?? null : null;
+          this.isOptimizationLoading = false;
+        },
+        error: () => {
+          this.optimizationDashboard = null;
+          this.isOptimizationLoading = false;
         }
       });
   }
@@ -693,5 +725,18 @@ export class EnergyDeepDiveComponent implements OnInit {
     };
 
     return icons[level];
+  }
+
+  getOptimizationSeverityClass(severity: string): string {
+    switch ((severity || '').toLowerCase()) {
+      case 'critical':
+        return 'bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))]';
+      case 'warning':
+        return 'bg-yellow-100 text-yellow-700';
+      case 'success':
+        return 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-600))]';
+      default:
+        return 'bg-[rgb(var(--primary-100))] text-[rgb(var(--primary))]';
+    }
   }
 }

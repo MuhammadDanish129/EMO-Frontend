@@ -75,10 +75,12 @@
                               <div class="text-white text-center p-[3rem] flex items-center justify-center">
                                 <div>
                                   <div class="mb-[3rem]">
-                                    <img [src]="slide.img" alt="" class="authentication-image">
+                                    <span class="authentication-slide-icon {{ slide.tone }}" aria-hidden="true">
+                                      <i class="{{ slide.icon }}"></i>
+                                    </span>
                                   </div>
-                                  <h6 class="font-semibold text-[1rem]">Signin</h6>
-                                  <p class="font-normal text-[.875rem] opacity-[0.7]">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ipsa eligendi expedita aliquam quaerat nulla voluptas facilis. Porro rem voluptates possimus, ad, autem quae culpa architecto, quam labore blanditiis at ratione.</p>
+                                  <h6 class="font-semibold text-[1rem]">{{ slide.title }}</h6>
+                                  <p class="font-normal text-[.875rem] opacity-[0.7]">{{ slide.description }}</p>
                                 </div>
                               </div>
                             </div>

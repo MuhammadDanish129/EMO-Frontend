@@ -1,0 +1,15 @@
+.sensor-details-popup {
+  border-radius: 0.75rem !important;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.sensor-details-popup-header {
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+}
+
+.sensor-details-popup-body {
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+}

@@ -1,9 +1,12 @@
-import { Component, ElementRef, OnInit, Renderer2 } from '@angular/core';
+import { Component, ElementRef, HostListener, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { Menu, NavService } from '../../services/nav.service';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../services/user/user.type';
 import { UserService } from '../../services/user/user.service';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { LiveAlertsService } from '../../../components/dashboards/crm/live-alerts.service';
+import { LiveOperationAlertDTO } from '../../../components/dashboards/crm/energy-deep-dive/optimization-insights/optimization-dashboard.type';
 interface Item {
   id: number;
   name: string;
@@ -17,17 +20,24 @@ interface Item {
   styleUrls: ['./header.component.scss']
 })
 
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
   cartItemCount: number = 5;
   notificationCount: number = 5;
   currentUser: User | null = null;
   avatar: string = ''
+  liveAlerts: LiveOperationAlertDTO[] = [];
+  unreadAlertCount = 0;
+  selectedAlertSeverityFilter: 'all' | 'critical' | 'warning' | 'info' = 'all';
+  isAlertPanelOpen = false;
   public isCollapsed = true;
+  private liveAlertsSubscription?: Subscription;
+  private unreadAlertCountSubscription?: Subscription;
 
   constructor(public navServices: NavService,
     private _authService: AuthService,
     private _userService: UserService,
     private router: Router,
+    public liveAlertsService: LiveAlertsService,
     private elementRef: ElementRef, private renderer: Renderer2) {
     this.navServices.items.subscribe((menuItems) => {
       this.items = menuItems;
@@ -43,6 +53,7 @@ export class HeaderComponent implements OnInit {
     this.exitFullScreenIconVisible = this.isFullScreen;
   }
   singOut(): void {
+    this.liveAlertsService.stop();
     this._authService.signOutLocal();
     this.router.navigate(['/auth/login']);
   }
@@ -136,7 +147,91 @@ export class HeaderComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.currentUser = await this._userService.user$;
     this.avatar = this._userService.avatar$;
+    this.liveAlertsService.start(this.currentUser?.fkBusiness);
+    this.liveAlertsSubscription = this.liveAlertsService.alerts$.subscribe(alerts => {
+      this.liveAlerts = alerts;
+    });
+    this.unreadAlertCountSubscription = this.liveAlertsService.unreadAlertCount$.subscribe(count => {
+      this.unreadAlertCount = count;
+    });
     // console.log(this.avatar);
+  }
+
+  ngOnDestroy(): void {
+    this.liveAlertsSubscription?.unsubscribe();
+    this.unreadAlertCountSubscription?.unsubscribe();
+  }
+
+  @HostListener('document:click')
+  closeAlertPanel(): void {
+    this.isAlertPanelOpen = false;
+  }
+
+  get filteredLiveAlerts(): LiveOperationAlertDTO[] {
+    if (this.selectedAlertSeverityFilter === 'all') {
+      return this.liveAlerts;
+    }
+
+    return this.liveAlerts.filter(alert => alert.severity === this.selectedAlertSeverityFilter);
+  }
+
+  get liveAlertTotal(): number {
+    return this.liveAlerts.length;
+  }
+
+  get criticalAlertCount(): number {
+    return this.liveAlerts.filter(alert => alert.severity === 'critical').length;
+  }
+
+  get warningAlertCount(): number {
+    return this.liveAlerts.filter(alert => alert.severity === 'warning').length;
+  }
+
+  get infoAlertCount(): number {
+    return this.liveAlerts.filter(alert => alert.severity === 'info').length;
+  }
+
+  toggleAlertPanel(event: MouseEvent): void {
+    event.stopPropagation();
+    this.isAlertPanelOpen = !this.isAlertPanelOpen;
+
+    if (this.isAlertPanelOpen) {
+      this.selectedAlertSeverityFilter = 'all';
+      this.liveAlertsService.markAlertsSeen(this.liveAlerts);
+    }
+  }
+
+  handleAlertPanelClick(event: MouseEvent): void {
+    event.stopPropagation();
+  }
+
+  setAlertFilter(filter: 'all' | 'critical' | 'warning' | 'info'): void {
+    this.selectedAlertSeverityFilter = filter;
+  }
+
+  getAlertIcon(type: string): string {
+    return this.liveAlertsService.getAlertIcon(type);
+  }
+
+  getAlertTone(severity: string): string {
+    return `header-alert-${severity || 'info'}`;
+  }
+
+  formatAlertTime(alert: LiveOperationAlertDTO): string {
+    const date = new Date(alert.lastSeenUtc || alert.generatedAtUtc);
+
+    if (Number.isNaN(date.getTime())) {
+      return 'now';
+    }
+
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  trackByAlert(_: number, alert: LiveOperationAlertDTO): string {
+    return alert.id || `${alert.sensorId}:${alert.type}`;
   }
 
   Search(searchText: string) {

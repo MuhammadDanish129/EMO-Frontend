@@ -1,0 +1,604 @@
+<!-- PAGE HEADER -->
+<div class="-mt-2 mb-4">
+  <div class="px-6 py-4 bg-[rgb(var(--primary))]">
+    <div class="flex flex-col gap-4 pt-3 md:flex-row md:items-center md:justify-between">
+
+      <div>
+        <h1 class="text-white text-2xl font-semibold tracking-wide">
+          Appliance Management
+        </h1>
+        <p class="mt-0.5 text-sm text-white/80 max-w-2xl">
+          Manage appliances linked with the selected sensor utility.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-2 sm:flex-row sm:gap-3 md:items-center">
+        <button
+          class="flex items-center justify-center gap-2 rounded-lg bg-white/95 px-4 py-2 text-sm font-semibold text-[rgb(var(--primary))]"
+          (click)="addAppliance()">
+          <i class="las la-plus-circle text-lg"></i>
+          Add Appliance
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="px-6 py-3 mb-4 bg-[rgb(var(--light))] border-b border-[rgb(var(--gray-200))]">
+  <nav class="flex items-center gap-1 text-xs sm:text-sm">
+
+    <button (click)="goToFacility()"
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
+      <i class="ri-community-line text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Facility</span>
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <button (click)="goToBuilding()"
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
+      <i class="ri-building-4-line text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Building</span>
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <button (click)="goToFloor()"
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
+      <i class="ri-stack-line text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Floor</span>
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <button (click)="goToSection()"
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
+      <i class="ri-layout-grid-line text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Section</span>
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <button (click)="goToOffice()"
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
+      <i class="ri-door-open-line text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Office</span>
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <button (click)="goToDevice()"
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
+      <i class="las la-broadcast-tower text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Device</span>
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <button (click)="goToSensor()"
+      class="flex items-center gap-1 text-[rgb(var(--gray-600))] hover:text-[rgb(var(--primary))] transition font-medium">
+      <i class="las la-microchip text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Sensor</span>
+    </button>
+
+    <i class="las la-angle-right text-[rgb(var(--gray-400))] text-xs mx-1"></i>
+
+    <span class="flex items-center gap-1 text-[rgb(var(--primary))] font-semibold">
+      <i class="las la-plug text-sm sm:text-base"></i>
+      <span class="hidden sm:inline">Appliance</span>
+    </span>
+  </nav>
+</div>
+
+<!-- APPLIANCE DETAILS -->
+<div
+  *ngIf="selectedApplianceDetails"
+  class="appliance-details-overlay fixed inset-0 z-[1000] flex items-center justify-center bg-black/45 px-4 py-6 backdrop-blur-sm"
+  (click)="closeApplianceDetails()">
+
+  <div
+    class="appliance-details-popup w-full max-w-2xl overflow-hidden border border-white/20 bg-[rgb(var(--light))] shadow-2xl"
+    (click)="$event.stopPropagation()">
+
+    <div class="appliance-details-popup-header flex items-center justify-between gap-3 bg-[rgb(var(--primary))] px-6 py-3">
+      <span class="text-sm font-semibold text-white">
+        Appliance Details
+      </span>
+
+      <button
+        type="button"
+        class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-red transition"
+        (click)="closeApplianceDetails()">
+        <i class="las la-times text-lg"></i>
+      </button>
+    </div>
+
+    <div class="appliance-details-popup-body max-h-[78vh] overflow-y-auto space-y-4 px-6 py-5">
+      <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+          Appliance Name
+        </p>
+        <p class="mt-1 text-sm font-semibold text-indigo-600">
+          {{ selectedApplianceDetails.applianceName || '-' }}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Company
+          </p>
+          <p class="mt-1 break-words text-sm text-[rgb(var(--dark))]">
+            {{ selectedApplianceDetails.companyName || '-' }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Model
+          </p>
+          <p class="mt-1 break-words text-sm text-[rgb(var(--dark))]">
+            {{ selectedApplianceDetails.modelNumber || '-' }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Utility
+          </p>
+          <p class="mt-1 break-words text-sm text-[rgb(var(--dark))]">
+            {{ selectedApplianceDetails.utilityName || utilityName || '-' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Voltage
+          </p>
+          <p class="mt-1 text-sm text-[rgb(var(--dark))]">
+            {{ selectedApplianceDetails.ratedVoltage }} V
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Current Range
+          </p>
+          <p class="mt-1 text-sm text-[rgb(var(--dark))]">
+            {{ selectedApplianceDetails.minCurrent }} - {{ selectedApplianceDetails.maxCurrent }} A
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Power Range
+          </p>
+          <p class="mt-1 text-sm text-[rgb(var(--dark))]">
+            {{ selectedApplianceDetails.minPower }} - {{ selectedApplianceDetails.maxPower }} W
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Standby Power
+          </p>
+          <p class="mt-1 text-sm text-[rgb(var(--dark))]">
+            {{ selectedApplianceDetails.standbyPower }} W
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Power Factor
+          </p>
+          <p class="mt-1 text-sm text-[rgb(var(--dark))]">
+            {{ selectedApplianceDetails.normalPowerFactor }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Status
+          </p>
+          <span
+            class="mt-2 inline-flex rounded-full px-3 py-1 text-xs font-semibold"
+            [ngClass]="selectedApplianceDetails.isActive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'">
+            {{ selectedApplianceDetails.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+          Optimization Settings
+        </p>
+
+        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div>
+            <p class="text-xs text-muted">Shiftable</p>
+            <span class="mt-1 inline-flex rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="selectedApplianceDetails.isShiftable ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'">
+              {{ selectedApplianceDetails.isShiftable ? 'Yes' : 'No' }}
+            </span>
+          </div>
+
+          <div>
+            <p class="text-xs text-muted">Critical</p>
+            <span class="mt-1 inline-flex rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="selectedApplianceDetails.isCritical ? 'bg-danger/10 text-danger' : 'bg-success/10 text-success'">
+              {{ selectedApplianceDetails.isCritical ? 'Yes' : 'No' }}
+            </span>
+          </div>
+
+          <div>
+            <p class="text-xs text-muted">Priority</p>
+            <p class="mt-1 text-sm text-[rgb(var(--dark))]">
+              {{ selectedApplianceDetails.priorityLevel || 'Normal' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div>
+            <p class="text-xs text-muted">Allowed Shift Window</p>
+            <p class="mt-1 text-sm text-[rgb(var(--dark))]">
+              {{ selectedApplianceDetails.allowedShiftStartTime || '-' }} - {{ selectedApplianceDetails.allowedShiftEndTime || '-' }}
+            </p>
+          </div>
+
+          <div>
+            <p class="text-xs text-muted">Suggestions</p>
+            <span class="mt-1 inline-flex rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="selectedApplianceDetails.allowOptimizationSuggestions ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'">
+              {{ selectedApplianceDetails.allowOptimizationSuggestions ? 'Allowed' : 'Blocked' }}
+            </span>
+          </div>
+
+          <div>
+            <p class="text-xs text-muted">Remote Control</p>
+            <span class="mt-1 inline-flex rounded-full px-3 py-1 text-xs font-semibold"
+              [ngClass]="selectedApplianceDetails.canAutoControl ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'">
+              {{ selectedApplianceDetails.canAutoControl ? 'Allowed' : 'Not Allowed' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+          Description
+        </p>
+        <p class="mt-1 whitespace-pre-line break-words text-sm leading-6 text-[rgb(var(--dark))]">
+          {{ selectedApplianceDetails.description || 'No description provided.' }}
+        </p>
+      </div>
+
+      <div class="flex justify-end border-t border-[rgb(var(--gray-200))] pt-4">
+        <button
+          type="button"
+          class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white hover:bg-[rgb(var(--primary-700))]"
+          (click)="closeApplianceDetails()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="pageError" class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6 p-6">
+  <div class="rounded-lg border border-[rgb(var(--red-100))] bg-[rgb(var(--red-100))]/30 p-4">
+    <p class="text-sm font-semibold text-[rgb(var(--red-600))]">
+      {{ pageError }}
+    </p>
+    <button
+      type="button"
+      class="mt-4 inline-flex items-center gap-2 rounded-lg bg-[rgb(var(--primary))] px-4 py-2 text-sm font-semibold text-white"
+      (click)="goToSensor()">
+      <i class="las la-arrow-left text-lg"></i>
+      Back to Sensors
+    </button>
+  </div>
+</div>
+
+<ng-container *ngIf="!pageError">
+  <!-- SENSOR CONTEXT -->
+  <div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-4 p-4">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div class="grid flex-1 grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Sensor
+          </p>
+          <p class="mt-1 break-words text-sm font-semibold text-indigo-600">
+            {{ sensorName || '-' }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Utility
+          </p>
+          <p class="mt-1 break-words text-sm font-semibold text-[rgb(var(--dark))]">
+            {{ utilityName || '-' }}
+          </p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        class="inline-flex items-center justify-center gap-2 rounded-lg bg-[rgb(var(--primary))] px-5 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+        [disabled]="!canAssignAppliance || isAssigning"
+        (click)="assignSelectedAppliance()">
+        <i class="las la-link text-lg"></i>
+        {{ isAssigning ? 'Assigning...' : 'Assign Appliance' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- APPLIANCE LIST -->
+  <div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6 overflow-hidden">
+    <div class="flex flex-col gap-3 p-4 border-b lg:flex-row lg:items-end lg:justify-between">
+      <p class="text-sm text-[rgb(var(--primary))]">
+        Total Appliances:
+        <span class="font-semibold text-[rgb(var(--primary))]">
+          {{ filteredAppliances.length }}
+        </span>
+      </p>
+
+      <div class="grid w-full grid-cols-1 gap-3 sm:grid-cols-[220px_minmax(0,1fr)] lg:w-[560px]">
+        <yx-select
+          [items]="searchFields"
+          labelKey="label"
+          valueKey="value"
+          placeholder="Search By"
+          [(value)]="selectedSearchField"
+          (valueChange)="searchAppliances()">
+        </yx-select>
+
+        <input
+          type="text"
+          [(ngModel)]="searchText"
+          (ngModelChange)="searchAppliances()"
+          placeholder="Search appliances..."
+          class="yx-input w-full rounded-lg border px-3 py-2 text-sm border-[rgb(var(--input-border))]" />
+      </div>
+    </div>
+
+    <!-- MOBILE CARDS -->
+    <div class="block md:hidden p-4 space-y-3">
+      <div *ngIf="isLoading || isAssignmentLoading" class="py-14 text-center">
+        <div class="flex flex-col items-center gap-3">
+          <div class="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-[rgb(var(--primary))]"></div>
+          <p class="text-sm font-medium text-gray-500">Loading Appliances...</p>
+        </div>
+      </div>
+
+      <div
+        *ngFor="let appliance of pagedAppliances"
+        class="appliance-card cursor-pointer rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4"
+        [class.appliance-card-selected]="isApplianceSelected(appliance.applianceId)"
+        [class.appliance-card-assigned]="isAssignedAppliance(appliance.applianceId)"
+        role="button"
+        tabindex="0"
+        [attr.aria-label]="'View details for ' + appliance.applianceName"
+        (click)="openApplianceDetails(appliance)"
+        (keydown.enter)="openApplianceDetails(appliance)"
+        (keydown.space)="openApplianceDetails(appliance); $event.preventDefault()">
+
+        <div class="flex items-start justify-between gap-3">
+          <div class="flex min-w-0 items-start gap-2">
+            <input
+              type="checkbox"
+              class="form-check-input mt-0.5 h-5 w-5 accent-green-600"
+              [checked]="isApplianceSelected(appliance.applianceId)"
+              (click)="$event.stopPropagation()"
+              (change)="toggleApplianceSelection(appliance)" />
+
+            <div class="min-w-0">
+              <div class="truncate font-semibold text-indigo-600 text-sm">
+                {{ appliance.applianceName }}
+              </div>
+              <div class="truncate text-xs text-[rgb(var(--primary))]">
+                {{ appliance.companyName || 'No company' }}
+              </div>
+              <div class="mt-2 flex flex-wrap gap-1">
+                <span *ngIf="appliance.isShiftable" class="rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
+                  Shiftable
+                </span>
+                <span *ngIf="appliance.isCritical" class="rounded-full bg-danger/10 px-2 py-0.5 text-[10px] font-semibold text-danger">
+                  Critical
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <span
+            *ngIf="isAssignedAppliance(appliance.applianceId)"
+            class="rounded-full bg-[rgb(var(--primary-100))] px-3 py-1 text-xs font-semibold text-[rgb(var(--primary))]">
+            Assigned
+          </span>
+        </div>
+
+        <div class="mt-4 grid grid-cols-2 gap-3 text-xs">
+          <div>
+            <p class="font-semibold text-[rgb(var(--primary))]">Model</p>
+            <p class="mt-1 break-words text-[rgb(var(--dark))]">{{ appliance.modelNumber || '-' }}</p>
+          </div>
+          <div>
+            <p class="font-semibold text-[rgb(var(--primary))]">Power</p>
+            <p class="mt-1 text-[rgb(var(--dark))]">{{ appliance.minPower }} - {{ appliance.maxPower }} W</p>
+          </div>
+        </div>
+
+        <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
+          <button
+            class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[rgb(var(--indigo-100))] text-[rgb(var(--indigo-600))]"
+            (click)="$event.stopPropagation(); edit(appliance)">
+            <i class="las la-edit text-lg leading-none"></i>
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && !isAssignmentLoading && pagedAppliances.length === 0" class="py-16 text-center">
+        <p class="text-sm font-semibold">No Record Found</p>
+        <p class="text-xs text-gray-600 mt-1">Try another search or add a custom appliance.</p>
+      </div>
+    </div>
+
+    <!-- DESKTOP TABLE -->
+    <div class="hidden md:block overflow-x-auto">
+      <table class="min-w-full bg-[rgb(var(--light))]">
+        <thead class="bg-[rgb(var(--gray-200))] text-sm text-[rgb(var(--gray-500))]">
+          <tr>
+            <th class="px-4 py-3 text-left">Sr #</th>
+            <th class="px-4 py-3 text-left">Appliance</th>
+            <th class="px-4 py-3 text-left">Company</th>
+            <th class="px-4 py-3 text-left">Model</th>
+            <th class="px-4 py-3 text-left">Power Range</th>
+            <th class="px-4 py-3 text-left">Status</th>
+            <th class="px-4 py-3 text-center">Action</th>
+          </tr>
+        </thead>
+
+        <tbody class="text-sm">
+          <tr *ngIf="isLoading || isAssignmentLoading">
+            <td colspan="7" class="px-6 py-14 text-center">
+              <div class="flex flex-col items-center gap-3">
+                <div class="h-10 w-10 animate-spin rounded-full border-4 border-gray-200 border-t-[rgb(var(--primary))]"></div>
+                <p class="text-sm font-medium text-gray-500">
+                  Loading Appliances...
+                </p>
+              </div>
+            </td>
+          </tr>
+
+          <tr
+            *ngFor="let appliance of pagedAppliances; let i = index"
+            class="appliance-row cursor-pointer border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]"
+            [class.appliance-row-selected]="isApplianceSelected(appliance.applianceId)"
+            [class.appliance-row-assigned]="isAssignedAppliance(appliance.applianceId)"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="'View details for ' + appliance.applianceName"
+            (click)="openApplianceDetails(appliance)"
+            (keydown.enter)="openApplianceDetails(appliance)"
+            (keydown.space)="openApplianceDetails(appliance); $event.preventDefault()">
+
+            <td class="px-4 py-3 font-medium">
+              <div class="flex items-center gap-3">
+                <input
+                  class="form-check-input me-1 font-semibold"
+                  type="checkbox"
+                  [checked]="isApplianceSelected(appliance.applianceId)"
+                  (click)="$event.stopPropagation()"
+                  (change)="toggleApplianceSelection(appliance)" />
+
+                <span>
+                  {{ pageIndex * pageSize + i + 1 }}
+                </span>
+              </div>
+            </td>
+
+            <td class="px-4 py-3">
+              <div class="flex flex-col">
+                <span class="font-semibold text-indigo-600">
+                  {{ appliance.applianceName }}
+                </span>
+                <span *ngIf="isAssignedAppliance(appliance.applianceId)" class="mt-1 w-max rounded-full bg-[rgb(var(--primary-100))] px-3 py-1 text-xs font-semibold text-[rgb(var(--primary))]">
+                  Assigned
+                </span>
+                <div class="mt-1 flex flex-wrap gap-1">
+                  <span *ngIf="appliance.isShiftable" class="w-max rounded-full bg-success/10 px-2 py-0.5 text-[10px] font-semibold text-success">
+                    Shiftable
+                  </span>
+                  <span *ngIf="appliance.isCritical" class="w-max rounded-full bg-danger/10 px-2 py-0.5 text-[10px] font-semibold text-danger">
+                    Critical
+                  </span>
+                </div>
+              </div>
+            </td>
+
+            <td class="px-4 py-3">
+              {{ appliance.companyName || '-' }}
+            </td>
+
+            <td class="px-4 py-3">
+              {{ appliance.modelNumber || '-' }}
+            </td>
+
+            <td class="px-4 py-3">
+              {{ appliance.minPower }} - {{ appliance.maxPower }} W
+            </td>
+
+            <td class="px-4 py-3">
+              <span
+                class="rounded-full px-3 py-1 text-xs font-semibold"
+                [ngClass]="appliance.isActive ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger'">
+                {{ appliance.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+
+            <td class="px-3 py-3 text-center">
+              <div class="flex justify-center gap-2">
+                <div class="relative group">
+                  <button
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[rgb(var(--indigo-100))] text-[rgb(var(--indigo-600))] hover:bg-[rgb(var(--indigo-200))] hover:scale-105"
+                    (click)="$event.stopPropagation(); edit(appliance)">
+                    <i class="las la-edit text-lg leading-none"></i>
+                  </button>
+
+                  <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2 flex opacity-0 group-hover:opacity-100 px-2 py-1 text-[11px] font-medium rounded-md shadow-sm whitespace-nowrap transition duration-200 pointer-events-none bg-[rgb(var(--primary-100))] text-[rgb(var(--gray-900))] border border-[rgb(var(--primary-200))]">
+                    Edit Appliance
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!isLoading && !isAssignmentLoading && pagedAppliances.length === 0">
+            <td colspan="7" class="px-6 py-20 text-center">
+              <p class="text-sm font-semibold">No Record Found</p>
+              <p class="text-xs text-gray-600 mt-1">Try adjusting search or create a new appliance.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="flex flex-col gap-3 px-4 py-3 border-t sm:flex-row sm:items-center sm:justify-between">
+      <p class="text-sm text-gray-500">
+        Showing {{ filteredAppliances.length ? pageIndex * pageSize + 1 : 0 }} - {{ pageEnd }}
+        of {{ filteredAppliances.length }}
+      </p>
+
+      <div class="flex flex-wrap gap-1">
+        <button
+          (click)="prevPage()"
+          [disabled]="pageIndex === 0"
+          class="px-3 py-2 rounded-lg border text-sm disabled:cursor-not-allowed disabled:opacity-60">
+          Prev
+        </button>
+
+        <button
+          *ngFor="let p of pages"
+          (click)="goToPage(p)"
+          class="px-3 py-2 rounded-lg border text-sm"
+          [ngClass]="p === pageIndex ? 'bg-[rgb(var(--primary))] text-white' : 'hover:bg-gray-100'">
+          {{ p + 1 }}
+        </button>
+
+        <button
+          (click)="nextPage()"
+          [disabled]="(pageIndex + 1) * pageSize >= filteredAppliances.length"
+          class="px-3 py-2 rounded-lg border text-sm disabled:cursor-not-allowed disabled:opacity-60">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>

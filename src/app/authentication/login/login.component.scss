@@ -13,3 +13,56 @@
                 border-radius: 0.75rem;
             }           
     }
+
+.authentication-slide-icon {
+    position: relative;
+    display: inline-flex;
+    width: 8.75rem;
+    height: 8.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 50%;
+    background:
+        radial-gradient(circle at 35% 28%, rgba(255, 255, 255, 0.34), transparent 34%),
+        rgba(255, 255, 255, 0.14);
+    box-shadow: 0 1.25rem 3.5rem rgba(0, 0, 0, 0.22), inset 0 0 2.5rem rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+
+.authentication-slide-icon::before,
+.authentication-slide-icon::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.authentication-slide-icon::before {
+    inset: -0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.authentication-slide-icon::after {
+    inset: 1rem;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.authentication-slide-icon i {
+    position: relative;
+    z-index: 1;
+    font-size: 4.25rem;
+    line-height: 1;
+}
+
+.authentication-slide-icon.energy {
+    color: #f8ff9c;
+}
+
+.authentication-slide-icon.facility {
+    color: #b8f7ff;
+}
+
+.authentication-slide-icon.dashboard {
+    color: #d8c6ff;
+}

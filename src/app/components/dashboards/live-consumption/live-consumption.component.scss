@@ -1,0 +1,31 @@
+.live-relay-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 1.35rem;
+  border: 1px solid rgba(var(--primary), 0.35);
+  border-radius: 999px;
+  background: rgba(var(--primary), 0.08);
+  color: rgb(var(--primary));
+  font-size: 0.56rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  transition: opacity 160ms ease, transform 160ms ease, background 160ms ease;
+}
+
+.live-relay-action:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background: rgba(var(--primary), 0.14);
+}
+
+.live-relay-action.is-on {
+  border-color: rgba(var(--danger), 0.35);
+  background: rgba(var(--danger), 0.08);
+  color: rgb(var(--danger));
+}
+
+.live-relay-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}

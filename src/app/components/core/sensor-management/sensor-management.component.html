@@ -121,6 +121,104 @@
 
 </div>
 
+<!-- SENSOR DETAILS -->
+<div
+  *ngIf="selectedSensor"
+  class="sensor-details-overlay fixed inset-0 z-[1000] flex items-center justify-center bg-black/45 px-4 py-6 backdrop-blur-sm"
+  (click)="closeSensorDetails()">
+
+  <div
+    class="sensor-details-popup w-full max-w-md overflow-hidden border border-white/20 bg-[rgb(var(--light))] shadow-2xl"
+    (click)="$event.stopPropagation()">
+
+    <div class="sensor-details-popup-header flex items-center justify-between gap-3 bg-[rgb(var(--primary))] px-6 py-3">
+      <span class="text-sm font-semibold text-white">
+        Sensor Details
+      </span>
+
+      <button
+        type="button"
+        class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-red transition"
+        (click)="closeSensorDetails()">
+        <i class="las la-times text-lg"></i>
+      </button>
+    </div>
+
+    <div class="sensor-details-popup-body space-y-4 px-6 py-5">
+      <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+          Sensor Name
+        </p>
+        <p class="mt-1 text-sm font-semibold text-indigo-600">
+          {{ selectedSensor.sensorName || '-' }}
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Utility
+          </p>
+          <p class="mt-1 break-words text-sm font-semibold text-[rgb(var(--dark))]">
+            {{ selectedSensor.utilityName || '-' }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Device
+          </p>
+          <p class="mt-1 break-words text-sm font-semibold text-[rgb(var(--dark))]">
+            {{ selectedSensor.deviceName || '-' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Meter Id
+          </p>
+          <p class="mt-1 break-words text-sm text-[rgb(var(--dark))]">
+            {{ selectedSensor.meterId || '-' }}
+          </p>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+          <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+            Serial Address
+          </p>
+          <p class="mt-1 break-words text-sm text-[rgb(var(--dark))]">
+            {{ selectedSensor.serialAddress || '-' }}
+          </p>
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-[rgb(var(--primary))]">
+          Standby Auto Off
+        </p>
+        <span
+          class="mt-2 inline-flex rounded-full px-3 py-1 text-xs font-semibold"
+          [ngClass]="selectedSensor.standbyAutoOff
+            ? 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-600))]'
+            : 'bg-[rgb(var(--gray-200))] text-[rgb(var(--gray-600))]'">
+          {{ selectedSensor.standbyAutoOff ? 'Enabled' : 'Disabled' }}
+        </span>
+      </div>
+
+      <div class="flex justify-end border-t border-[rgb(var(--gray-200))] pt-4">
+        <button
+          type="button"
+          class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white hover:bg-[rgb(var(--primary-700))]"
+          (click)="closeSensorDetails()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- CARD -->
 <div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6">
 
@@ -157,7 +255,13 @@
 
 <!-- DATA -->
 <div *ngFor="let st of pagedSensors"
-    class="rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4">
+    class="cursor-pointer rounded-xl border border-[rgb(var(--primary-200))] bg-[rgb(var(--light))] shadow-sm p-4"
+    role="button"
+    tabindex="0"
+    [attr.aria-label]="'View details for ' + st.sensorName"
+    (click)="viewDetails(st)"
+    (keydown.enter)="viewDetails(st)"
+    (keydown.space)="viewDetails(st); $event.preventDefault()">
 
     <!-- HEADER -->
     <div class="flex items-center justify-between gap-3">
@@ -170,6 +274,14 @@
             <div class="text-xs text-[rgb(var(--primary))]">
                 {{ st.utilityName }}
             </div>
+
+            <span
+                class="mt-2 inline-flex rounded-full px-2 py-1 text-[11px] font-semibold"
+                [ngClass]="st.standbyAutoOff
+                  ? 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-600))]'
+                  : 'bg-[rgb(var(--gray-200))] text-[rgb(var(--gray-600))]'">
+                Standby auto-off {{ st.standbyAutoOff ? 'on' : 'off' }}
+            </span>
         </div>
 
     </div>
@@ -186,21 +298,28 @@
     <!-- ACTIONS -->
     <div class="mt-4 flex justify-end gap-2 border-t border-[rgb(var(--primary-200))] pt-3">
 
-        <button matTooltip="View Details"
-            class="rounded-lg p-2 bg-[rgb(var(--blue-100))] text-[rgb(var(--blue-600))]"
-            (click)="viewDetails(st)">
-            <i class="las la-eye text-lg"></i>
+        <button matTooltip="Manage Appliance"
+            class="rounded-lg p-2 bg-[rgb(var(--success-100))] text-[rgb(var(--success-600))]"
+            (click)="$event.stopPropagation(); goToAppliance(st)">
+            <i class="las la-plug text-lg"></i>
+        </button>
+
+        <button *ngIf="isHvacSensor(st)"
+            matTooltip="HVAC Loop Settings"
+            class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-[rgb(var(--primary-100))] text-[rgb(var(--primary))]"
+            (click)="$event.stopPropagation(); openHvacLoopSetting(st)">
+            <i class="las la-sync-alt text-lg leading-none"></i>
         </button>
 
         <button matTooltip="Edit"
             class="rounded-lg p-2 bg-[rgb(var(--indigo-100))] text-[rgb(var(--indigo-600))]"
-            (click)="edit(st)">
+            (click)="$event.stopPropagation(); edit(st)">
             <i class="las la-edit text-lg"></i>
         </button>
 
         <button matTooltip="Delete"
             class="rounded-lg p-2 bg-[rgb(var(--red-100))] text-[rgb(var(--red-600))]"
-            (click)="delete(st.sensorId)">
+            (click)="$event.stopPropagation(); delete(st.sensorId)">
             <i class="las la-trash text-lg"></i>
         </button>
 
@@ -225,6 +344,7 @@
                     <th class="px-4 py-3 text-left">Sr #</th>
                     <th class="px-4 py-3 text-left">Sensor</th>
                     <th class="px-4 py-3 text-left">Utility</th>
+                    <th class="px-4 py-3 text-left">Standby Auto Off</th>
                     <th class="px-4 py-3 text-center">Actions</th>
                 </tr>
             </thead>
@@ -233,7 +353,7 @@
 
                 <!-- LOADING -->
                 <tr *ngIf="isLoading">
-                    <td colspan="7" class="px-6 py-14 text-center">
+                    <td colspan="5" class="px-6 py-14 text-center">
                         <div class="flex flex-col items-center gap-3">
                             <div class="h-10 w-10 animate-spin rounded-full
                        border-4 border-gray-200 border-t-[rgb(var(--primary))]"></div>
@@ -246,7 +366,13 @@
 
                 <!-- DATA -->
                 <tr *ngFor="let st of pagedSensors; let i = index"
-                    class="border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]">
+                    class="cursor-pointer border-b hover:text-[rgb(var(--gray-900))] hover:bg-[rgb(var(--primary-100))]"
+                    role="button"
+                    tabindex="0"
+                    [attr.aria-label]="'View details for ' + st.sensorName"
+                    (click)="viewDetails(st)"
+                    (keydown.enter)="viewDetails(st)"
+                    (keydown.space)="viewDetails(st); $event.preventDefault()">
 
                     <td class="px-4 py-3 font-medium">
                         {{ pageIndex * pageSize + i + 1 }}
@@ -257,6 +383,15 @@
                     </td>
                     <!-- <td class="px-4 py-3">{{ st.deviceName }}</td> -->
                     <td class="px-4 py-3">{{ st.utilityName }}</td>
+                    <td class="px-4 py-3">
+                        <span
+                          class="inline-flex rounded-full px-3 py-1 text-xs font-semibold"
+                          [ngClass]="st.standbyAutoOff
+                            ? 'bg-[rgb(var(--success-100))] text-[rgb(var(--success-600))]'
+                            : 'bg-[rgb(var(--gray-200))] text-[rgb(var(--gray-600))]'">
+                          {{ st.standbyAutoOff ? 'Enabled' : 'Disabled' }}
+                        </span>
+                    </td>
 
                     <!-- <td class="px-4 py-3">
                         <span class="rounded-full px-3 py-1 text-xs font-semibold"
@@ -270,17 +405,19 @@
                    <td class="px-3 py-3 text-center">
   <div class="flex justify-center gap-2">
 
-    <!-- VIEW -->
+
+
+    <!-- APPLIANCE -->
     <div class="relative group">
       <button
         class="rounded-lg p-2 transition
-               bg-[rgb(var(--blue-100))]
-               text-[rgb(var(--blue-600))]
-               hover:bg-[rgb(var(--blue-200))]
+               bg-[rgb(var(--success-100))]
+               text-[rgb(var(--success-600))]
+               hover:bg-[rgb(var(--success-200))]
                hover:scale-105"
-        (click)="viewDetails(st)">
+        (click)="$event.stopPropagation(); goToAppliance(st)">
 
-        <i class="las la-eye text-lg"></i>
+        <i class="las la-plug text-lg"></i>
       </button>
 
       <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
@@ -291,7 +428,33 @@
                   bg-[rgb(var(--primary-100))]
                   text-[rgb(var(--gray-900))]
                   border border-[rgb(var(--primary-200))]">
-        View Details
+        Manage Appliance
+      </div>
+    </div>
+
+
+    <!-- HVAC LOOP SETTINGS -->
+    <div class="relative group" *ngIf="isHvacSensor(st)">
+      <button
+        class="inline-flex h-9 w-9 items-center justify-center rounded-lg transition
+               bg-[rgb(var(--primary-100))]
+               text-[rgb(var(--primary))]
+               hover:bg-[rgb(var(--primary-200))]
+               hover:scale-105"
+        (click)="$event.stopPropagation(); openHvacLoopSetting(st)">
+
+        <i class="las la-sync-alt text-lg leading-none"></i>
+      </button>
+
+      <div class="absolute z-50 -top-8 left-1/2 -translate-x-1/2
+                  flex opacity-0 group-hover:opacity-100
+                  px-2 py-1 text-[11px] font-medium rounded-md
+                  shadow-sm whitespace-nowrap transition duration-200
+                  pointer-events-none
+                  bg-[rgb(var(--primary-100))]
+                  text-[rgb(var(--gray-900))]
+                  border border-[rgb(var(--primary-200))]">
+        HVAC Loop Settings
       </div>
     </div>
 
@@ -304,7 +467,7 @@
                text-[rgb(var(--indigo-600))]
                hover:bg-[rgb(var(--indigo-200))]
                hover:scale-105"
-        (click)="edit(st)">
+        (click)="$event.stopPropagation(); edit(st)">
 
         <i class="las la-edit text-lg"></i>
       </button>
@@ -330,7 +493,7 @@
                text-[rgb(var(--red-600))]
                hover:bg-[rgb(var(--red-200))]
                hover:scale-105"
-        (click)="delete(st.sensorId)">
+        (click)="$event.stopPropagation(); delete(st.sensorId)">
 
         <i class="las la-trash text-lg"></i>
       </button>
@@ -353,7 +516,7 @@
                 </tr>
 
                   <tr *ngIf="!isLoading && pagedSensors.length === 0">
-        <td colspan="7" class="px-6 py-20 text-center">
+        <td colspan="5" class="px-6 py-20 text-center">
 
           <p class="text-sm font-semibold">
             No Record Found
@@ -376,7 +539,7 @@
     <div class="flex items-center justify-between px-4 py-3 border-t">
 
         <p class="text-sm text-gray-500">
-            Showing {{ pageIndex * pageSize + 1 }} – {{ pageEnd }}
+            Showing {{ pageIndex * pageSize + 1 }} - {{ pageEnd }}
             of {{ filteredSensors.length }}
         </p>
 

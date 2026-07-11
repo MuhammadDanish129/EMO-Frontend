@@ -1,0 +1,24 @@
+.appliance-dialog-body {
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.appliance-dialog-body::-webkit-scrollbar {
+  width: 0.45rem;
+}
+
+.appliance-dialog-body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(var(--gray-300));
+}
+
+textarea.yx-input {
+  resize: vertical;
+}
+
+@media (max-height: 700px) {
+  .appliance-dialog-body {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+}

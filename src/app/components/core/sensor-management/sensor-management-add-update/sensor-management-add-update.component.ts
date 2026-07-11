@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { ToastrService } from 'ngx-toastr';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { SensorService } from '../sensor-management.service';
 import { SensorRequestDTO } from '../sensor-management.type';
@@ -16,7 +17,7 @@ import { YxSelectComponent } from '../../../../shared/yx-select/yx-select.compon
 @Component({
   selector: 'app-sensor-management-add-update',
   standalone: true,
-  imports: [CommonModule, FormsModule,YxSelectComponent],
+  imports: [CommonModule, FormsModule, MatSlideToggleModule, YxSelectComponent],
   templateUrl: './sensor-management-add-update.component.html',
 })
 export class SensorManagementAddUpdateComponent implements OnInit {
@@ -34,7 +35,8 @@ export class SensorManagementAddUpdateComponent implements OnInit {
     meterId: '',
     serialAddress: '',
     fkDevice: '',
-    fkutility: ''
+    fkutility: '',
+    standbyAutoOff: false
   };
 
   get isEditMode() { return this.data?.mode === 'edit'; }
@@ -61,7 +63,10 @@ export class SensorManagementAddUpdateComponent implements OnInit {
     ]);
 
     if (this.data?.value) {
-      this.model = { ...this.data.value };
+      this.model = {
+        ...this.data.value,
+        standbyAutoOff: this.data.value.standbyAutoOff ?? false
+      };
     }  else if (this.data?.fkDevice) {
     this.model.fkDevice = this.data.fkDevice;
   }
@@ -109,10 +114,14 @@ export class SensorManagementAddUpdateComponent implements OnInit {
     }
 
     this.isSaving = true;
-console.log(this.model);
+    const request: SensorRequestDTO = {
+      ...this.model,
+      standbyAutoOff: Boolean(this.model.standbyAutoOff)
+    };
+
     const api$ = this.isEditMode
-      ? this.sensorService.updateSensor(this.model)
-      : this.sensorService.addSensor(this.model);
+      ? this.sensorService.updateSensor(request)
+      : this.sensorService.addSensor(request);
 
     api$.subscribe({
       next: res => {

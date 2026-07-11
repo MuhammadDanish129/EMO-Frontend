@@ -7,6 +7,7 @@ export interface SensorResponseDTO{
     fkutility: string;
     deviceName: string;
     utilityName: string;
+    standbyAutoOff: boolean;
 }
 
 export interface SensorRequestDTO{
@@ -16,4 +17,5 @@ export interface SensorRequestDTO{
     serialAddress: string;
     fkDevice: string;
     fkutility: string;
+    standbyAutoOff: boolean;
 }

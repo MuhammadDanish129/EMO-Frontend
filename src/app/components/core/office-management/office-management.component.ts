@@ -38,6 +38,7 @@ fkBusiness!: string;
 
   Offices: OfficeResponseDTO[] = [];
   filteredOffices: OfficeResponseDTO[] = [];
+  selectedWorkingDaysOffice: OfficeResponseDTO | null = null;
 
   constructor(
     private _officeService: OfficeService,
@@ -129,12 +130,39 @@ fkBusiness!: string;
     this.pageIndex = 0;
   }
 
+  /* ================= WORKING DAYS DISPLAY ================= */
+
+  getWorkingDays(days?: string): string[] {
+    return (days ?? '')
+      .split(',')
+      .map(day => day.trim())
+      .filter(Boolean);
+  }
+
+  getWorkingDaysSummary(days?: string): string {
+    const count = this.getWorkingDays(days).length;
+
+    if (!count) return 'No days';
+
+    return `${count} ${count === 1 ? 'day' : 'days'}`;
+  }
+
+  openWorkingDays(o: OfficeResponseDTO, event?: MouseEvent) {
+    event?.stopPropagation();
+    this.selectedWorkingDaysOffice = o;
+  }
+
+  closeWorkingDays() {
+    this.selectedWorkingDaysOffice = null;
+  }
+
   /* ================= ADD ================= */
 
   addOffice() {
 
     const dialogRef = this.dialog.open(OfficeManagementAddUpdateComponent, {
-      width: '420px',
+      width: '720px',
+      maxWidth: '95vw',
       disableClose: true,
       autoFocus: false,
       panelClass: 'ynex-dialog',
@@ -156,7 +184,8 @@ fkBusiness!: string;
   edit(st: OfficeResponseDTO) {
 
     const dialogRef = this.dialog.open(OfficeManagementAddUpdateComponent, {
-      width: '420px',
+      width: '720px',
+      maxWidth: '95vw',
       disableClose: true,
       autoFocus: false,
       panelClass: 'ynex-dialog',

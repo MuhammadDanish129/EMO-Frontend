@@ -39,8 +39,10 @@
             </label>
 
            <input type="number"
+       min="0"
        class="yx-input w-full rounded-lg border px-3 py-2 text-sm"
        [(ngModel)]="model.floorNo"
+       (ngModelChange)="fieldErrors.floorNo = undefined"
        [class.yx-error]="fieldErrors.floorNo" />
 
         <p *ngIf="fieldErrors.floorNo"

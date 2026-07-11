@@ -83,6 +83,12 @@ export const core: Routes = [
           import('./sensor-management/sensor-management.component').then((m) => m.SensorManagementComponent),
         providers: [provideNativeDateAdapter()]
       },
+       {
+        path: 'appliance-management',
+        loadComponent: () =>
+          import('./appliance-management/appliance-management.component').then((m) => m.ApplianceManagementComponent),
+        providers: [provideNativeDateAdapter()]
+      },
       {
         path: 'tenant-management',
         loadComponent: () =>

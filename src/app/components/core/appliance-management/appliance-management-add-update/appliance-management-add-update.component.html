@@ -1,0 +1,250 @@
+<div class="w-full rounded-t-xl bg-[rgb(var(--light))] shadow-xl max-h-[90vh] flex flex-col">
+
+  <div class="flex items-center justify-between px-6 py-3 bg-[rgb(var(--primary))]">
+    <span class="text-sm font-semibold text-white">
+      {{ isEditMode ? 'Update Appliance' : 'Add Appliance' }}
+    </span>
+
+    <button
+      type="button"
+      class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-red transition"
+      (click)="close()">
+      <i class="las la-times text-lg"></i>
+    </button>
+  </div>
+
+  <div class="appliance-dialog-body px-6 py-4 overflow-y-auto space-y-4">
+    <div class="rounded-lg p-5 space-y-4 border"
+      [ngClass]="{
+        'border-[rgb(var(--danger))]': fieldErrors.applianceName,
+        'border-[rgb(var(--gray-200))]': !fieldErrors.applianceName
+      }">
+
+      <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+        Appliance Details
+      </p>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="yx-field">
+          <label class="yx-label">
+            Appliance Name <span class="text-[rgb(var(--red-500))]">*</span>
+          </label>
+
+          <input
+            type="text"
+            class="yx-input w-full"
+            placeholder="Enter appliance name"
+            [(ngModel)]="model.applianceName"
+            (ngModelChange)="onNameChange()"
+            [class.border-[rgb(var(--danger))]]="fieldErrors.applianceName" />
+
+          <p *ngIf="fieldErrors.applianceName" class="text-xs mt-1 text-[rgb(var(--danger))]">
+            {{ fieldErrors.applianceName }}
+          </p>
+        </div>
+
+        <div class="yx-field">
+          <label class="yx-label">Company Name</label>
+          <input
+            type="text"
+            class="yx-input w-full"
+            placeholder="Enter company name"
+            [(ngModel)]="model.companyName" />
+        </div>
+
+        <div class="yx-field">
+          <label class="yx-label">Model Number</label>
+          <input
+            type="text"
+            class="yx-input w-full"
+            placeholder="Enter model number"
+            [(ngModel)]="model.modelNumber" />
+        </div>
+
+        <div class="yx-field">
+          <label class="yx-label">Rated Voltage</label>
+          <input
+            type="number"
+            class="yx-input w-full"
+            [(ngModel)]="model.ratedVoltage" />
+        </div>
+      </div>
+    </div>
+
+    <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]">
+      <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+        Electrical Range
+      </p>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="yx-field">
+          <label class="yx-label">Min Current</label>
+          <input type="number" class="yx-input w-full" [(ngModel)]="model.minCurrent" />
+        </div>
+
+        <div class="yx-field">
+          <label class="yx-label">Max Current</label>
+          <input type="number" class="yx-input w-full" [(ngModel)]="model.maxCurrent" />
+        </div>
+
+        <div class="yx-field">
+          <label class="yx-label">Min Power</label>
+          <input type="number" class="yx-input w-full" [(ngModel)]="model.minPower" />
+        </div>
+
+        <div class="yx-field">
+          <label class="yx-label">Max Power</label>
+          <input type="number" class="yx-input w-full" [(ngModel)]="model.maxPower" />
+        </div>
+
+        <div class="yx-field">
+          <label class="yx-label">Standby Power</label>
+          <input type="number" class="yx-input w-full" [(ngModel)]="model.standbyPower" />
+        </div>
+
+        <div class="yx-field">
+          <label class="yx-label">Normal Power Factor</label>
+          <input type="number" class="yx-input w-full" [(ngModel)]="model.normalPowerFactor" />
+        </div>
+      </div>
+    </div>
+
+
+    <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]">
+      <div>
+        <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+          Optimization Settings
+        </p>
+        <p class="mt-1 text-xs text-muted">
+          These settings help the dashboard avoid unsafe or incorrect energy saving suggestions.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center gap-3">
+          <div>
+            <p class="text-sm text-[rgb(var(--primary))] font-medium">Can be shifted</p>
+            <p class="text-xs text-muted">Suggest moving usage to non-peak time.</p>
+          </div>
+          <mat-slide-toggle [(ngModel)]="model.isShiftable" color="primary"></mat-slide-toggle>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center gap-3">
+          <div>
+            <p class="text-sm text-[rgb(var(--primary))] font-medium">Critical appliance</p>
+            <p class="text-xs text-muted">Critical appliances will not be suggested for shifting or auto-off.</p>
+          </div>
+          <mat-slide-toggle [(ngModel)]="model.isCritical" color="primary"></mat-slide-toggle>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center gap-3">
+          <div>
+            <p class="text-sm text-[rgb(var(--primary))] font-medium">Allow suggestions</p>
+            <p class="text-xs text-muted">Enable dashboard optimization hints.</p>
+          </div>
+          <mat-slide-toggle [(ngModel)]="model.allowOptimizationSuggestions" color="primary"></mat-slide-toggle>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="yx-field">
+          <label class="yx-label">Optimization Priority</label>
+          <select class="yx-input w-full" [(ngModel)]="model.priorityLevel">
+            <option *ngFor="let item of priorityOptions" [value]="item.value">
+              {{ item.label }}
+            </option>
+          </select>
+        </div>
+
+        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center gap-3">
+          <div>
+            <p class="text-sm text-[rgb(var(--primary))] font-medium">Allow remote control</p>
+            <p class="text-xs text-muted">Only enable this for appliances safe to control.</p>
+          </div>
+          <mat-slide-toggle [(ngModel)]="model.canAutoControl" color="primary"></mat-slide-toggle>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="yx-field">
+          <label class="yx-label">Allowed Shift Start Time</label>
+          <input
+            type="time"
+            class="yx-input w-full"
+            [(ngModel)]="model.allowedShiftStartTime"
+            [disabled]="!model.isShiftable" />
+        </div>
+
+        <div class="yx-field">
+          <label class="yx-label">Allowed Shift End Time</label>
+          <input
+            type="time"
+            class="yx-input w-full"
+            [(ngModel)]="model.allowedShiftEndTime"
+            [disabled]="!model.isShiftable" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="yx-field">
+          <label class="yx-label">Minimum ON Duration (minutes)</label>
+          <input type="number" min="0" class="yx-input w-full" [(ngModel)]="model.minimumOnDurationMinutes" />
+        </div>
+
+        <div class="yx-field">
+          <label class="yx-label">Minimum OFF Duration (minutes)</label>
+          <input type="number" min="0" class="yx-input w-full" [(ngModel)]="model.minimumOffDurationMinutes" />
+        </div>
+      </div>
+
+      <div class="yx-field">
+        <label class="yx-label">Normal Operating Hours / Notes</label>
+        <input
+          type="text"
+          class="yx-input w-full"
+          placeholder="Example: 09:00-17:00 weekdays"
+          [(ngModel)]="model.normalOperatingHours" />
+      </div>
+    </div>
+
+    <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]">
+      <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+        Description
+      </p>
+
+      <textarea
+        class="yx-input w-full min-h-[92px]"
+        placeholder="Enter appliance description"
+        [(ngModel)]="model.description"></textarea>
+    </div>
+
+    <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
+      <div>
+        <p class="text-sm text-[rgb(var(--primary))] font-medium">Active Status</p>
+        <p class="text-xs text-muted">Inactive appliances cannot be assigned.</p>
+      </div>
+
+      <mat-slide-toggle [(ngModel)]="model.isActive" color="primary"></mat-slide-toggle>
+    </div>
+  </div>
+
+  <div class="flex justify-end gap-3 px-6 py-4 border-t bg-[rgb(var(--light))]">
+    <button
+      type="button"
+      class="rounded-lg px-4 py-2 text-sm font-medium hover:bg-[rgb(var(--red-500))] hover:text-white border border-[rgb(var(--gray-300))]"
+      (click)="close()">
+      Cancel
+    </button>
+
+    <button
+      type="button"
+      class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white hover:bg-[rgb(var(--primary-700))] disabled:opacity-60"
+      [disabled]="isSaving"
+      (click)="save()">
+      {{ isSaving
+        ? (isEditMode ? 'Updating...' : 'Saving...')
+        : (isEditMode ? 'Update Appliance' : 'Save Appliance') }}
+    </button>
+  </div>
+
+</div>

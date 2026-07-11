@@ -1,209 +1,19 @@
-// // import { Injectable } from '@angular/core';
-// // import { HttpClient, HttpParams } from '@angular/common/http';
-// // import { Observable } from 'rxjs';
-// // import { environment } from '../../../../environments/environment';
-// // import {
-// //   ActiveDeviceAlertsResponseDTO,
-// //   EnergyConsumptionByDeviceTypeResponseDTO,
-// //   IdleDevicesResponseDTO,
-// //   MonthlyDeviceTypeReportResponseDTO,
-// //   PeakNonPeakAnalysisResponseDTO,
-// // } from './crm.type';
-// // import { ResponseModel } from '../../../shared/response.model';
-
-// // @Injectable({ providedIn: 'root' })
-// // export class EnergyDashboardService {
-// //   private baseUrl = `${environment.baseUrl}/EnergyDashboard`;
-
-// //   constructor(private http: HttpClient) {}
-
-// //   getMonthlyDeviceTypeReport(businessId?: string): Observable<ResponseModel<MonthlyDeviceTypeReportResponseDTO>> {
-// //     return this.http.get<ResponseModel<MonthlyDeviceTypeReportResponseDTO>>(
-// //       `${this.baseUrl}/GetMonthlyDeviceTypeReport`,
-// //       { params: this.buildParams({ businessId }) }
-// //     );
-// //   }
-
-// //   getActiveDeviceAlerts(businessId?: string): Observable<ResponseModel<ActiveDeviceAlertsResponseDTO>> {
-// //     return this.http.get<ResponseModel<ActiveDeviceAlertsResponseDTO>>(
-// //       `${this.baseUrl}/GetActiveDeviceAlerts`,
-// //       { params: this.buildParams({ businessId }) }
-// //     );
-// //   }
-
-// //   getIdleDevices(businessId?: string): Observable<ResponseModel<IdleDevicesResponseDTO>> {
-// //     return this.http.get<ResponseModel<IdleDevicesResponseDTO>>(
-// //       `${this.baseUrl}/GetIdleDevices`,
-// //       { params: this.buildParams({ businessId }) }
-// //     );
-// //   }
-
-// //   getEnergyConsumptionByDeviceType(businessId?: string): Observable<ResponseModel<EnergyConsumptionByDeviceTypeResponseDTO>> {
-// //     return this.http.get<ResponseModel<EnergyConsumptionByDeviceTypeResponseDTO>>(
-// //       `${this.baseUrl}/GetEnergyConsumptionByDeviceType`,
-// //       { params: this.buildParams({ businessId }) }
-// //     );
-// //   }
-
-// //   getPeakNonPeakAnalysis(fromDate: string, toDate: string, businessId?: string): Observable<ResponseModel<PeakNonPeakAnalysisResponseDTO>> {
-// //     return this.http.get<ResponseModel<PeakNonPeakAnalysisResponseDTO>>(
-// //       `${this.baseUrl}/GetPeakNonPeakAnalysis`,
-// //       { params: this.buildParams({ fromDate, toDate, businessId }) }
-// //     );
-// //   }
-
-// //   private buildParams(values: Record<string, string | undefined>): HttpParams {
-// //     let params = new HttpParams();
-
-// //     Object.entries(values).forEach(([key, value]) => {
-// //       if (value) params = params.set(key, value);
-// //     });
-
-// //     return params;
-// //   }
-// // }
-
-
-
-// import { Injectable } from '@angular/core';
-// import { HttpClient } from '@angular/common/http';
-// import { Observable } from 'rxjs';
-// import { environment } from '../../../../environments/environment';
-
-// // ---------------------------------------------------------------------------
-// // Response interfaces
-// // ---------------------------------------------------------------------------
-
-// export interface IdleDevice {
-//   id: string;
-//   name: string;
-//   type: string;
-//   status: 'Idle' | 'On' | 'Off';
-//   icon: string;
-//   iconBg: string;
-//   iconColor: string;
-// }
-
-// export interface DeviceTypeConsumption {
-//   categories: string[]; // months
-//   series: {
-//     name: string;
-//     data: number[];
-//   }[];
-// }
-
-// export interface DeviceTypeReportItem {
-//   label: string;
-//   value: number; // percentage
-// }
-
-// export interface DeviceTypeReport {
-//   total: string; // e.g. "100%"
-//   items: DeviceTypeReportItem[];
-// }
-
-// export interface DeviceAlert {
-//   id: string;
-//   level: 'critical' | 'warning' | 'info';
-//   message: string;
-//   device: string;
-//   timestamp: string;
-// }
-
-// export interface DeviceAlertsResponse {
-//   total: number;
-//   newLastHour: number;
-//   critical: number;
-//   warning: number;
-//   info: number;
-//   alerts: DeviceAlert[];
-// }
-
-// export interface PeakNonPeakPoint {
-//   date: string; // ISO date
-//   peakKwh: number;
-//   nonPeakKwh: number;
-//   peakCost: number;
-//   nonPeakCost: number;
-// }
-
-// export interface PeakNonPeakResponse {
-//   startDate: string;
-//   endDate: string;
-//   totalPeakKwh: number;
-//   totalNonPeakKwh: number;
-//   totalPeakCost: number;
-//   totalNonPeakCost: number;
-//   peakRateApplied: number;   // $/kWh
-//   nonPeakRateApplied: number; // $/kWh
-//   points: PeakNonPeakPoint[];
-// }
-
-// export interface EnergySummary {
-//   monthlyTargetKwh: number;
-//   currentUsageKwh: number;
-//   usagePercent: number;
-//   estimatedMonthlyCost: number;
-//   liveLoadKw: number;
-//   carbonFootprintKg: number;
-// }
-
-// // ---------------------------------------------------------------------------
-// // Service
-// // ---------------------------------------------------------------------------
-
-// @Injectable({
-//   providedIn: 'root'
-// })
-// export class EnergyService {
-
-//   // Adjust this to point at your real backend base URL
-//   private baseUrl = `${environment.baseUrl}/energy`;
-
-//   constructor(private http: HttpClient) {}
-
-//   /** Card: Monthly Energy Target / summary strip */
-//   getSummary(): Observable<EnergySummary> {
-//     return this.http.get<EnergySummary>(`${this.baseUrl}/summary`);
-//   }
-
-//   /** Card: Idle Devices */
-//   getIdleDevices(): Observable<IdleDevice[]> {
-//     return this.http.get<IdleDevice[]>(`${this.baseUrl}/idle-devices`);
-//   }
-
-//   /** Card: Energy Consumption by Device Type (Last 12 Months) */
-//   getDeviceTypeConsumption(): Observable<DeviceTypeConsumption> {
-//     return this.http.get<DeviceTypeConsumption>(`${this.baseUrl}/device-type-consumption`);
-//   }
-
-//   /** Card: Monthly Device Type Report (donut) */
-//   getDeviceTypeReport(): Observable<DeviceTypeReport> {
-//     return this.http.get<DeviceTypeReport>(`${this.baseUrl}/device-type-report`);
-//   }
-
-//   /** Card: Active Device Alerts */
-//   getActiveAlerts(): Observable<DeviceAlertsResponse> {
-//     return this.http.get<DeviceAlertsResponse>(`${this.baseUrl}/alerts`);
-//   }
-
-//   /** Card: Peak / Non-Peak Usage Analysis */
-//   getPeakNonPeak(startDate: string, endDate: string): Observable<PeakNonPeakResponse> {
-//     return this.http.get<PeakNonPeakResponse>(`${this.baseUrl}/peak-nonpeak`, {
-//       params: { startDate, endDate }
-//     });
-//   }
-// }
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { ResponseModel } from '../../../shared/response.model';
 import {
+  CrmAnalysisChartType,
+  CrmChartRange,
+  CrmDashboardChartResponseDTO,
+  CrmDashboardSummaryResponseDTO,
+  CrmDashboardSuggestionResponseDTO,
   EnergyConsumptionByDeviceTypeResponseDTO,
   MonthlyDeviceTypeReportResponseDTO,
   PeakNonPeakSummaryResponseDTO
 } from './crm.type';
-import { Observable } from 'rxjs';
-import { environment } from '../../../../environments/environment';
-import { ResponseModel } from "../../../shared/response.model";
+import { User } from '../../../shared/services/user/user.type';
 
 @Injectable({
   providedIn: 'root'
@@ -213,23 +23,66 @@ export class EnergyDashboardService {
 
   constructor(private http: HttpClient) {}
 
-  getMonthlyDeviceTypeReport(): Observable<ResponseModel<MonthlyDeviceTypeReportResponseDTO[]>> {
-    return this.http.get<ResponseModel<MonthlyDeviceTypeReportResponseDTO[]>>(
-      `${this.baseUrl}/GetMonthlyDeviceTypeReport`
+  getDashboardSummary(user: User | null): Observable<ResponseModel<CrmDashboardSummaryResponseDTO>> {
+    const scope = this.resolveScope(user);
+    return this.http.get<ResponseModel<CrmDashboardSummaryResponseDTO>>(
+      `${this.baseUrl}/crm/${scope.scope}/summary`,
+      { params: scope.params }
     );
   }
 
-  getEnergyConsumptionByDeviceTypeLast12Months(): Observable<ResponseModel<EnergyConsumptionByDeviceTypeResponseDTO[]>> {
+  getDashboardChart(
+    user: User | null,
+    chartType: CrmAnalysisChartType | 'hourlyusage' | 'utilitywise',
+    range: CrmChartRange = '30d',
+    fromDate?: string,
+    toDate?: string
+  ): Observable<ResponseModel<CrmDashboardChartResponseDTO>> {
+    const scope = this.resolveScope(user);
+    let params = scope.params
+      .set('chartType', chartType)
+      .set('range', range);
+
+    if (range === 'custom' && fromDate && toDate) {
+      params = params
+        .set('fromDate', fromDate)
+        .set('toDate', toDate);
+    }
+
+    return this.http.get<ResponseModel<CrmDashboardChartResponseDTO>>(
+      `${this.baseUrl}/crm/${scope.scope}/chart`,
+      { params }
+    );
+  }
+
+  getDashboardSuggestions(user: User | null): Observable<ResponseModel<CrmDashboardSuggestionResponseDTO[]>> {
+    const scope = this.resolveScope(user);
+    return this.http.get<ResponseModel<CrmDashboardSuggestionResponseDTO[]>>(
+      `${this.baseUrl}/crm/${scope.scope}/suggestions`,
+      { params: scope.params }
+    );
+  }
+
+  getMonthlyDeviceTypeReport(user?: User | null): Observable<ResponseModel<MonthlyDeviceTypeReportResponseDTO[]>> {
+    return this.http.get<ResponseModel<MonthlyDeviceTypeReportResponseDTO[]>>(
+      `${this.baseUrl}/GetMonthlyDeviceTypeReport`,
+      { params: this.buildLegacyParams(user) }
+    );
+  }
+
+  getEnergyConsumptionByDeviceTypeLast12Months(user?: User | null): Observable<ResponseModel<EnergyConsumptionByDeviceTypeResponseDTO[]>> {
     return this.http.get<ResponseModel<EnergyConsumptionByDeviceTypeResponseDTO[]>>(
-      `${this.baseUrl}/GetEnergyConsumptionByDeviceTypeLast12Months`
+      `${this.baseUrl}/GetEnergyConsumptionByDeviceTypeLast12Months`,
+      { params: this.buildLegacyParams(user) }
     );
   }
 
   getPeakNonPeakAnalysis(
     startDate: string,
-    endDate: string
+    endDate: string,
+    user?: User | null
   ): Observable<ResponseModel<PeakNonPeakSummaryResponseDTO>> {
-    const params = new HttpParams()
+    let params = this.buildLegacyParams(user)
       .set('startDate', startDate)
       .set('endDate', endDate);
 
@@ -239,8 +92,8 @@ export class EnergyDashboardService {
     );
   }
 
-  exportPeakNonPeakAnalysisCsv(startDate: string, endDate: string): Observable<Blob> {
-    const params = new HttpParams()
+  exportPeakNonPeakAnalysisCsv(startDate: string, endDate: string, user?: User | null): Observable<Blob> {
+    const params = this.buildLegacyParams(user)
       .set('startDate', startDate)
       .set('endDate', endDate);
 
@@ -250,9 +103,34 @@ export class EnergyDashboardService {
     });
   }
 
-  exportEnergyConsumptionByDeviceTypeCsv(): Observable<Blob> {
+  exportEnergyConsumptionByDeviceTypeCsv(user?: User | null): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/ExportEnergyConsumptionByDeviceTypeCsv`, {
+      params: this.buildLegacyParams(user),
       responseType: 'blob'
     });
+  }
+
+  private resolveScope(user: User | null): { scope: 'business' | 'tenant'; params: HttpParams } {
+    const businessId = user?.fkBusiness || '';
+    const userId = user?.userId || '';
+    const isTenant = Number(user?.userTypeLevel) === 2;
+
+    if (isTenant) {
+      let params = new HttpParams().set('tenantId', userId);
+      if (businessId) {
+        params = params.set('businessId', businessId);
+      }
+      return { scope: 'tenant', params };
+    }
+
+    return {
+      scope: 'business',
+      params: businessId ? new HttpParams().set('businessId', businessId) : new HttpParams()
+    };
+  }
+
+  private buildLegacyParams(user?: User | null): HttpParams {
+    const scope = this.resolveScope(user ?? null);
+    return scope.params;
   }
 }

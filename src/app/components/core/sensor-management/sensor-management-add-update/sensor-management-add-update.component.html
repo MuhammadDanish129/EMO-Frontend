@@ -65,6 +65,23 @@
           [disabled]="isViewMode" />
       </div>
 
+      <div class="flex items-center justify-between gap-4 rounded-lg border border-[rgb(var(--gray-200))] px-4 py-3">
+        <div>
+          <p class="text-sm font-semibold text-[rgb(var(--dark))]">
+            Standby Auto Off
+          </p>
+          <p class="mt-1 text-xs text-[rgb(var(--gray-500))]">
+            Automatically turn linked standby appliances off when the sensor detects standby usage.
+          </p>
+        </div>
+
+        <mat-slide-toggle
+          color="primary"
+          [(ngModel)]="model.standbyAutoOff"
+          [disabled]="isViewMode">
+        </mat-slide-toggle>
+      </div>
+
     </div>
 
 
@@ -137,6 +154,8 @@
           labelKey="utilityName"
           valueKey="utilityId"
           placeholder="Select Utility"
+          placement="top"
+          [enableSearch]="true"
           [(value)]="model.fkutility">
         </yx-select>
 

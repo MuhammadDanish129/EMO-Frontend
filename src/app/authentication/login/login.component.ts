@@ -161,7 +161,6 @@ signIn() {
               : '/dashboard';
 
           this.router.navigate([redirectUrl]);
-          console.clear();
         } else {
           this.toastr.error(res?.remarks);
           this.error = res?.remarks;
@@ -209,9 +208,24 @@ signIn() {
   activeSlides!: SlidesOutputData;
 
   slidesStore: any[] = [
-    { img: './assets/images/authentication/2.png' },
-    { img: './assets/images/authentication/3.png' },
-    { img: "./assets/images/authentication/2.png" },
+    {
+      icon: 'ri-flashlight-line',
+      tone: 'energy',
+      title: 'Live energy visibility',
+      description: 'Track consumption, demand trends, and peak vs non-peak usage from one workspace so teams can respond before energy waste grows.',
+    },
+    {
+      icon: 'ri-community-line',
+      tone: 'facility',
+      title: 'Facility and sensor control',
+      description: 'Manage businesses, facilities, tenants, offices, utilities, devices, sensors, and assignments with the same context used by the dashboards.',
+    },
+    {
+      icon: 'ri-dashboard-3-line',
+      tone: 'dashboard',
+      title: 'Role-aware operations',
+      description: 'Open the right workspace for every user level, from system dashboards for administrators to live consumption views for facility teams.',
+    },
   ];
 
 

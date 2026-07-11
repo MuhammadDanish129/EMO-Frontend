@@ -28,6 +28,7 @@ export class FacilityManagementComponent implements OnInit {
 
   Facilities: FacilityResponseDTO[] = [];
   filteredFacilities: FacilityResponseDTO[] = [];
+  selectedFacility: FacilityResponseDTO | null = null;
 
   
 
@@ -112,6 +113,14 @@ export class FacilityManagementComponent implements OnInit {
       );
 
     this.pageIndex = 0;
+  }
+
+  openFacilityDetails(facility: FacilityResponseDTO) {
+    this.selectedFacility = facility;
+  }
+
+  closeFacilityDetails() {
+    this.selectedFacility = null;
   }
 
   /* =============================

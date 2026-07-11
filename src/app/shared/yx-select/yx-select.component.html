@@ -1,4 +1,4 @@
-<div class="yx-select">
+<div class="yx-select" [class.yx-select-up]="placement === 'top'">
 
   <!-- LABEL -->
   <label *ngIf="label" class="yx-label block text-xs font-semibold mb-1">
@@ -13,7 +13,18 @@
     [class.yx-disabled]="disabled"
     (click)="toggle()">
 
-    <span class="text-sm" [class.text-[rgb(var(--text-muted))]]="!selectedLabel">
+    <input
+      *ngIf="enableSearch && open"
+      #searchInput
+      type="text"
+      [(ngModel)]="searchTerm"
+      [placeholder]="selectedLabel || placeholder"
+      class="yx-select-search-input text-sm"
+      (click)="$event.stopPropagation()"
+      (keydown)="onSearchKeydown($event)"
+    />
+
+    <span *ngIf="!enableSearch || !open" class="text-sm" [class.text-[rgb(var(--text-muted))]]="!selectedLabel">
       {{ selectedLabel || placeholder }}
     </span>
 
@@ -23,22 +34,19 @@
   <!-- DROPDOWN PANEL -->
   <div *ngIf="open" class="yx-select-panel">
 
-    <!-- SEARCH INPUT -->
-    <input
-      *ngIf="enableSearch"
-      type="text"
-      [(ngModel)]="searchTerm"
-      placeholder="Search..."
-      class="w-full p-2 border-b border-gray-200 mb-2 text-sm focus:outline-none rounded"
-    />
+    <ng-container *ngIf="filteredItems.length; else noOptions">
+      <div
+        *ngFor="let item of filteredItems"
+        class="yx-select-option"
+        [class.yx-selected]="item[valueKey] === value"
+        (click)="select(item)">
+        {{ item[labelKey] }}
+      </div>
+    </ng-container>
 
-    <div
-      *ngFor="let item of filteredItems"
-      class="yx-select-option"
-      [class.yx-selected]="item[valueKey] === value"
-      (click)="select(item)">
-      {{ item[labelKey] }}
-    </div>
+    <ng-template #noOptions>
+      <div class="yx-select-empty">No options found</div>
+    </ng-template>
 
   </div>
 

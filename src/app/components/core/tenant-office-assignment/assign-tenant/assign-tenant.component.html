@@ -163,7 +163,7 @@
                         </p>
 
                         <yx-select label="Gender" [items]="genders" labelKey="genderName" valueKey="genderId"
-                            placeholder="Select Gender" [(value)]="tenantModel.fkGender">
+                            placeholder="Select Gender" [enableSearch]="true" [(value)]="tenantModel.fkGender">
                         </yx-select>
 
                     </div>

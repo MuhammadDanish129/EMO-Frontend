@@ -1,81 +1,193 @@
-<!-- MODAL CONTAINER -->
-<div class="w-full max-w-md rounded-t-xl bg-[rgb(var(--light))] shadow-xl">
+<div class="w-full rounded-t-xl bg-[rgb(var(--light))] shadow-xl max-h-[90vh] flex flex-col">
 
-    <!-- HEADER -->
-    <div class="flex items-center justify-between px-6 py-3 bg-[rgb(var(--primary))] shadow-md">
-        <span class="text-sm font-semibold tracking-wide text-white">
-            {{ isEditMode ? 'Update Office' : 'Add Office' }}
-        </span>
+  <!-- ================= HEADER ================= -->
+  <div class="flex items-center justify-between px-6 py-3 bg-[rgb(var(--primary))]">
+    <span class="text-sm font-semibold text-white">
+      {{ isEditMode ? 'Update Office' : 'Add Office' }}
+    </span>
 
-        <button class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-red transition"
-                (click)="close()">
-            <i class="las la-times text-lg"></i>
-        </button>
+    <button
+      type="button"
+      class="rounded-lg p-2 text-white/80 bg-white/10 hover:bg-red transition"
+      (click)="close()">
+      <i class="las la-times"></i>
+    </button>
+  </div>
+
+  <!-- ================= BODY ================= -->
+  <div class="office-dialog-body px-6 py-2 overflow-y-auto space-y-3">
+
+    <!-- ================= OFFICE DETAILS ================= -->
+    <div
+      class="rounded-lg p-5 space-y-4 border"
+      [ngClass]="{
+        'border-[rgb(var(--danger))]': fieldErrors.officeName,
+        'border-[rgb(var(--gray-200))]': !fieldErrors.officeName
+      }">
+
+      <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+        Office Details
+      </p>
+
+      <div class="yx-field">
+        <label class="yx-label">
+          Office Name <span class="text-[rgb(var(--red-500))]">*</span>
+        </label>
+
+        <input
+          type="text"
+          class="yx-input w-full"
+          placeholder="Enter office name"
+          [(ngModel)]="model.officeName"
+          (ngModelChange)="onNameChange()"
+          [class.border-[rgb(var(--danger))]]="fieldErrors.officeName" />
+
+        <p *ngIf="fieldErrors.officeName" class="text-xs mt-1 text-[rgb(var(--danger))]">
+          {{ fieldErrors.officeName }}
+        </p>
+      </div>
     </div>
 
-    <!-- BODY -->
-    <div class="px-6 py-5 space-y-5">
+    <!-- ================= SCHEDULE ================= -->
+    <div
+      class="rounded-lg p-5 space-y-4 border"
+      [ngClass]="{
+        'border-[rgb(var(--danger))]': fieldErrors.openingTime || fieldErrors.closingTime,
+        'border-[rgb(var(--gray-200))]': !(fieldErrors.openingTime || fieldErrors.closingTime)
+      }">
 
-        <!-- OFFICE NAME -->
-        <div class="space-y-1.5 yx-field">
-            <label class="yx-label block text-xs font-semibold">
-                Office Name <span class="text-[rgb(var(--red-500))]">*</span>
-            </label>
+      <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+        Schedule
+      </p>
 
-            <input type="text"
-                   class="yx-input w-full rounded-lg border px-3 py-2 text-sm"
-                   [(ngModel)]="model.officeName"
-                   [class.yx-error]="fieldErrors.officeName" />
-
-            <p *ngIf="fieldErrors.officeName"
-               class="text-xs font-medium text-[rgb(var(--danger))]">
-                {{ fieldErrors.officeName }}
-            </p>
+      <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
+        <div>
+          <p class="text-sm text-[rgb(var(--primary))] font-medium">24 Hours Office</p>
+          <p class="text-xs text-muted">Use full-day timing for this office</p>
         </div>
 
-        <!-- ACTIVE -->
-        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
-            <div>
-                <p class="text-sm font-medium">Active Status</p>
-                <p class="text-xs text-[rgb(var(--text-muted))]">
-                    Inactive offices cannot be used.
-                </p>
-            </div>
+        <mat-slide-toggle
+          [(ngModel)]="model.is24Hours"
+          color="primary"
+          (change)="on24HoursChange()">
+        </mat-slide-toggle>
+      </div>
 
-            <mat-slide-toggle [(ngModel)]="model.isActive" color="primary">
-            </mat-slide-toggle>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" *ngIf="!model.is24Hours">
+        <div class="yx-field">
+          <label class="yx-label">
+            Opening Time <span class="text-[rgb(var(--red-500))]">*</span>
+          </label>
+
+          <input
+            type="time"
+            class="yx-input w-full"
+            [(ngModel)]="model.openingTime"
+            [class.border-[rgb(var(--danger))]]="fieldErrors.openingTime" />
+
+          <p *ngIf="fieldErrors.openingTime" class="text-xs mt-1 text-[rgb(var(--danger))]">
+            {{ fieldErrors.openingTime }}
+          </p>
         </div>
 
+        <div class="yx-field">
+          <label class="yx-label">
+            Closing Time <span class="text-[rgb(var(--red-500))]">*</span>
+          </label>
+
+          <input
+            type="time"
+            class="yx-input w-full"
+            [(ngModel)]="model.closingTime"
+            [class.border-[rgb(var(--danger))]]="fieldErrors.closingTime" />
+
+          <p *ngIf="fieldErrors.closingTime" class="text-xs mt-1 text-[rgb(var(--danger))]">
+            {{ fieldErrors.closingTime }}
+          </p>
+        </div>
+      </div>
+
+      <div
+        *ngIf="model.is24Hours"
+        class="rounded-lg border border-[rgb(var(--primary-200))] bg-[rgb(var(--primary-100))] px-4 py-3 text-sm font-medium text-[rgb(var(--primary))]">
+        Open from 00:00 to 23:59
+      </div>
     </div>
 
-    <!-- FOOTER -->
-    <div class="flex items-center justify-end gap-3 px-6 py-4 border-t
-              border-[rgb(var(--default-border))]">
+    <!-- ================= WORKING DAYS ================= -->
+    <div
+      class="rounded-lg p-5 space-y-4 border"
+      [ngClass]="{
+        'border-[rgb(var(--danger))]': fieldErrors.workingDays,
+        'border-[rgb(var(--gray-200))]': !fieldErrors.workingDays
+      }">
 
-        <button class="rounded-lg px-4 py-2 text-sm font-medium hover:bg-red hover:text-white
-             border border-[rgb(var(--gray-300))]"
-                (click)="close()">
-            Cancel
-        </button>
+      <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
+        Working Days <span class="text-[rgb(var(--red-500))]">*</span>
+      </p>
 
-        <button class="rounded-lg px-5 py-2 text-sm font-semibold
-             bg-[rgb(var(--primary-600))] text-white
-             hover:bg-[rgb(var(--primary-700))]
-             flex items-center gap-2
-             disabled:opacity-60"
-                [disabled]="isSaving"
-                (click)="save()">
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <label
+          *ngFor="let day of days"
+          class="flex h-9 cursor-pointer select-none items-center justify-center rounded-lg border px-3 text-center text-xs font-semibold transition"
+          [ngClass]="isDaySelected(day)
+            ? 'border-[rgb(var(--primary))] bg-[rgb(var(--primary-100))] text-[rgb(var(--primary))]'
+            : 'border-[rgb(var(--gray-200))] text-muted hover:border-[rgb(var(--primary-300))]'">
 
-            <span *ngIf="isSaving"
-                  class="h-4 w-4 animate-spin rounded-full
-               border-2 border-white/40 border-t-white">
-            </span>
+          <input
+            type="checkbox"
+            class="sr-only"
+            [checked]="isDaySelected(day)"
+            (change)="toggleDay(day, $any($event.target).checked)" />
 
-            {{ isSaving
-            ? (isEditMode ? 'Updating...' : 'Saving...')
-            : (isEditMode ? 'Update Office' : 'Save Office') }}
-        </button>
+          <span class="block truncate">{{ day }}</span>
+        </label>
+      </div>
 
+      <p *ngIf="fieldErrors.workingDays" class="text-xs mt-1 text-[rgb(var(--danger))]">
+        {{ fieldErrors.workingDays }}
+      </p>
     </div>
+
+    <!-- ================= STATUS & ALERTS ================= -->
+    <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
+      <div>
+        <p class="text-sm text-[rgb(var(--primary))] font-medium">Active Status</p>
+        <p class="text-xs text-muted">Inactive offices cannot be assigned</p>
+      </div>
+
+      <mat-slide-toggle [(ngModel)]="model.isActive" color="primary"></mat-slide-toggle>
+    </div>
+
+    <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center">
+      <div>
+        <p class="text-sm text-[rgb(var(--primary))] font-medium">After-Hours Alert</p>
+        <p class="text-xs text-muted">Track energy use outside office hours</p>
+      </div>
+
+      <mat-slide-toggle [(ngModel)]="model.afterHoursAlertEnabled" color="primary"></mat-slide-toggle>
+    </div>
+
+  </div>
+
+  <!-- ================= FOOTER ================= -->
+  <div class="flex justify-end gap-3 px-6 py-4 border-t bg-[rgb(var(--light))]">
+    <button
+      type="button"
+      class="rounded-lg px-4 py-2 text-sm font-medium hover:bg-[rgb(var(--red-500))] hover:text-white border border-[rgb(var(--gray-300))]"
+      (click)="close()">
+      Cancel
+    </button>
+
+    <button
+      type="button"
+      class="rounded-lg px-6 py-2 bg-[rgb(var(--primary))] text-white hover:bg-[rgb(var(--primary-700))] disabled:opacity-60"
+      [disabled]="isSaving"
+      (click)="save()">
+      {{ isSaving
+        ? (isEditMode ? 'Updating...' : 'Saving...')
+        : (isEditMode ? 'Update Office' : 'Save Office') }}
+    </button>
+  </div>
 
 </div>

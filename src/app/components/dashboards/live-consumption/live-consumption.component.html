@@ -217,6 +217,10 @@
       </div>
 
       <p class="mt-0.5 text-[10px] text-[rgb(var(--primary))] truncate">
+        {{ sensor.applianceName || 'No appliance assigned' }}
+      </p>
+
+      <p class="mt-0.5 text-[10px] text-[rgb(var(--text-muted))] truncate">
         {{ sensor.deviceName || 'Device' }}
       </p>
     </div>
@@ -397,11 +401,21 @@
                   <!-- <span>{{ isSensorLive(sensor) ? 'RECEIVING' : 'STALE' }}</span> -->
                 </div>
 
-                @if(sensor.relayState){
+                <button
+                  type="button"
+                  class="live-relay-action"
+                  [class.is-on]="isRelayOn(sensor)"
+                  [disabled]="sensor.isCommanding || !sensor.sensorId"
+                  (click)="toggleRelay(sensor)">
+                  <i [class]="isRelayOn(sensor) ? 'ri-shut-down-line' : 'ri-play-circle-line'"></i>
+                  {{ sensor.isCommanding ? 'Sending...' : (isRelayOn(sensor) ? 'Turn Off' : 'Turn On') }}
+                </button>
+
+                @if(sensor.relayState || sensor.relayEnabled !== undefined){
                   <div class="flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-medium"
                        [style.background-color]="'rgb(var(--gray-100))'"
                        [style.color]="'rgb(var(--gray-700))'">
-                    Relay: {{ sensor.relayState }}
+                    Relay: {{ getRelayStateText(sensor) }}
                   </div>
                 }
               </div>

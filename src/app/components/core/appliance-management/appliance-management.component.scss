@@ -1,0 +1,40 @@
+.appliance-row-selected,
+.appliance-card-selected {
+  background: rgb(var(--primary-100));
+}
+
+.appliance-row-assigned,
+.appliance-card-assigned {
+  box-shadow: inset 3px 0 0 rgb(var(--primary));
+}
+
+.appliance-card-selected {
+  border-color: rgb(var(--primary));
+}
+
+.appliance-details-popup {
+  border-radius: 0.75rem !important;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.appliance-details-popup-header {
+  border-top-left-radius: 0.75rem;
+  border-top-right-radius: 0.75rem;
+}
+
+.appliance-details-popup-body {
+  border-bottom-left-radius: 0.75rem;
+  border-bottom-right-radius: 0.75rem;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.appliance-details-popup-body::-webkit-scrollbar {
+  width: 0.45rem;
+}
+
+.appliance-details-popup-body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgb(var(--gray-300));
+}
