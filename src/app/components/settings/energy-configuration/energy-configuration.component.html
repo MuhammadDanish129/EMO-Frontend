@@ -1,0 +1,117 @@
+<div class="energy-settings-page">
+  <header class="page-banner">
+    <div class="page-banner__content">
+      <div>
+        <div class="page-title-row">
+          <span class="page-icon"><i class="ri-flashlight-line"></i></span>
+          <div>
+            <h1>Energy Configuration</h1>
+            <p>Configure tariffs, peak schedules, demand limits and HVAC automation policy.</p>
+          </div>
+        </div>
+      </div>
+
+      <button class="save-button" type="button" (click)="save()" [disabled]="saving || loading || !businessId">
+        <i [class]="saving ? 'ri-loader-4-line spin' : 'ri-save-line'"></i>
+        {{ saving ? 'Saving...' : 'Save Settings' }}
+      </button>
+    </div>
+  </header>
+
+  <!-- <div class="breadcrumb-bar">
+    <i class="ri-settings-3-line"></i>
+    <span>Settings</span>
+    <i class="las la-angle-right breadcrumb-arrow"></i>
+    <span class="breadcrumb-current">Energy Configuration</span>
+  </div> -->
+
+  <div *ngIf="loading" class="loading-card">
+    <span class="loader"></span>
+    <p>Loading energy settings...</p>
+  </div>
+
+  <main *ngIf="!loading && businessId" class="settings-content">
+    <nav class="tabs" aria-label="Energy configuration sections">
+      <button type="button" [class.active]="activeTab === 'tariff'" (click)="activeTab = 'tariff'">
+        <i class="ri-money-dollar-circle-line"></i><span>Tariffs</span>
+      </button>
+      <button type="button" [class.active]="activeTab === 'schedule'" (click)="activeTab = 'schedule'">
+        <i class="ri-time-line"></i><span>Peak &amp; Off-Peak Schedule</span>
+      </button>
+      <button type="button" [class.active]="activeTab === 'demand'" (click)="activeTab = 'demand'">
+        <i class="ri-speed-up-line"></i><span>Demand Management</span>
+      </button>
+      <button type="button" [class.active]="activeTab === 'hvac'" (click)="activeTab = 'hvac'">
+        <i class="ri-temp-cold-line"></i><span>HVAC Automation</span>
+      </button>
+    </nav>
+
+    <section class="settings-card" *ngIf="activeTab === 'tariff'">
+      <div class="section-heading">
+        <span class="section-icon"><i class="ri-price-tag-3-line"></i></span>
+        <div><h2>Tariff Plan</h2><p>Define the active electricity tariff and billing rates for this business.</p></div>
+      </div>
+      <div class="form-grid">
+        <label><span>Plan name</span><input class="yx-input" [(ngModel)]="model.tariffPlan.planName"></label>
+        <label><span>Currency</span><input class="yx-input" [(ngModel)]="model.tariffPlan.currency"></label>
+        <label><span>Standard rate / kWh</span><input class="yx-input" type="number" min="0" [(ngModel)]="model.tariffPlan.standardRatePerKwh"></label>
+        <label><span>Peak rate / kWh</span><input class="yx-input" type="number" min="0" [(ngModel)]="model.tariffPlan.peakRatePerKwh"></label>
+        <label><span>Off-peak rate / kWh</span><input class="yx-input" type="number" min="0" [(ngModel)]="model.tariffPlan.offPeakRatePerKwh"></label>
+        <label><span>Demand charge / kW</span><input class="yx-input" type="number" min="0" [(ngModel)]="model.tariffPlan.demandChargePerKw"></label>
+        <label><span>Effective from</span><input class="yx-input" type="date" [(ngModel)]="model.tariffPlan.effectiveFrom"></label>
+        <label><span>Effective to</span><input class="yx-input" type="date" [(ngModel)]="model.tariffPlan.effectiveTo"></label>
+        <label class="form-grid__wide"><span>Business timezone</span><select class="yx-input" [(ngModel)]="model.tariffPlan.timezone"><option *ngFor="let timezone of timezones" [value]="timezone">{{ timezone }}</option></select></label>
+      </div>
+      <div class="info-note"><i class="ri-information-line"></i><span>Historical cost uses the tariff plan effective on the reading date.</span></div>
+    </section>
+
+    <section class="settings-card" *ngIf="activeTab === 'schedule'">
+      <div class="section-heading section-heading--action">
+        <div class="section-heading__title"><span class="section-icon"><i class="ri-calendar-schedule-line"></i></span><div><h2>Tariff Time Periods</h2><p>Create peak, off-peak or standard windows. Leave the day blank to apply every day.</p></div></div>
+        <button class="secondary-button" type="button" (click)="addPeriod()"><i class="ri-add-line"></i>Add Period</button>
+      </div>
+
+      <div class="period-list" *ngIf="model.tariffPlan.timePeriods.length">
+        <div class="period" *ngFor="let p of model.tariffPlan.timePeriods; let i = index">
+          <label><span>Period name</span><input class="yx-input" [(ngModel)]="p.periodName" placeholder="Period name"></label>
+          <label><span>Type</span><select class="yx-input" [(ngModel)]="p.periodType"><option value="Peak">Peak</option><option value="OffPeak">Off-peak</option><option value="Standard">Standard</option></select></label>
+          <label><span>Start time</span><input class="yx-input" type="time" [(ngModel)]="p.startTime"></label>
+          <label><span>End time</span><input class="yx-input" type="time" [(ngModel)]="p.endTime"></label>
+          <label><span>Applies on</span><select class="yx-input" [(ngModel)]="p.dayOfWeek"><option [ngValue]="null">Every day</option><option *ngFor="let d of days; let di = index" [ngValue]="di">{{ d }}</option></select></label>
+          <label class="toggle-field"><span>Active</span><input type="checkbox" [(ngModel)]="p.isActive"><span class="toggle-track"></span></label>
+          <button class="delete-button" type="button" title="Remove period" (click)="removePeriod(i)"><i class="ri-delete-bin-line"></i></button>
+        </div>
+      </div>
+      <div class="empty-state" *ngIf="!model.tariffPlan.timePeriods.length"><span><i class="ri-calendar-close-line"></i></span><h3>No schedule configured</h3><p>Add a time period to configure peak and off-peak tariff windows.</p><button class="secondary-button" type="button" (click)="addPeriod()"><i class="ri-add-line"></i>Add First Period</button></div>
+    </section>
+
+    <section class="settings-card" *ngIf="activeTab === 'demand'">
+      <div class="section-heading"><span class="section-icon"><i class="ri-dashboard-3-line"></i></span><div><h2>Demand Management</h2><p>Set demand thresholds and decide how the system responds to consumption peaks.</p></div></div>
+      <div class="form-grid">
+        <label><span>Demand limit (kW)</span><input class="yx-input" type="number" min="0.01" [(ngModel)]="model.demandManagement.demandLimitKw"></label>
+        <label><span>Monthly energy target (kWh)</span><input class="yx-input" type="number" min="0.01" step="0.01" [(ngModel)]="model.demandManagement.monthlyEnergyTargetKwh" placeholder="Optional"></label>
+        <label><span>Warning threshold (%)</span><input class="yx-input" type="number" min="1" max="100" [(ngModel)]="model.demandManagement.warningThresholdPercent"></label>
+        <label><span>Recovery threshold (kW)</span><input class="yx-input" type="number" min="0" [(ngModel)]="model.demandManagement.recoveryThresholdKw"></label>
+        <label><span>Demand interval (minutes)</span><input class="yx-input" type="number" min="1" max="60" [(ngModel)]="model.demandManagement.demandIntervalMinutes"></label>
+        <label><span>Stabilization time (minutes)</span><input class="yx-input" type="number" min="0" max="60" [(ngModel)]="model.demandManagement.stabilizationMinutes"></label>
+      </div>
+      <div class="option-list">
+        <label class="option-card"><span class="option-icon"><i class="ri-timer-flash-line"></i></span><span class="option-copy"><strong>Tariff peak-hour control</strong><small>Allow automation during configured peak tariff periods.</small></span><span class="toggle-field"><input type="checkbox" [(ngModel)]="model.demandManagement.enablePeakHourControl"><span class="toggle-track"></span></span></label>
+        <label class="option-card"><span class="option-icon"><i class="ri-line-chart-line"></i></span><span class="option-copy"><strong>Measured demand control</strong><small>Respond when measured demand reaches the configured limit.</small></span><span class="toggle-field"><input type="checkbox" [(ngModel)]="model.demandManagement.enableDemandThresholdControl"><span class="toggle-track"></span></span></label>
+      </div>
+      <div class="info-note"><i class="ri-information-line"></i><span>Peak-demand time is discovered from the highest configured interval average; it is not manually entered.</span></div>
+    </section>
+
+    <section class="settings-card" *ngIf="activeTab === 'hvac'">
+      <div class="section-heading"><span class="section-icon"><i class="ri-temp-cold-line"></i></span><div><h2>HVAC Automation Policy</h2><p>Review automation readiness and control how HVAC recommendations are applied.</p></div></div>
+      <label class="option-card featured-option"><span class="option-icon"><i class="ri-lightbulb-flash-line"></i></span><span class="option-copy"><strong>Suggestion-only mode</strong><small>Generate energy-saving recommendations without automatically controlling HVAC appliances.</small></span><span class="toggle-field"><input type="checkbox" [(ngModel)]="model.demandManagement.suggestionOnlyMode"><span class="toggle-track"></span></span></label>
+      <div class="info-note warning-note"><i class="ri-shield-check-line"></i><span>Keep suggestion-only mode enabled until the HVAC executor, manual override protection and staggered restart logic are implemented.</span></div>
+      <div class="summary-grid">
+        <div class="summary-item"><span class="summary-icon"><i class="ri-timer-flash-line"></i></span><div><small>Peak-hour trigger</small><strong [class.enabled]="model.demandManagement.enablePeakHourControl">{{ model.demandManagement.enablePeakHourControl ? 'Enabled' : 'Disabled' }}</strong></div></div>
+        <div class="summary-item"><span class="summary-icon"><i class="ri-line-chart-line"></i></span><div><small>Demand trigger</small><strong [class.enabled]="model.demandManagement.enableDemandThresholdControl">{{ model.demandManagement.enableDemandThresholdControl ? 'Enabled' : 'Disabled' }}</strong></div></div>
+        <div class="summary-item"><span class="summary-icon"><i class="ri-flashlight-line"></i></span><div><small>Demand limit</small><strong>{{ model.demandManagement.demandLimitKw }} kW</strong></div></div>
+        <div class="summary-item"><span class="summary-icon"><i class="ri-focus-3-line"></i></span><div><small>Monthly target</small><strong>{{ model.demandManagement.monthlyEnergyTargetKwh ? (model.demandManagement.monthlyEnergyTargetKwh + ' kWh') : 'Not configured' }}</strong></div></div>
+      </div>
+    </section>
+  </main>
+</div>

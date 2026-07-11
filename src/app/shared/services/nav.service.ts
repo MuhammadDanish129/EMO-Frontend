@@ -400,6 +400,13 @@ export class NavService implements OnDestroy {
       type: 'link',
       path: '/device/utility-management',
     },
+    { headTitle: 'SETTINGS' },
+    {
+      title: 'Energy Configuration',
+      icon: 'ri-settings-3-line',
+      type: 'link',
+      path: '/settings/energy',
+    },
     
   ];
 
@@ -424,6 +431,7 @@ export class NavService implements OnDestroy {
       'Sensor Management',
       'Agreement Management',
       'Tenant Management',
+      'Energy Configuration',
       'Live consumptions'
     ],
 

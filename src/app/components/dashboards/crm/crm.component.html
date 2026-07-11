@@ -6,7 +6,7 @@
         Energy command center
       </div>
       <h1>Energy Dashboard</h1>
-      <p>Welcome back, {{ currentUser?.name || 'there' }}. Monitor demand and energy performance.</p>
+      <p>Welcome back, {{ currentUser?.name || 'there' }}. Monitor current performance and open Energy Explorer for detailed analysis.</p>
     </div>
 
     <div class="crm-hero-actions">
@@ -25,25 +25,11 @@
       </div>
       <div class="dashboard-loader-copy">
         <p>Preparing your energy workspace</p>
-        <span>Loading consumption, device mix, peak-hour analysis, and suggestions.</span>
+        <span>Loading the latest system summary and optimization actions.</span>
         <div class="dashboard-loader-progress"><i></i></div>
       </div>
     </div>
-
-    <div class="dashboard-loader-grid" aria-hidden="true">
-      <div class="dashboard-loader-card"></div>
-      <div class="dashboard-loader-card"></div>
-      <div class="dashboard-loader-card"></div>
-      <div class="dashboard-loader-card"></div>
-      <div class="dashboard-loader-card dashboard-loader-card-wide"></div>
-      <div class="dashboard-loader-card dashboard-loader-card-wide"></div>
-    </div>
   </section>
-
-  <div *ngIf="isLoading && isDashboardReady" class="dashboard-refresh-loader" role="status" aria-live="polite">
-    <span><i class="ri-loader-4-line"></i> Updating analysis</span>
-    <div class="dashboard-loader-progress"><i></i></div>
-  </div>
 
   <section *ngIf="errorMessage" class="crm-error-state">
     <span><i class="ri-error-warning-line"></i></span>
@@ -54,152 +40,65 @@
   </section>
 
   <div *ngIf="isDashboardReady" class="crm-dashboard-content">
-    <section class="crm-overview-section" aria-labelledby="annual-summary-title">
-      <div class="crm-overview-grid">
+    <section class="crm-overview-section" aria-label="Current energy summary">
+      <div class="crm-overview-grid crm-overview-grid-five">
         <article class="crm-stat-card crm-stat-primary">
           <div class="crm-stat-icon"><i class="ri-flashlight-line"></i></div>
           <div class="crm-stat-copy">
-            <span>12-month energy consumption</span>
-            <strong>{{ totalConsumption | number:'1.0-1' }} <small>kWh</small></strong>
-            <p>Total consumption across all device categories</p>
+            <span>Energy usage</span>
+            <strong>{{ (summary?.totalEnergyKwh || 0) | number:'1.0-1' }} <small>kWh</small></strong>
+            <p>Current dashboard summary period</p>
           </div>
           <i class="ri-arrow-right-up-line crm-stat-corner"></i>
         </article>
 
         <article class="crm-stat-card crm-stat-cyan">
-          <div class="crm-stat-icon"><i class="ri-calendar-2-line"></i></div>
+          <div class="crm-stat-icon"><i class="ri-pulse-line"></i></div>
           <div class="crm-stat-copy">
-            <span>Average monthly consumption</span>
-            <strong>{{ monthlyAverage | number:'1.0-1' }} <small>kWh</small></strong>
-            <p>Average across the latest 12 months</p>
+            <span>Current load</span>
+            <strong>{{ (summary?.currentLoadW || 0) | number:'1.0-0' }} <small>W</small></strong>
+            <p>Latest load reported by live sensors</p>
           </div>
           <i class="ri-arrow-right-up-line crm-stat-corner"></i>
         </article>
 
         <article class="crm-stat-card crm-stat-green">
-          <div class="crm-stat-icon"><i class="ri-bar-chart-box-line"></i></div>
+          <div class="crm-stat-icon"><i class="ri-money-dollar-circle-line"></i></div>
           <div class="crm-stat-copy">
-            <span>Highest-consumption month</span>
-            <strong>{{ highestMonthValue | number:'1.0-1' }} <small>kWh</small></strong>
-            <p>{{ highestMonthLabel }}</p>
+            <span>Estimated cost</span>
+            <strong>{{ (summary?.monthlyCost || 0) | number:'1.0-0' }} <small>PKR</small></strong>
+            <p>Based on the configured tariff</p>
           </div>
           <i class="ri-arrow-right-up-line crm-stat-corner"></i>
         </article>
 
         <article class="crm-stat-card crm-stat-amber">
-          <div class="crm-stat-icon"><i class="ri-pie-chart-2-line"></i></div>
+          <div class="crm-stat-icon"><i class="ri-radar-line"></i></div>
           <div class="crm-stat-copy">
-            <span>Top energy-consuming category</span>
-            <strong>{{ topUtilityShare | number:'1.0-1' }}<small>%</small></strong>
-            <p>{{ topUtilityName }} · share of 12-month consumption</p>
+            <span>Online sensors</span>
+            <strong>{{ summary?.onlineSensors || 0 }}</strong>
+            <p>Sensors reporting within the live threshold</p>
+          </div>
+          <i class="ri-arrow-right-up-line crm-stat-corner"></i>
+        </article>
+
+        <article class="crm-stat-card crm-stat-primary">
+          <div class="crm-stat-icon"><i class="ri-leaf-line"></i></div>
+          <div class="crm-stat-copy">
+            <span>Saving opportunity</span>
+            <strong>{{ (summary?.savingOpportunity || 0) | number:'1.0-1' }} <small>kWh</small></strong>
+            <p>Potential reduction from current insights</p>
           </div>
           <i class="ri-arrow-right-up-line crm-stat-corner"></i>
         </article>
       </div>
     </section>
 
-    <section class="crm-primary-grid">
-      <article class="crm-card crm-peak-card">
-        <header class="crm-card-header">
-          <div class="crm-card-heading">
-            <span class="crm-card-icon crm-card-icon-primary">
-              <i class="ri-pulse-line"></i>
-            </span>
-            <div>
-              <h2>{{ selectedAnalysisTitle }}</h2>
-              <p>{{ selectedAnalysisDescription }}</p>
-            </div>
-          </div>
-          <button type="button" class="crm-icon-button" aria-label="Export peak and non-peak analysis" (click)="exportPeakNonPeakCsv()">
-            <i class="ri-download-2-line"></i>
-          </button>
-        </header>
-
-        <div class="crm-filter-bar crm-analysis-filter-bar">
-          <label>
-            <span>Chart</span>
-            <select class="crm-select" [(ngModel)]="selectedAnalysisChartType" (ngModelChange)="onAnalysisChartTypeChange()">
-              <option *ngFor="let item of chartTypeOptions" [ngValue]="item.value">{{ item.label }}</option>
-            </select>
-          </label>
-
-          <label>
-            <span>Range</span>
-            <select class="crm-select" [(ngModel)]="selectedChartRange" (ngModelChange)="onRangeChange()">
-              <option *ngFor="let item of rangeOptions" [ngValue]="item.value">{{ item.label }}</option>
-            </select>
-          </label>
-
-          <ng-container *ngIf="selectedChartRange === 'custom'">
-            <label>
-              <span>From</span>
-              <input type="date" [(ngModel)]="startDate" [min]="minimumStartDate" [max]="endDate" (ngModelChange)="validateDateRange()">
-            </label>
-            <span class="crm-filter-separator"><i class="ri-arrow-right-line"></i></span>
-            <label>
-              <span>To</span>
-              <input type="date" [(ngModel)]="endDate" [min]="startDate" [max]="maximumEndDate" (ngModelChange)="validateDateRange()">
-            </label>
-          </ng-container>
-
-          <button type="button" (click)="applyAnalysisFilter()">
-            <i class="ri-equalizer-2-line"></i>
-            Apply
-          </button>
-          <p *ngIf="dateRangeError" class="crm-date-range-error">
-            <i class="ri-error-warning-line"></i>
-            {{ dateRangeError }}
-          </p>
-        </div>
-
-        <div class="crm-inline-metrics">
-          <div>
-            <span class="crm-metric-dot crm-metric-primary"></span>
-            <p>{{ analysisPrimaryMetricLabel }}</p>
-            <strong>{{ analysisPrimaryMetricValue | number:'1.0-1' }} {{ analysisPrimaryMetricUnit }}</strong>
-            <small>{{ selectedChartRange === 'custom' ? 'Custom range' : 'Selected range' }}</small>
-          </div>
-          <div>
-            <span class="crm-metric-dot crm-metric-cyan"></span>
-            <p>{{ analysisSecondaryMetricLabel }}</p>
-            <strong>{{ analysisSecondaryMetricValue | number:'1.0-1' }} kWh</strong>
-            <small *ngIf="selectedAnalysisChartType === 'peaknonpeak'">
-              {{ analysisChart?.peakStartTime || '-' }} - {{ analysisChart?.peakEndTime || '-' }} configured peak
-            </small>
-            <small *ngIf="selectedAnalysisChartType !== 'peaknonpeak'">Selected period</small>
-          </div>
-          <div>
-            <span class="crm-metric-dot crm-metric-green"></span>
-            <p>Total usage</p>
-            <strong>{{ (analysisChart?.totalKwh || 0) | number:'1.0-1' }} kWh</strong>
-            <small>Energy Analysis</small>
-          </div>
-        </div>
-
-        <div class="crm-chart-shell crm-line-chart-shell" (wheel)="blockChartPageScroll($event)">
-          <apx-chart
-            *ngIf="analysisChartOptions"
-            [series]="analysisChartOptions.series"
-            [chart]="analysisChartOptions.chart"
-            [xaxis]="analysisChartOptions.xaxis"
-            [yaxis]="analysisChartOptions.yaxis"
-            [stroke]="analysisChartOptions.stroke"
-            [dataLabels]="analysisChartOptions.dataLabels"
-            [colors]="analysisChartOptions.colors"
-            [grid]="analysisChartOptions.grid"
-            [legend]="analysisChartOptions.legend"
-            [markers]="analysisChartOptions.markers"
-            [tooltip]="analysisChartOptions.tooltip">
-          </apx-chart>
-        </div>
-      </article>
-
+    <section class="crm-primary-grid crm-operational-grid">
       <aside class="crm-card crm-operations-card" *ngIf="liveAlertsService.idleAlerts$ | async as idleAlerts">
         <header class="crm-card-header">
           <div class="crm-card-heading">
-            <span class="crm-card-icon crm-card-icon-cyan">
-              <i class="ri-remote-control-2-line"></i>
-            </span>
+            <span class="crm-card-icon crm-card-icon-cyan"><i class="ri-remote-control-2-line"></i></span>
             <div>
               <h2>Idle devices</h2>
               <p>Standby appliances detected from live sensor alerts.</p>
@@ -231,186 +130,50 @@
           </ng-template>
         </div>
       </aside>
-    </section>
 
-    <section class="crm-secondary-grid">
-      <article class="crm-card crm-consumption-card">
+      <section class="crm-card crm-suggestions-card crm-dashboard-suggestions">
         <header class="crm-card-header">
           <div class="crm-card-heading">
-            <span class="crm-card-icon crm-card-icon-primary"><i class="ri-time-line"></i></span>
+            <span class="crm-card-icon crm-card-icon-amber"><i class="ri-lightbulb-flash-line"></i></span>
             <div>
-              <h2>Hourly usage chart</h2>
-              <p>Energy usage trend from the last 24 hours.</p>
+              <h2>Energy saving suggestions</h2>
+              <p>Latest optimization checks and actions.</p>
             </div>
           </div>
-        </header>
-        <div class="crm-chart-shell crm-bar-chart-shell">
-          <apx-chart
-            *ngIf="hourlyUsageChartOptions"
-            [series]="hourlyUsageChartOptions.series"
-            [chart]="hourlyUsageChartOptions.chart"
-            [dataLabels]="hourlyUsageChartOptions.dataLabels"
-            [plotOptions]="hourlyUsageChartOptions.plotOptions"
-            [yaxis]="hourlyUsageChartOptions.yaxis"
-            [xaxis]="hourlyUsageChartOptions.xaxis"
-            [legend]="hourlyUsageChartOptions.legend"
-            [colors]="hourlyUsageChartOptions.colors"
-            [grid]="hourlyUsageChartOptions.grid"
-            [fill]="hourlyUsageChartOptions.fill"
-            [tooltip]="hourlyUsageChartOptions.tooltip">
-          </apx-chart>
-        </div>
-      </article>
-
-      <article class="crm-card crm-consumption-card">
-        <header class="crm-card-header">
-          <div class="crm-card-heading">
-            <span class="crm-card-icon crm-card-icon-green"><i class="ri-pie-chart-2-line"></i></span>
-            <div>
-              <h2>Utility-wise usage chart</h2>
-              <p>Last 30 days consumption grouped by utility.</p>
-            </div>
-          </div>
-        </header>
-        <div class="crm-chart-shell crm-bar-chart-shell">
-          <apx-chart
-            *ngIf="utilityWiseUsageChartOptions"
-            [series]="utilityWiseUsageChartOptions.series"
-            [chart]="utilityWiseUsageChartOptions.chart"
-            [dataLabels]="utilityWiseUsageChartOptions.dataLabels"
-            [plotOptions]="utilityWiseUsageChartOptions.plotOptions"
-            [yaxis]="utilityWiseUsageChartOptions.yaxis"
-            [xaxis]="utilityWiseUsageChartOptions.xaxis"
-            [legend]="utilityWiseUsageChartOptions.legend"
-            [colors]="utilityWiseUsageChartOptions.colors"
-            [grid]="utilityWiseUsageChartOptions.grid"
-            [fill]="utilityWiseUsageChartOptions.fill"
-            [tooltip]="utilityWiseUsageChartOptions.tooltip">
-          </apx-chart>
-        </div>
-      </article>
-    </section>
-
-    <section class="crm-secondary-grid">
-      <article class="crm-card crm-consumption-card">
-        <header class="crm-card-header">
-          <div class="crm-card-heading">
-            <span class="crm-card-icon crm-card-icon-cyan">
-              <i class="ri-bar-chart-grouped-line"></i>
-            </span>
-            <div>
-              <h2>Utility-wise Consumption Trend</h2>
-              <p>Monthly usage composition across the last 12 months.</p>
-            </div>
-          </div>
-          <button type="button" class="crm-icon-button" aria-label="Export consumption data" (click)="exportEnergyConsumptionCsv()">
-            <i class="ri-download-2-line"></i>
-          </button>
-        </header>
-
-        <div class="crm-chart-shell crm-bar-chart-shell">
-          <apx-chart
-            #chart
-            *ngIf="deviceTypeChartOptions"
-            [series]="deviceTypeChartOptions.series"
-            [chart]="deviceTypeChartOptions.chart"
-            [dataLabels]="deviceTypeChartOptions.dataLabels"
-            [plotOptions]="deviceTypeChartOptions.plotOptions"
-            [yaxis]="deviceTypeChartOptions.yaxis"
-            [xaxis]="deviceTypeChartOptions.xaxis"
-            [legend]="deviceTypeChartOptions.legend"
-            [colors]="deviceTypeChartOptions.colors"
-            [grid]="deviceTypeChartOptions.grid"
-            [fill]="deviceTypeChartOptions.fill"
-            [tooltip]="deviceTypeChartOptions.tooltip">
-          </apx-chart>
-        </div>
-      </article>
-
-      <article class="crm-card crm-mix-card">
-        <header class="crm-card-header">
-          <div class="crm-card-heading">
-            <span class="crm-card-icon crm-card-icon-green">
-              <i class="ri-donut-chart-line"></i>
-            </span>
-            <div>
-              <h2>Last 30 Days Utility Mix</h2>
-              <p>Share of energy by utility category.</p>
-            </div>
-          </div>
-        </header>
-
-        <div class="monthly-device-report-chart">
-          <apx-chart
-            *ngIf="monthlyReportChartOptions"
-            [series]="monthlyReportChartOptions.series"
-            [chart]="monthlyReportChartOptions.chart"
-            [colors]="monthlyReportChartOptions.colors"
-            [labels]="monthlyReportChartOptions.labels"
-            [legend]="monthlyReportChartOptions.legend"
-            [stroke]="monthlyReportChartOptions.stroke"
-            [tooltip]="monthlyReportChartOptions.tooltip"
-            [plotOptions]="monthlyReportChartOptions.plotOptions"
-            [dataLabels]="monthlyReportChartOptions.dataLabels">
-          </apx-chart>
-        </div>
-
-        <div class="crm-mix-list">
-          <div *ngFor="let item of monthlyDeviceTypeReport; let itemIndex = index">
-            <span class="crm-mix-marker" [class]="'crm-mix-marker crm-mix-marker-' + (itemIndex % 5)"></span>
-            <div>
-              <strong>{{ item.utilityName }}</strong>
-              <small>{{ item.totalKwh | number:'1.0-1' }} kWh</small>
-            </div>
-            <b>{{ item.percentage | number:'1.0-1' }}%</b>
-          </div>
-        </div>
-      </article>
-    </section>
-
-    <section class="crm-card crm-suggestions-card">
-      <header class="crm-card-header">
-        <div class="crm-card-heading">
-          <span class="crm-card-icon crm-card-icon-amber">
-            <i class="ri-lightbulb-flash-line"></i>
+          <span class="crm-suggestion-summary">
+            <i class="ri-lightbulb-line"></i>
+            {{ suggestions.length || 0 }} {{ suggestions.length === 1 ? 'insight' : 'insights' }}
           </span>
-          <div>
-            <h2>Energy saving suggestions</h2>
-            <p>Optimization checks from the last 7 days, including high-demand and peak-hour conflicts.</p>
-          </div>
-        </div>
-      </header>
+        </header>
 
-      <div class="crm-suggestion-list" *ngIf="suggestions.length; else noSuggestions">
-        <article
-          class="crm-suggestion-item"
-          *ngFor="let suggestion of suggestions"
-          [class.crm-suggestion-warning]="suggestion.severity === 'warning'"
-          [class.crm-suggestion-critical]="suggestion.severity === 'critical'">
-          <span class="crm-suggestion-icon"><i [class]="getSuggestionIcon(suggestion)"></i></span>
-          <div class="crm-suggestion-copy">
-            <div class="crm-suggestion-title-row">
-              <strong>{{ suggestion.title }}</strong>
-              <span>{{ suggestion.severity }}</span>
+        <div class="crm-suggestion-list" *ngIf="suggestions.length; else noSuggestions">
+          <article
+            class="crm-suggestion-item"
+            *ngFor="let suggestion of suggestions | slice:0:5"
+            [class.crm-suggestion-warning]="(suggestion.severity || '').toLowerCase() === 'warning'"
+            [class.crm-suggestion-critical]="(suggestion.severity || '').toLowerCase() === 'critical'">
+            <span class="crm-suggestion-icon"><i [class]="getSuggestionIcon(suggestion)"></i></span>
+            <div class="crm-suggestion-copy">
+              <div class="crm-suggestion-title-row">
+                <strong>{{ suggestion.title }}</strong>
+                <span>{{ suggestion.severity || 'info' }}</span>
+              </div>
+              <p>{{ suggestion.message }}</p>
+              <div class="crm-suggestion-action" *ngIf="suggestion.action">
+                <i class="ri-checkbox-circle-line"></i>
+                <span>{{ suggestion.action }}</span>
+              </div>
             </div>
-            <p>{{ suggestion.message }}</p>
-            <small *ngIf="suggestion.action">{{ suggestion.action }}</small>
-            <div class="crm-suggestion-meta">
-              <b *ngIf="suggestion.timeBucket">{{ suggestion.timeBucket }}</b>
-              <b *ngIf="suggestion.utilityName">{{ suggestion.utilityName }}</b>
-              <b *ngIf="suggestion.applianceName">{{ suggestion.applianceName }}</b>
-              <b *ngIf="suggestion.estimatedSavingKwh">{{ suggestion.estimatedSavingKwh | number:'1.0-2' }} kWh possible saving</b>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <ng-template #noSuggestions>
-        <div class="crm-empty-state">
-          <i class="ri-checkbox-circle-line"></i>
-          <p>No optimization suggestions for the last 7 days.</p>
+          </article>
         </div>
-      </ng-template>
+
+        <ng-template #noSuggestions>
+          <div class="crm-empty-state">
+            <i class="ri-checkbox-circle-line"></i>
+            <p>No optimization suggestions right now.</p>
+          </div>
+        </ng-template>
+      </section>
     </section>
   </div>
 </main>

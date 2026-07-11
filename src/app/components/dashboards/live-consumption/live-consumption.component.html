@@ -1,3 +1,4 @@
+@if(!embedded){
 
 <div class="-mt-2 mb-4">
   <div class="px-6 py-4 bg-[rgb(var(--primary))]">
@@ -123,8 +124,10 @@
   </div>
 </div>
 
+}
+
 <!-- LIVE SENSOR CARDS -->
-<div class="rounded-md bg-[rgb(var(--light))] shadow-md mx-5 mb-6">
+<div class="rounded-md bg-[rgb(var(--light))] shadow-md mb-6" [ngClass]="embedded ? 'mx-0' : 'mx-5'">
 
   <div class="flex flex-col gap-3 px-4 py-3 border-b border-[rgb(var(--input-border))]
             md:flex-row md:items-center md:justify-between">

@@ -1,7 +1,10 @@
 import {
   Component,
+  Input,
+  OnChanges,
   OnDestroy,
-  OnInit
+  OnInit,
+  SimpleChanges
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -31,7 +34,8 @@ type ScopeType =
   | 'floor'
   | 'section'
   | 'office'
-  | 'device';
+  | 'device'
+  | 'sensor';
 
 interface LiveSensorCard {
   sensorId: string;
@@ -85,7 +89,11 @@ interface LiveSensorCard {
   templateUrl: './live-consumption.component.html',
   styleUrl: './live-consumption.component.scss'
 })
-export class LiveConsumptionComponent implements OnInit, OnDestroy {
+export class LiveConsumptionComponent implements OnInit, OnDestroy, OnChanges {
+
+  @Input() embedded = false;
+  @Input() scopeType: ScopeType = 'business';
+  @Input() scopeId = '';
 
   currentUser: any;
 
@@ -118,6 +126,7 @@ private subscribedRooms = new Set<string>();
 
   private readonly SENSOR_TIMEOUT = 12000;
   private refreshTimer: any;
+  private initialized = false;
   private subscribedRoom: string | null = null;
 
   private readonly socketEvents = [
@@ -155,29 +164,45 @@ private subscribedRooms = new Set<string>();
 
   async ngOnInit(): Promise<void> {
     this.currentUser = await this.userService.user$;
-
-    this.selectedScopeType = 'business';
-    this.selectedScopeId = this.getBusinessId();
-
     this.registerSocketListeners();
-
     this.socketService.connect();
-  if (this.isTenantUser()) {
-    this.loadTenantOffices();
-  } else {
-    if (this.selectedScopeId) {
-      this.subscribeToScope('business', this.selectedScopeId);
-    } else {
-      console.warn('Business id not found in current user:', this.currentUser);
-      this.toaster.warning('Business id not found. Live readings cannot be subscribed.');
-    }
-  }
+    this.initialized = true;
 
-    this.loadFacilities();
+    if (this.embedded) {
+      this.subscribeEmbeddedScope();
+    } else {
+      this.selectedScopeType = 'business';
+      this.selectedScopeId = this.getBusinessId();
+
+      if (this.isTenantUser()) {
+        this.loadTenantOffices();
+      } else if (this.selectedScopeId) {
+        this.subscribeToScope('business', this.selectedScopeId);
+      } else {
+        console.warn('Business id not found in current user:', this.currentUser);
+        this.toaster.warning('Business id not found. Live readings cannot be subscribed.');
+      }
+
+      this.loadFacilities();
+    }
 
     this.refreshTimer = setInterval(() => {
       this.filteredSensors = [...this.filteredSensors];
     }, 1000);
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.initialized || !this.embedded) return;
+    if (changes['scopeType'] || changes['scopeId'] || changes['embedded']) {
+      this.subscribeEmbeddedScope();
+    }
+  }
+
+  private subscribeEmbeddedScope(): void {
+    const id = String(this.scopeId || '').trim();
+    if (!id) return;
+    this.searchText = '';
+    this.subscribeToScope(this.scopeType, id);
   }
 
   ngOnDestroy(): void {

@@ -90,6 +90,15 @@ export const App_Route: Route[] = [
 
   },
 
+
+  {
+    path: 'settings',
+    component: ContentLayoutComponent,
+    canActivate: [AuthGuard],
+    canActivateChild: [AuthGuard],
+    children: [{ path: '', loadChildren: () => import('./components/settings/settings.routes').then((m) => m.settings) }],
+  },
+
   // Optional: fallback route
   {
     path: '**',
