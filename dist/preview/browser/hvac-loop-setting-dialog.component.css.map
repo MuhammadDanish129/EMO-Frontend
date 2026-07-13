@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/core/sensor-management/hvac-loop-setting-dialog/hvac-loop-setting-dialog.component.scss"],
+  "sourcesContent": [":host {\n  display: block;\n}\n\ninput:disabled {\n  cursor: not-allowed;\n  opacity: 0.7;\n}\n"],
+  "mappings": ";AAAA;AACE,WAAA;;AAGF,KAAA;AACE,UAAA;AACA,WAAA;;",
+  "names": []
+}

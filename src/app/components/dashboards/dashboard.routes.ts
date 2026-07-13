@@ -30,6 +30,12 @@ export const admin: Routes = [
           import('./crm/energy-deep-dive/energy-deep-dive.component')
             .then((m) => m.EnergyDeepDiveComponent),
       },
+      {
+        path: 'crm/historical-data',
+        loadComponent: () =>
+          import('./crm/historical-data-explorer/historical-data-explorer.component')
+            .then((m) => m.HistoricalDataExplorerComponent),
+      },
     ]
   },
 ];

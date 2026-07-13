@@ -1,0 +1,74 @@
+<main class="history-page">
+  <header class="history-hero">
+    <div>
+      <p class="history-eyebrow"><i class="ri-file-chart-line"></i> Historical data explorer</p>
+      <h1>Energy CSV Export</h1>
+      <p>Choose a range, reporting interval and confirmed timezone. The maximum range is three years.</p>
+    </div>
+    <a routerLink="/dashboard/crm" class="history-back"><i class="ri-arrow-left-line"></i>CRM Dashboard</a>
+  </header>
+
+  <section class="history-timezone" [class.is-confirmed]="timezoneConfirmed">
+    <div>
+      <strong>{{ timezoneConfirmed ? 'Reporting timezone confirmed' : 'Timezone confirmation required' }}</strong>
+      <p>UTC sensor timestamps are grouped into days and months using the timezone you confirm here.</p>
+    </div>
+    <div class="timezone-actions">
+      <select [(ngModel)]="timezone">
+        <option *ngFor="let item of timezones" [value]="item">{{ item }}</option>
+      </select>
+      <button type="button" (click)="confirmTimezone()">Confirm</button>
+      <button *ngIf="detectedTimezone !== timezone" type="button" class="secondary" (click)="useDetectedTimezone()">
+        Use detected {{ detectedTimezone }}
+      </button>
+    </div>
+  </section>
+
+  <section class="history-panel">
+    <div class="history-panel-head">
+      <div><small>Selected scope</small><h2>{{ entityName | titlecase }}</h2><p>{{ level | titlecase }}</p></div>
+      <span>{{ intervalLimitText }}</span>
+    </div>
+
+    <div class="history-form">
+      <label><span>From date</span><input type="date" [(ngModel)]="fromDate"></label>
+      <label><span>To date</span><input type="date" [(ngModel)]="toDate"></label>
+      <label><span>Interval</span><select [(ngModel)]="interval"><option *ngFor="let item of intervals" [value]="item.value">{{ item.label }}</option></select></label>
+      <div class="history-form-actions">
+        <button type="button" class="preview-button" (click)="loadPreview()" [disabled]="loading || !timezoneConfirmed">
+          <i [class]="loading ? 'ri-loader-4-line spin' : 'ri-search-eye-line'"></i>{{ loading ? 'Loading...' : 'Preview' }}
+        </button>
+        <button type="button" class="export-button" (click)="downloadCsv()" [disabled]="exporting || !timezoneConfirmed">
+          <i [class]="exporting ? 'ri-loader-4-line spin' : 'ri-download-cloud-2-line'"></i>{{ exporting ? 'Preparing...' : 'Download CSV' }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section *ngIf="preview" class="history-summary">
+    <article><small>Data points</small><strong>{{ preview.pointCount | number }}</strong><p>{{ preview.interval | titlecase }} rows</p></article>
+    <article><small>Sensors included</small><strong>{{ preview.sensorCount }}</strong><p>Within selected scope</p></article>
+    <article><small>Total energy</small><strong>{{ totalEnergy | number:'1.0-3' }} kWh</strong><p>For selected range</p></article>
+    <article><small>Applied timezone</small><strong>{{ preview.timeZone }}</strong><p>Confirmed reporting boundary</p></article>
+  </section>
+
+  <section *ngIf="preview?.points?.length" class="history-table-card">
+    <div class="history-table-head"><div><h2>Preview</h2><p>Showing the first 12 rows. The CSV contains all {{ preview?.pointCount }} rows.</p></div></div>
+    <div class="history-table-wrap">
+      <table>
+        <thead><tr><th>Period</th><th>Energy</th><th>Avg power</th><th>Peak power</th><th>Voltage</th><th>PF</th><th>Samples</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let point of preview?.points | slice:0:12">
+            <td><strong>{{ point.label }}</strong><small>{{ point.bucketStartLocal }}</small></td>
+            <td>{{ point.energyKwh | number:'1.0-4' }} kWh</td>
+            <td>{{ point.averageActivePowerW | number:'1.0-1' }} W</td>
+            <td>{{ point.maximumActivePowerW | number:'1.0-1' }} W</td>
+            <td>{{ point.averageVoltageV | number:'1.0-1' }} V</td>
+            <td>{{ point.averagePowerFactor | number:'1.0-3' }}</td>
+            <td>{{ point.sampleCount | number }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>

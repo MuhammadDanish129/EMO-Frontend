@@ -23,7 +23,6 @@ export class EnergyConfigurationComponent implements OnInit {
   saving = false;
   businessId = '';
   model: EnergyConfiguration = this.emptyModel('');
-  timezones = this.getSupportedTimezones();
   days = [
     'Sunday',
     'Monday',
@@ -58,13 +57,6 @@ export class EnergyConfigurationComponent implements OnInit {
       next: (r) => {
         if (r.success && r.data) {
           this.model = r.data;
-          this.ensureCurrentTimezoneIsAvailable();
-          this.model.tariffPlan.effectiveFrom = (
-            this.model.tariffPlan.effectiveFrom || ''
-          ).slice(0, 10);
-          if (this.model.tariffPlan.effectiveTo)
-            this.model.tariffPlan.effectiveTo =
-              this.model.tariffPlan.effectiveTo.slice(0, 10);
         } else this.toast.error(r.remarks || 'Unable to load settings');
         this.loading = false;
       },
@@ -123,37 +115,6 @@ export class EnergyConfigurationComponent implements OnInit {
     }
     return true;
   }
-  private ensureCurrentTimezoneIsAvailable() {
-    const timezone = this.model.tariffPlan.timezone;
-    if (timezone && !this.timezones.includes(timezone)) {
-      this.timezones = [timezone, ...this.timezones];
-    }
-  }
-  private getSupportedTimezones(): string[] {
-    const intl = Intl as typeof Intl & {
-      supportedValuesOf?: (key: 'timeZone') => string[];
-    };
-    const supportedTimezones = intl.supportedValuesOf?.('timeZone');
-    return supportedTimezones?.length
-      ? supportedTimezones
-      : [
-          'Asia/Karachi',
-          'Asia/Dubai',
-          'Asia/Kolkata',
-          'Asia/Dhaka',
-          'Asia/Singapore',
-          'Asia/Tokyo',
-          'Europe/London',
-          'Europe/Paris',
-          'America/New_York',
-          'America/Chicago',
-          'America/Denver',
-          'America/Los_Angeles',
-          'Australia/Sydney',
-          'Pacific/Auckland',
-          'UTC',
-        ];
-  }
   private emptyModel(id: string): EnergyConfiguration {
     return {
       fkBusiness: id,
@@ -165,16 +126,12 @@ export class EnergyConfigurationComponent implements OnInit {
         peakRatePerKwh: 0,
         offPeakRatePerKwh: 0,
         demandChargePerKw: null,
-        effectiveFrom: new Date().toISOString().slice(0, 10),
-        effectiveTo: null,
-        timezone: 'Asia/Karachi',
         isActive: true,
         timePeriods: [],
       },
       demandManagement: {
         fkBusiness: id,
         demandLimitKw: 15,
-        monthlyEnergyTargetKwh: null,
         warningThresholdPercent: 90,
         recoveryThresholdKw: 13.5,
         demandIntervalMinutes: 15,

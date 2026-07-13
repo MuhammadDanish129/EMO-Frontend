@@ -23,10 +23,20 @@ export class EnergyDeepDiveService {
     });
   }
 
-  getDeepDive(level: DashboardLevel, id: string, range = '24h'): Observable<DeepDiveResponse> {
-    return this.http.get<DeepDiveResponse>(`${this.deepDiveUrl}/${level}/${id}`, {
-      params: new HttpParams().set('range', range)
-    });
+  getDeepDive(
+    level: DashboardLevel,
+    id: string,
+    range = '24h',
+    timeZone = 'UTC',
+    forceRefresh = false,
+  ): Observable<DeepDiveResponse> {
+    const params = new HttpParams()
+      .set('range', range)
+      .set('timeZone', timeZone)
+      .set('forceRefresh', String(forceRefresh))
+      .set('_ts', String(Date.now()));
+
+    return this.http.get<DeepDiveResponse>(`${this.deepDiveUrl}/${level}/${id}`, { params });
   }
 
   getBreadcrumb(level: DashboardLevel, id: string): Observable<BreadcrumbDto[]> {

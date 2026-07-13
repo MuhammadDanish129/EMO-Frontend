@@ -16,6 +16,7 @@ export class SocketService {
   private readonly SOCKET_URL = 'http://localhost:6455';
 
   private readonly listeners = new Map<string, Set<SocketCallback>>();
+  private readonly activeSubscriptions = new Map<string, number>();
 
   connect(): void {
     if (this.socket?.connected) return;
@@ -34,6 +35,7 @@ export class SocketService {
     });
 
     this.restoreListeners();
+    this.socket.on('connect', () => this.restoreSubscriptions());
 
     this.socket.on('connect', () => {
       console.log('✅ Socket connected:', this.socket?.id);
@@ -109,27 +111,65 @@ export class SocketService {
     });
   }
 
-  subscribeBusiness(id: string): void { this.emit('subscribe-business', id); }
-  unsubscribeBusiness(id: string): void { this.emit('unsubscribe-business', id); }
+  private subscribe(scope: string, id: string): void {
+    const cleanId = String(id || '').trim();
+    if (!cleanId) return;
 
-  subscribeFacility(id: string): void { this.emit('subscribe-facility', id); }
-  unsubscribeFacility(id: string): void { this.emit('unsubscribe-facility', id); }
+    const key = `${scope}:${cleanId}`;
+    const count = this.activeSubscriptions.get(key) ?? 0;
+    this.activeSubscriptions.set(key, count + 1);
+    if (count === 0 && this.socket?.connected) {
+      this.socket.emit(`subscribe-${scope}`, cleanId);
+    }
+  }
 
-  subscribeBuilding(id: string): void { this.emit('subscribe-building', id); }
-  unsubscribeBuilding(id: string): void { this.emit('unsubscribe-building', id); }
+  private unsubscribe(scope: string, id: string): void {
+    const cleanId = String(id || '').trim();
+    if (!cleanId) return;
 
-  subscribeFloor(id: string): void { this.emit('subscribe-floor', id); }
-  unsubscribeFloor(id: string): void { this.emit('unsubscribe-floor', id); }
+    const key = `${scope}:${cleanId}`;
+    const count = this.activeSubscriptions.get(key) ?? 0;
+    if (count > 1) {
+      this.activeSubscriptions.set(key, count - 1);
+      return;
+    }
 
-  subscribeSection(id: string): void { this.emit('subscribe-section', id); }
-  unsubscribeSection(id: string): void { this.emit('unsubscribe-section', id); }
+    this.activeSubscriptions.delete(key);
+    if (count === 1 && this.socket?.connected) {
+      this.socket.emit(`unsubscribe-${scope}`, cleanId);
+    }
+  }
 
-  subscribeOffice(id: string): void { this.emit('subscribe-office', id); }
-  unsubscribeOffice(id: string): void { this.emit('unsubscribe-office', id); }
+  private restoreSubscriptions(): void {
+    this.activeSubscriptions.forEach((_count, key) => {
+      const separatorIndex = key.indexOf(':');
+      const scope = key.slice(0, separatorIndex);
+      const id = key.slice(separatorIndex + 1);
+      this.socket?.emit(`subscribe-${scope}`, id);
+    });
+  }
 
-  subscribeDevice(id: string): void { this.emit('subscribe-device', id); }
-  unsubscribeDevice(id: string): void { this.emit('unsubscribe-device', id); }
+  subscribeBusiness(id: string): void { this.subscribe('business', id); }
+  unsubscribeBusiness(id: string): void { this.unsubscribe('business', id); }
 
-  subscribeSensor(id: string): void { this.emit('subscribe-sensor', id); }
-  unsubscribeSensor(id: string): void { this.emit('unsubscribe-sensor', id); }
+  subscribeFacility(id: string): void { this.subscribe('facility', id); }
+  unsubscribeFacility(id: string): void { this.unsubscribe('facility', id); }
+
+  subscribeBuilding(id: string): void { this.subscribe('building', id); }
+  unsubscribeBuilding(id: string): void { this.unsubscribe('building', id); }
+
+  subscribeFloor(id: string): void { this.subscribe('floor', id); }
+  unsubscribeFloor(id: string): void { this.unsubscribe('floor', id); }
+
+  subscribeSection(id: string): void { this.subscribe('section', id); }
+  unsubscribeSection(id: string): void { this.unsubscribe('section', id); }
+
+  subscribeOffice(id: string): void { this.subscribe('office', id); }
+  unsubscribeOffice(id: string): void { this.unsubscribe('office', id); }
+
+  subscribeDevice(id: string): void { this.subscribe('device', id); }
+  unsubscribeDevice(id: string): void { this.unsubscribe('device', id); }
+
+  subscribeSensor(id: string): void { this.subscribe('sensor', id); }
+  unsubscribeSensor(id: string): void { this.unsubscribe('sensor', id); }
 }

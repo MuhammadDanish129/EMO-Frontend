@@ -17,6 +17,7 @@ import {
 } from 'ng-apexcharts';
 
 import { UserService } from '../../../../shared/services/user/user.service';
+import { ReportingTimezoneService } from '../../../../shared/services/reporting-timezone/reporting-timezone.service';
 import { User } from '../../../../shared/services/user/user.type';
 import { YxSelectComponent } from '../../../../shared/yx-select/yx-select.component';
 import { EnergyDeepDiveService } from './energy-deep-dive.service';
@@ -88,6 +89,10 @@ export class EnergyDeepDiveComponent implements OnInit {
   breadcrumbs: BreadcrumbDto[] = [];
   childCards: ChildCardDto[] = [];
   currentUser: User | null = null;
+  reportingTimeZone = 'UTC';
+  detectedTimeZone = 'UTC';
+  timezoneConfirmed = false;
+  readonly reportingTimeZones: string[];
 
   hourlyEnergyChart?: LineChartOptions;
   activePowerChart?: LineChartOptions;
@@ -104,11 +109,15 @@ export class EnergyDeepDiveComponent implements OnInit {
   analysisRankingChart: any;
 
   selectedCrmChartType: CrmAnalysisChartType | 'highdemand' = 'peaknonpeak';
+  readonly crmChartTypeOptions = [
+    { label: 'Peak vs Non-Peak', value: 'peaknonpeak' },
+    { label: 'Energy Consumption', value: 'energyconsumption' },
+    { label: 'High Demand', value: 'highdemand' },
+  ];
   crmAnalysisChart?: CrmDashboardChartResponseDTO;
   crmAnalysisChartOptions: any;
   utilityTrendChartOptions: any;
   utilityMixChartOptions: any;
-  targetProgressChart: any;
 
   private readonly chartPalette = [
     'rgb(132, 90, 223)',
@@ -116,15 +125,23 @@ export class EnergyDeepDiveComponent implements OnInit {
     'rgb(38, 191, 148)',
     'rgb(245, 184, 73)',
   ];
+  private readonly selectedViewStorageKey = 'emo.energy-deep-dive.selected-view';
 
   constructor(
     private dashboardService: EnergyDeepDiveService,
     private userService: UserService,
-  ) {}
+    private reportingTimezoneService: ReportingTimezoneService,
+  ) {
+    this.reportingTimeZones = this.reportingTimezoneService.getSupportedTimezones();
+  }
 
   async ngOnInit(): Promise<void> {
     this.currentUser = await this.userService.user$;
+    this.detectedTimeZone = this.reportingTimezoneService.detectedTimezone;
+    this.reportingTimeZone = this.reportingTimezoneService.appliedTimezone;
+    this.timezoneConfirmed = this.reportingTimezoneService.isConfirmed;
     this.currentId = this.currentUser?.fkBusiness || '';
+    this.restoreSelectedView();
 
     if (!this.currentId) {
       this.errorMessage = 'No business is associated with the current user.';
@@ -166,7 +183,13 @@ export class EnergyDeepDiveComponent implements OnInit {
     this.isAnalysisLoading = true;
     this.analysisError = '';
     this.dashboardService
-      .getDeepDive(this.level, this.currentId, this.range)
+      .getDeepDive(
+        this.level,
+        this.currentId,
+        this.range,
+        this.reportingTimeZone,
+        true,
+      )
       .subscribe({
         next: (response) => {
           this.analysisData = response;
@@ -205,6 +228,7 @@ export class EnergyDeepDiveComponent implements OnInit {
   setView(view: DashboardView): void {
     if (view === 'live' && !this.canShowLiveTab) return;
     this.selectedView = view;
+    this.persistSelectedView();
     if (view === 'analysis' && !this.analysisData) this.loadAnalysis();
   }
 
@@ -214,7 +238,7 @@ export class EnergyDeepDiveComponent implements OnInit {
 
   openHierarchyView(): void {
     if (this.level !== 'sensor') {
-      this.selectedView = 'hierarchy';
+      this.setView('hierarchy');
       return;
     }
 
@@ -258,6 +282,7 @@ export class EnergyDeepDiveComponent implements OnInit {
     this.level = level;
     this.currentId = id;
     this.selectedView = nextView;
+    this.persistSelectedView();
     this.resetViewData();
     this.loadDashboard();
   }
@@ -277,7 +302,6 @@ export class EnergyDeepDiveComponent implements OnInit {
     this.crmAnalysisChartOptions = undefined;
     this.utilityTrendChartOptions = undefined;
     this.utilityMixChartOptions = undefined;
-    this.targetProgressChart = undefined;
   }
 
   prepareChildCards(response: DashboardResponse): void {
@@ -453,7 +477,7 @@ export class EnergyDeepDiveComponent implements OnInit {
 
     if (this.analysisDemandChart) {
       this.analysisDemandChart.tooltip = {
-        x: { format: 'dd MMM HH:mm' },
+        x: { formatter: (value: number) => this.formatChartTooltip(value) },
         y: { formatter: (value: number) => `${value.toFixed(2)} kW` },
       };
     }
@@ -532,8 +556,34 @@ export class EnergyDeepDiveComponent implements OnInit {
       : undefined;
   }
 
+  confirmReportingTimezone(value = this.reportingTimeZone): void {
+    if (!this.reportingTimezoneService.confirm(value)) return;
+    this.reportingTimeZone = value;
+    this.timezoneConfirmed = true;
+    this.analysisData = undefined;
+    if (this.selectedView === 'analysis') this.loadAnalysis();
+  }
+
+  useDetectedTimezone(): void {
+    this.reportingTimeZone = this.detectedTimeZone;
+    this.confirmReportingTimezone(this.detectedTimeZone);
+  }
+
+  formatReportingTimestamp(
+    value: string | number | Date | null | undefined,
+    includeTime = true,
+  ): string {
+    if (!value) return '';
+    return this.reportingTimezoneService.formatTimestamp(value, includeTime
+      ? undefined
+      : { hour: undefined, minute: undefined });
+  }
+
   onCrmChartTypeChange(): void {
     if (!this.analysisData) return;
+    if (this.selectedCrmChartType === 'peaknonpeak' && !this.analysisData.features.peakOffPeakAnalysis) {
+      this.selectedCrmChartType = 'energyconsumption';
+    }
     this.prepareCrmAnalysisChart(this.analysisData);
   }
 
@@ -544,18 +594,34 @@ export class EnergyDeepDiveComponent implements OnInit {
     this.prepareCrmAnalysisChart(response);
 
     const utilityTrend = response.crmCharts?.utilityTrend;
+    const utilityMonthLabels = utilityTrend
+      ? this.buildUtilityMonthLabels(utilityTrend.categories, utilityTrend.points?.map((point) => point.period) || [])
+      : [];
     this.utilityTrendChartOptions = utilityTrend?.series?.length ? {
       series: utilityTrend.series,
-      chart: { type: 'bar', height: 360, stacked: true, toolbar: { show: false }, animations: { enabled: false } },
+      chart: {
+        type: 'bar',
+        height: 360,
+        stacked: true,
+        toolbar: { show: false },
+        zoom: { enabled: false },
+        animations: { enabled: false },
+      },
       dataLabels: { enabled: false },
-      plotOptions: { bar: { columnWidth: '48%', borderRadius: 3 } },
-      xaxis: { categories: utilityTrend.categories, labels: { rotate: -35, trim: false } },
+      plotOptions: { bar: { columnWidth: '72%', borderRadius: 1 } },
+      xaxis: {
+        categories: utilityMonthLabels,
+        tickPlacement: 'on',
+        labels: { rotate: 0, trim: false, hideOverlappingLabels: false },
+      },
       yaxis: { labels: { formatter: (value: number) => `${value.toFixed(0)} kWh` } },
       legend: { position: 'top' },
       colors: this.chartPalette,
       grid: { borderColor: '#edf0f5', strokeDashArray: 4 },
       fill: { opacity: 1 },
-      tooltip: { y: { formatter: (value: number) => `${value.toFixed(2)} kWh` } }
+      tooltip: {
+        y: { formatter: (value: number) => `${value.toFixed(2)} kWh` },
+      },
     } : undefined;
 
     const utilityMix = response.crmCharts?.utilityMix;
@@ -572,15 +638,6 @@ export class EnergyDeepDiveComponent implements OnInit {
       dataLabels: { enabled: false }
     } : undefined;
 
-    const target = response.summary.targetUsagePercent;
-    this.targetProgressChart = target !== null ? {
-      chart: { height: 150, type: 'radialBar', sparkline: { enabled: true }, animations: { enabled: false } },
-      series: [this.cappedPercent(target)],
-      plotOptions: { radialBar: { hollow: { size: '62%' }, track: { background: 'rgba(132, 90, 223, 0.12)' }, dataLabels: { name: { show: false }, value: { formatter: (value: number) => `${value.toFixed(1)}%` } } } },
-      stroke: { lineCap: 'round' },
-      labels: ['Target used'],
-      colors: ['rgb(132, 90, 223)']
-    } : undefined;
   }
 
   private prepareCrmAnalysisChart(response: DeepDiveResponse): void {
@@ -596,10 +653,41 @@ export class EnergyDeepDiveComponent implements OnInit {
       return;
     }
 
+    const timestamps = source.points.map((point) => new Date(point.period).getTime());
+    const hasDatetimePoints = timestamps.length === source.categories.length && timestamps.every(Number.isFinite);
+    const series = hasDatetimePoints
+      ? source.series.map((item) => ({
+          ...item,
+          data: item.data.map((value, index) => [timestamps[index], value]),
+        }))
+      : source.series;
+
     this.crmAnalysisChartOptions = {
-      series: source.series,
-      chart: { type: 'area', height: 390, toolbar: { show: false }, animations: { enabled: false }, zoom: { enabled: false } },
-      xaxis: { categories: source.categories, labels: { rotate: -35, trim: false, hideOverlappingLabels: true } },
+      series,
+      chart: {
+        type: 'area',
+        width: '100%',
+        height: 390,
+        toolbar: {
+          show: true,
+          tools: { download: true, selection: true, zoom: true, zoomin: true, zoomout: true, pan: true, reset: true },
+          autoSelected: 'zoom',
+        },
+        animations: { enabled: false },
+        zoom: { enabled: true, type: 'x', autoScaleYaxis: true, allowMouseWheelZoom: true },
+      },
+      xaxis: hasDatetimePoints
+        ? {
+            type: 'datetime',
+            tickAmount: this.range === '1y' ? 12 : undefined,
+            labels: {
+              rotate: 0,
+              hideOverlappingLabels: true,
+              datetimeUTC: true,
+              formatter: (_value: string, timestamp?: number) => this.formatChartTimestamp(timestamp),
+            },
+          }
+        : { categories: source.categories, labels: { rotate: -35, trim: false, hideOverlappingLabels: true } },
       yaxis: { labels: { formatter: (value: number) => `${value.toFixed(0)} ${source.unit}` } },
       stroke: { curve: 'smooth', width: 2.5 },
       dataLabels: { enabled: false },
@@ -607,7 +695,10 @@ export class EnergyDeepDiveComponent implements OnInit {
       grid: { borderColor: '#edf0f5', strokeDashArray: 4 },
       legend: { position: 'top' },
       markers: { size: 0, hover: { size: 5 } },
-      tooltip: { y: { formatter: (value: number) => `${value.toFixed(2)} ${source.unit}` } }
+      tooltip: {
+        x: hasDatetimePoints ? { formatter: (value: number) => this.formatChartTooltip(value) } : undefined,
+        y: { formatter: (value: number) => `${value.toFixed(2)} ${source.unit}` },
+      }
     };
   }
 
@@ -739,7 +830,24 @@ export class EnergyDeepDiveComponent implements OnInit {
   }
 
   blockChartPageScroll(event: WheelEvent): void {
+    event.preventDefault();
     event.stopPropagation();
+  }
+
+  private restoreSelectedView(): void {
+    const storedView = localStorage.getItem(this.selectedViewStorageKey) as DashboardView | null;
+    if (storedView === 'analysis' || storedView === 'hierarchy') {
+      this.selectedView = storedView;
+      return;
+    }
+
+    if (storedView === 'live' && this.canShowLiveTab) {
+      this.selectedView = storedView;
+    }
+  }
+
+  private persistSelectedView(): void {
+    localStorage.setItem(this.selectedViewStorageKey, this.selectedView);
   }
 
   private prepareAnalysisTrendChart(response: DeepDiveResponse): void {
@@ -782,7 +890,7 @@ export class EnergyDeepDiveComponent implements OnInit {
       height: 360,
     };
     this.analysisTrendChart.tooltip = {
-      x: { format: 'dd MMM HH:mm' },
+      x: { formatter: (value: number) => this.formatChartTooltip(value) },
       y: { formatter: (value: number) => `${value.toFixed(2)}${suffix}` },
     };
   }
@@ -823,9 +931,15 @@ export class EnergyDeepDiveComponent implements OnInit {
       dataLabels: { enabled: false },
       xaxis: {
         type: 'datetime',
-        labels: { datetimeUTC: false, style: { fontSize: '10px' } },
+        tickAmount: this.range === '1y' ? 12 : undefined,
+        labels: {
+          datetimeUTC: true,
+          hideOverlappingLabels: true,
+          style: { fontSize: '10px' },
+          formatter: (_value: string, timestamp?: number) => this.formatChartTimestamp(timestamp),
+        },
       },
-      tooltip: { x: { format: 'dd MMM HH:mm' } },
+      tooltip: { x: { formatter: (value: number) => this.formatChartTooltip(value) } },
       fill: {
         type: 'gradient',
         gradient: { opacityFrom: 0.28, opacityTo: 0.03 },
@@ -838,6 +952,48 @@ export class EnergyDeepDiveComponent implements OnInit {
       new Date(point.timestamp).getTime(),
       point.value,
     ]);
+  }
+
+  private buildUtilityMonthLabels(categories: string[], periods: string[]): string[] {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    let previousYear: number | undefined;
+
+    return categories.map((category, index) => {
+      const source = periods[index] || category;
+      const isoMatch = source.match(/^(\d{4})-(\d{1,2})/);
+      const namedMatch = source.match(/^([A-Za-z]{3,9})[\s-]+(\d{4})/);
+
+      let year: number | undefined;
+      let monthIndex: number | undefined;
+
+      if (isoMatch) {
+        year = Number(isoMatch[1]);
+        monthIndex = Number(isoMatch[2]) - 1;
+      } else if (namedMatch) {
+        year = Number(namedMatch[2]);
+        monthIndex = monthNames.findIndex((month) => namedMatch[1].toLowerCase().startsWith(month.toLowerCase()));
+      }
+
+      if (year === undefined || monthIndex === undefined || monthIndex < 0 || monthIndex > 11) {
+        return category;
+      }
+
+      const yearChanged = previousYear !== undefined && year !== previousYear;
+      previousYear = year;
+      return yearChanged ? `’${String(year).slice(-2)}` : monthNames[monthIndex];
+    });
+  }
+  private formatChartTimestamp(timestamp?: number): string {
+    if (!timestamp || !Number.isFinite(timestamp)) return '';
+    const isLongRange = this.range === '90d' || this.range === '1y';
+    return this.reportingTimezoneService.formatTimestamp(timestamp, isLongRange
+      ? { day: '2-digit', month: 'short', year: this.range === '1y' ? '2-digit' : undefined, hour: undefined, minute: undefined }
+      : { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit', year: undefined });
+  }
+
+
+  private formatChartTooltip(timestamp: number): string {
+    return this.reportingTimezoneService.formatTimestamp(timestamp);
   }
 
   getPageTitle(): string {
@@ -924,11 +1080,6 @@ export class EnergyDeepDiveComponent implements OnInit {
   getChangeClass(value: number | null): string {
     if (value === null || Math.abs(value) < 0.01) return 'neutral';
     return value > 0 ? 'negative' : 'positive';
-  }
-
-  cappedPercent(value: number | null): number {
-    if (value === null) return 0;
-    return Math.min(Math.max(value, 0), 100);
   }
 
   trackRequirement(_: number, item: DeepDiveConfigurationRequirement): string {

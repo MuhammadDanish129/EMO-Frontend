@@ -182,6 +182,13 @@ export interface LiveOperationAlertDTO {
   generatedAtUtc: string;
   lastSeenUtc: string;
   commandSent?: boolean;
+  evidenceWindowSeconds?: number;
+  sampleCount?: number;
+  coveragePercent?: number;
+  averagePowerW?: number;
+  minimumPowerW?: number;
+  maximumPowerW?: number;
+  confirmedAtUtc?: string;
 }
 
 export interface LiveAlertsPayloadDTO {

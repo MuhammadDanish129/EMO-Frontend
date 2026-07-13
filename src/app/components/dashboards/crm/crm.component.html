@@ -3,19 +3,51 @@
     <div class="crm-hero-copy">
       <div class="crm-eyebrow">
         <span class="crm-live-dot" aria-hidden="true"></span>
-        Energy command center
+        Live energy command center
       </div>
       <h1>Energy Dashboard</h1>
-      <p>Welcome back, {{ currentUser?.name || 'there' }}. Monitor current performance and open Energy Explorer for detailed analysis.</p>
+      <p>Welcome back, {{ currentUser?.name || 'there' }}. See what is happening now and open Energy Explorer for detailed analysis.</p>
     </div>
 
     <div class="crm-hero-actions">
+      <a routerLink="/live-consumption" class="crm-explorer-button crm-live-button">
+        <i class="ri-pulse-line"></i>
+        <span>Live Readings</span>
+      </a>
       <a routerLink="/dashboard/crm/deep-dive" class="crm-explorer-button">
         <i class="las la-sitemap"></i>
         <span>Energy Explorer</span>
       </a>
+      <a routerLink="/dashboard/crm/historical-data" class="crm-explorer-button">
+        <i class="ri-download-cloud-2-line"></i>
+        <span>Historical CSV</span>
+      </a>
     </div>
   </header>
+
+  <section class="crm-live-status" *ngIf="isDashboardReady">
+    <div class="crm-status-item" [class.is-connected]="liveAlertsService.isSocketConnected">
+      <span class="crm-status-indicator"></span>
+      <div>
+        <strong>{{ liveAlertsService.isSocketConnected ? 'Live stream connected' : 'Live stream reconnecting' }}</strong>
+        <small>{{ getLastUpdateLabel(lastSocketPacketAt || liveOverview?.liveUpdatedAtUtc) }}</small>
+      </div>
+    </div>
+    <div class="crm-status-item">
+      <i class="ri-database-2-line"></i>
+      <div>
+        <strong>Today’s energy snapshot</strong>
+        <small>{{ getLastUpdateLabel(liveOverview?.aggregateUpdatedAtUtc) }}</small>
+      </div>
+    </div>
+    <div class="crm-status-item">
+      <i class="ri-refresh-line" [class.crm-spin-soft]="isLiveRefreshing"></i>
+      <div>
+        <strong>Automatic refresh</strong>
+        <small>Live overview refreshes every 15 seconds</small>
+      </div>
+    </div>
+  </section>
 
   <section *ngIf="isLoading && !isDashboardReady" class="dashboard-loader" role="status" aria-live="polite">
     <div class="dashboard-loader-panel">
@@ -24,8 +56,8 @@
         <span class="energy-loader-core"><i class="ri-flashlight-line"></i></span>
       </div>
       <div class="dashboard-loader-copy">
-        <p>Preparing your energy workspace</p>
-        <span>Loading the latest system summary and optimization actions.</span>
+        <p>Preparing your live energy workspace</p>
+        <span>Loading current sensor health, today’s consumption and optimization actions.</span>
         <div class="dashboard-loader-progress"><i></i></div>
       </div>
     </div>
@@ -40,14 +72,14 @@
   </section>
 
   <div *ngIf="isDashboardReady" class="crm-dashboard-content">
-    <section class="crm-overview-section" aria-label="Current energy summary">
+    <section class="crm-overview-section" aria-label="Live energy summary">
       <div class="crm-overview-grid crm-overview-grid-five">
         <article class="crm-stat-card crm-stat-primary">
           <div class="crm-stat-icon"><i class="ri-flashlight-line"></i></div>
           <div class="crm-stat-copy">
-            <span>Energy usage</span>
-            <strong>{{ (summary?.totalEnergyKwh || 0) | number:'1.0-1' }} <small>kWh</small></strong>
-            <p>Current dashboard summary period</p>
+            <span>Energy today</span>
+            <strong>{{ (liveOverview?.energyTodayKwh || 0) | number:'1.0-2' }} <small>kWh</small></strong>
+            <p>From midnight to the latest stored reading</p>
           </div>
           <i class="ri-arrow-right-up-line crm-stat-corner"></i>
         </article>
@@ -55,9 +87,12 @@
         <article class="crm-stat-card crm-stat-cyan">
           <div class="crm-stat-icon"><i class="ri-pulse-line"></i></div>
           <div class="crm-stat-copy">
-            <span>Current load</span>
-            <strong>{{ (summary?.currentLoadW || 0) | number:'1.0-0' }} <small>W</small></strong>
-            <p>Latest load reported by live sensors</p>
+            <span>Current live load</span>
+            <strong>
+              {{ getPowerValue(liveOverview?.currentLoadW) | number:'1.0-2' }}
+              <small>{{ getPowerUnit(liveOverview?.currentLoadW) }}</small>
+            </strong>
+            <p>Sum of fresh readings from online sensors</p>
           </div>
           <i class="ri-arrow-right-up-line crm-stat-corner"></i>
         </article>
@@ -65,9 +100,15 @@
         <article class="crm-stat-card crm-stat-green">
           <div class="crm-stat-icon"><i class="ri-money-dollar-circle-line"></i></div>
           <div class="crm-stat-copy">
-            <span>Estimated cost</span>
-            <strong>{{ (summary?.monthlyCost || 0) | number:'1.0-0' }} <small>PKR</small></strong>
-            <p>Based on the configured tariff</p>
+            <span>Cost today</span>
+            <ng-container *ngIf="liveOverview?.costConfigured; else tariffMissing">
+              <strong>{{ (liveOverview?.estimatedCostToday || 0) | number:'1.0-0' }} <small>PKR</small></strong>
+              <p>Calculated from the configured tariff</p>
+            </ng-container>
+            <ng-template #tariffMissing>
+              <strong class="crm-unavailable-value">Not configured</strong>
+              <p>Configure a tariff to calculate cost</p>
+            </ng-template>
           </div>
           <i class="ri-arrow-right-up-line crm-stat-corner"></i>
         </article>
@@ -75,105 +116,357 @@
         <article class="crm-stat-card crm-stat-amber">
           <div class="crm-stat-icon"><i class="ri-radar-line"></i></div>
           <div class="crm-stat-copy">
-            <span>Online sensors</span>
-            <strong>{{ summary?.onlineSensors || 0 }}</strong>
-            <p>Sensors reporting within the live threshold</p>
+            <span>Sensor health</span>
+            <strong>{{ liveOverview?.onlineSensors || 0 }} <small>/ {{ liveOverview?.totalSensors || 0 }}</small></strong>
+            <p>{{ liveOverview?.delayedSensors || 0 }} delayed · {{ liveOverview?.offlineSensors || 0 }} offline</p>
           </div>
           <i class="ri-arrow-right-up-line crm-stat-corner"></i>
         </article>
 
         <article class="crm-stat-card crm-stat-primary">
-          <div class="crm-stat-icon"><i class="ri-leaf-line"></i></div>
+          <div class="crm-stat-icon"><i class="ri-speed-up-line"></i></div>
           <div class="crm-stat-copy">
-            <span>Saving opportunity</span>
-            <strong>{{ (summary?.savingOpportunity || 0) | number:'1.0-1' }} <small>kWh</small></strong>
-            <p>Potential reduction from current insights</p>
+            <span>Peak demand today</span>
+            <strong>
+              {{ getPowerValue(liveOverview?.peakDemandTodayW) | number:'1.0-2' }}
+              <small>{{ getPowerUnit(liveOverview?.peakDemandTodayW) }}</small>
+            </strong>
+            <p *ngIf="liveOverview?.demandLimitConfigured; else demandMissing">
+              Limit: {{ liveOverview?.demandLimitKw | number:'1.0-1' }} kW
+            </p>
+            <ng-template #demandMissing><p>Demand limit is not configured</p></ng-template>
           </div>
           <i class="ri-arrow-right-up-line crm-stat-corner"></i>
         </article>
       </div>
     </section>
 
-    <section class="crm-primary-grid crm-operational-grid">
-      <aside class="crm-card crm-operations-card" *ngIf="liveAlertsService.idleAlerts$ | async as idleAlerts">
+    <section class="crm-live-grid">
+      <article class="crm-card crm-live-chart-card">
         <header class="crm-card-header">
           <div class="crm-card-heading">
-            <span class="crm-card-icon crm-card-icon-cyan"><i class="ri-remote-control-2-line"></i></span>
+            <span class="crm-card-icon crm-card-icon-cyan"><i class="ri-line-chart-line"></i></span>
             <div>
-              <h2>Idle devices</h2>
-              <p>Standby appliances detected from live sensor alerts.</p>
+              <h2>Live consumption</h2>
+              <p>Total demand from fresh live sensor readings.</p>
             </div>
           </div>
-          <span class="crm-alert-total">{{ idleAlerts.length }}</span>
+          <span class="crm-live-badge"><i class="ri-radio-button-line"></i> Live</span>
+        </header>
+
+        <div class="crm-live-metric-row">
+          <div>
+            <small>Current demand</small>
+            <strong>{{ getPowerValue(liveOverview?.currentLoadW) | number:'1.0-2' }} {{ getPowerUnit(liveOverview?.currentLoadW) }}</strong>
+          </div>
+          <div>
+            <small>Energy since opening</small>
+            <strong>{{ liveSessionEnergyKwh | number:'1.0-4' }} kWh</strong>
+          </div>
+          <div>
+            <small>Average power factor</small>
+            <strong>{{ (liveOverview?.averagePowerFactor || 0) | number:'1.0-2' }}</strong>
+          </div>
+          <div>
+            <small>Average voltage</small>
+            <strong>{{ (liveOverview?.averageVoltage || 0) | number:'1.0-1' }} V</strong>
+          </div>
+        </div>
+
+        <div class="crm-live-chart-wrap">
+          <apx-chart
+            [series]="liveLoadChart.series"
+            [chart]="liveLoadChart.chart"
+            [xaxis]="liveLoadChart.xaxis"
+            [yaxis]="liveLoadChart.yaxis"
+            [stroke]="liveLoadChart.stroke"
+            [dataLabels]="liveLoadChart.dataLabels"
+            [tooltip]="liveLoadChart.tooltip"
+            [fill]="liveLoadChart.fill">
+          </apx-chart>
+        </div>
+        <p class="crm-chart-note">
+          <i class="ri-information-line"></i>
+          “Energy since opening” is calculated from positive changes in cumulative live meter readings and resets when this page is reopened.
+        </p>
+      </article>
+
+      <article class="crm-card crm-utility-live-card">
+        <header class="crm-card-header">
+          <div class="crm-card-heading">
+            <span class="crm-card-icon crm-card-icon-primary"><i class="ri-stack-line"></i></span>
+            <div>
+              <h2>Current load by utility</h2>
+              <p>Where the live electrical load is being used now.</p>
+            </div>
+          </div>
+        </header>
+
+        <div class="crm-utility-list" *ngIf="liveOverview?.utilityLoads?.length; else noUtilityLoad">
+          <article class="crm-utility-row" *ngFor="let utility of liveOverview?.utilityLoads | slice:0:6">
+            <div class="crm-utility-row-head">
+              <div>
+                <strong>{{ utility.utilityName }}</strong>
+                <small>{{ utility.onlineSensors }} live {{ utility.onlineSensors === 1 ? 'sensor' : 'sensors' }}</small>
+              </div>
+              <span>{{ getPowerValue(utility.currentLoadW) | number:'1.0-2' }} {{ getPowerUnit(utility.currentLoadW) }}</span>
+            </div>
+            <div class="crm-progress-track">
+              <i [style.width.%]="utility.percentage"></i>
+            </div>
+            <div class="crm-utility-row-foot">
+              <span>{{ utility.percentage | number:'1.0-1' }}% of live load</span>
+            </div>
+          </article>
+        </div>
+
+        <ng-template #noUtilityLoad>
+          <div class="crm-empty-mini">
+            <i class="ri-pulse-line"></i>
+            <p>Waiting for live utility readings.</p>
+          </div>
+        </ng-template>
+      </article>
+    </section>
+
+    <section class="crm-live-grid crm-secondary-live-grid">
+      <article class="crm-card crm-top-consumers-card">
+        <header class="crm-card-header">
+          <div class="crm-card-heading">
+            <span class="crm-card-icon crm-card-icon-amber"><i class="ri-fire-line"></i></span>
+            <div>
+              <h2>Top active devices now</h2>
+              <p>Highest live power consumers across the selected business scope.</p>
+            </div>
+          </div>
+          <a routerLink="/live-consumption" class="crm-text-link">View all <i class="ri-arrow-right-line"></i></a>
+        </header>
+
+        <div class="crm-consumer-table" *ngIf="liveOverview?.topConsumers?.length; else noConsumers">
+          <div class="crm-consumer-table-head">
+            <span>Device / sensor</span>
+            <span>Live load</span>
+            <span>Electrical health</span>
+            <span>Relay</span>
+          </div>
+          <article class="crm-consumer-row" *ngFor="let item of liveOverview?.topConsumers; trackBy: trackBySensorId">
+            <div class="crm-consumer-name">
+              <span><i class="ri-plug-line"></i></span>
+              <div>
+                <strong>{{ getConsumerName(item) }}</strong>
+                <small>{{ getConsumerLocation(item) }}</small>
+              </div>
+            </div>
+            <div class="crm-consumer-power">
+              <strong>{{ getPowerValue(item.currentLoadW) | number:'1.0-2' }}</strong>
+              <small>{{ getPowerUnit(item.currentLoadW) }}</small>
+            </div>
+            <div class="crm-consumer-health">
+              <span>{{ item.voltage | number:'1.0-1' }} V</span>
+              <span>PF {{ item.powerFactor | number:'1.0-2' }}</span>
+            </div>
+            <span class="crm-relay-pill" [class.is-off]="(item.relayState || '').toUpperCase() === 'OFF'">
+              {{ item.relayState || 'Unknown' }}
+            </span>
+          </article>
+        </div>
+
+        <ng-template #noConsumers>
+          <div class="crm-empty-state">
+            <i class="ri-plug-line"></i>
+            <p>No fresh live device readings are available yet.</p>
+          </div>
+        </ng-template>
+      </article>
+
+      <aside class="crm-health-stack">
+        <article class="crm-card crm-health-card">
+          <header class="crm-card-header">
+            <div class="crm-card-heading">
+              <span class="crm-card-icon crm-card-icon-green"><i class="ri-heart-pulse-line"></i></span>
+              <div>
+                <h2>System health</h2>
+                <p>Freshness of all configured sensors.</p>
+              </div>
+            </div>
+            <strong class="crm-health-percent">{{ getSensorHealthPercent() }}%</strong>
+          </header>
+
+          <div class="crm-health-progress"><i [style.width.%]="getSensorHealthPercent()"></i></div>
+          <div class="crm-health-counters">
+            <div class="is-online"><strong>{{ liveOverview?.onlineSensors || 0 }}</strong><span>Online</span></div>
+            <div class="is-delayed"><strong>{{ liveOverview?.delayedSensors || 0 }}</strong><span>Delayed</span></div>
+            <div class="is-offline"><strong>{{ liveOverview?.offlineSensors || 0 }}</strong><span>Offline</span></div>
+            <div class="is-never"><strong>{{ liveOverview?.neverConnectedSensors || 0 }}</strong><span>Never connected</span></div>
+          </div>
+          <p class="crm-health-rule">
+            Online ≤ {{ (liveOverview?.onlineThresholdSeconds || 180) / 60 | number:'1.0-0' }} min ·
+            Delayed ≤ {{ (liveOverview?.delayedThresholdSeconds || 600) / 60 | number:'1.0-0' }} min
+          </p>
+        </article>
+
+        <article class="crm-card crm-readiness-card">
+          <header class="crm-card-header">
+            <div class="crm-card-heading">
+              <span class="crm-card-icon crm-card-icon-primary"><i class="ri-settings-4-line"></i></span>
+              <div>
+                <h2>Optimization readiness</h2>
+                <p>Configuration required for trusted actions.</p>
+              </div>
+            </div>
+            <span class="crm-readiness-state" [ngClass]="getReadinessClass()">{{ getReadinessLabel() }}</span>
+          </header>
+
+          <div class="crm-readiness-score">
+            <strong>{{ liveOverview?.optimizationReadinessPercent || 0 }}%</strong>
+            <div class="crm-progress-track"><i [style.width.%]="liveOverview?.optimizationReadinessPercent || 0"></i></div>
+          </div>
+          <div class="crm-readiness-list">
+            <div><span>Tariff</span><strong [class.is-missing]="!liveOverview?.tariffConfigured">{{ liveOverview?.tariffConfigured ? 'Configured' : 'Missing' }}</strong></div>
+            <div><span>Demand limit</span><strong [class.is-missing]="!liveOverview?.demandLimitConfigured">{{ liveOverview?.demandLimitConfigured ? 'Configured' : 'Missing' }}</strong></div>
+            <div><span>Appliance assignments</span><strong>{{ liveOverview?.assignedSensors || 0 }} / {{ liveOverview?.totalSensors || 0 }}</strong></div>
+            <div><span>Optimization profiles</span><strong>{{ liveOverview?.configuredOptimizationSensors || 0 }} / {{ liveOverview?.totalSensors || 0 }}</strong></div>
+          </div>
+        </article>
+      </aside>
+    </section>
+
+    <section class="crm-primary-grid crm-operational-grid">
+      <aside class="crm-card crm-operations-card crm-idle-insight-card" *ngIf="liveAlertsService.idleAlerts$ | async as idleAlerts">
+        <header class="crm-card-header">
+          <div class="crm-card-heading">
+            <span class="crm-card-icon crm-card-icon-cyan"><i class="ri-timer-flash-line"></i></span>
+            <div>
+              <h2>Idle appliances</h2>
+              <p>Appliances currently reported as idle by live monitoring.</p>
+            </div>
+          </div>
+          <span class="crm-alert-total crm-confirmed-total">{{ idleAlerts.length }}</span>
         </header>
 
         <div class="crm-idle-card-body">
+          <div class="crm-idle-evidence-banner" *ngIf="idleAlerts.length > 0">
+            <i class="ri-shield-check-line"></i>
+            <span>Use the controls to send an ON or OFF command directly to an appliance.</span>
+          </div>
+
           <div class="crm-device-list crm-idle-device-list" *ngIf="idleAlerts.length > 0; else noIdleAppliances">
-            <article class="crm-device-row" *ngFor="let item of idleAlerts">
+            <article class="crm-device-row crm-confirmed-idle-row" *ngFor="let item of idleAlerts">
               <span class="crm-device-icon crm-device-blue"><i class="ri-remote-control-2-line"></i></span>
-              <div>
-                <strong>{{ item.applianceName || item.sensorName || 'Idle appliance' }}</strong>
-                <small>{{ item.message || item.action || 'Standby usage detected' }}</small>
+              <div class="crm-idle-device-copy">
+                <div class="crm-idle-title-line">
+                  <strong>{{ item.applianceName || item.sensorName || 'Idle appliance' }}</strong>
+                  <span class="crm-confirmed-pill"><i class="ri-check-double-line"></i> Idle</span>
+                </div>
+                <small>{{ item.message || item.action || 'Stable standby usage detected' }}</small>
+                <div class="crm-idle-evidence">
+                  <span><i class="ri-pulse-line"></i> {{ getIdleEvidenceLabel(item) }}</span>
+                  <span *ngIf="item.coveragePercent"><i class="ri-signal-wifi-line"></i> {{ item.coveragePercent | number:'1.0-0' }}% coverage</span>
+                </div>
               </div>
-              <button type="button" *ngIf="item.canTurnOff" [disabled]="item.commandSent" (click)="turnOffIdleAppliance(item)">
-                {{ item.commandSent ? 'Sent' : 'Off' }}
-              </button>
-              <span *ngIf="!item.canTurnOff" class="crm-status-pill">Idle</span>
+              <div class="crm-idle-command-actions" *ngIf="canControlIdleAppliance(item); else idleOnlyStatus">
+                <button type="button" class="is-on" [disabled]="isIdleApplianceCommanding(item)" (click)="sendIdleApplianceCommand(item, 'ON')"><i class="ri-play-circle-line"></i> On</button>
+                <button type="button" class="is-off" [disabled]="isIdleApplianceCommanding(item)" (click)="sendIdleApplianceCommand(item, 'OFF')"><i class="ri-shut-down-line"></i> {{ isIdleApplianceCommanding(item) ? 'Sending' : 'Off' }}</button>
+              </div>
+              <ng-template #idleOnlyStatus><span class="crm-status-pill">Idle</span></ng-template>
             </article>
           </div>
 
           <ng-template #noIdleAppliances>
-            <div class="crm-empty-mini">
+            <div class="crm-empty-mini crm-idle-empty-state">
               <i class="ri-checkbox-circle-line"></i>
-              <p>No idle appliances right now.</p>
+              <div>
+                <strong>No idle appliances</strong>
+                <p>New idle devices will appear here as live alerts arrive.</p>
+              </div>
             </div>
           </ng-template>
         </div>
       </aside>
 
-      <section class="crm-card crm-suggestions-card crm-dashboard-suggestions">
-        <header class="crm-card-header">
-          <div class="crm-card-heading">
-            <span class="crm-card-icon crm-card-icon-amber"><i class="ri-lightbulb-flash-line"></i></span>
-            <div>
-              <h2>Energy saving suggestions</h2>
-              <p>Latest optimization checks and actions.</p>
-            </div>
-          </div>
-          <span class="crm-suggestion-summary">
-            <i class="ri-lightbulb-line"></i>
-            {{ suggestions.length || 0 }} {{ suggestions.length === 1 ? 'insight' : 'insights' }}
-          </span>
-        </header>
-
-        <div class="crm-suggestion-list" *ngIf="suggestions.length; else noSuggestions">
-          <article
-            class="crm-suggestion-item"
-            *ngFor="let suggestion of suggestions | slice:0:5"
-            [class.crm-suggestion-warning]="(suggestion.severity || '').toLowerCase() === 'warning'"
-            [class.crm-suggestion-critical]="(suggestion.severity || '').toLowerCase() === 'critical'">
-            <span class="crm-suggestion-icon"><i [class]="getSuggestionIcon(suggestion)"></i></span>
-            <div class="crm-suggestion-copy">
-              <div class="crm-suggestion-title-row">
-                <strong>{{ suggestion.title }}</strong>
-                <span>{{ suggestion.severity || 'info' }}</span>
-              </div>
-              <p>{{ suggestion.message }}</p>
-              <div class="crm-suggestion-action" *ngIf="suggestion.action">
-                <i class="ri-checkbox-circle-line"></i>
-                <span>{{ suggestion.action }}</span>
-              </div>
-            </div>
-          </article>
+      <button
+        type="button"
+        class="crm-card crm-suggestions-launcher"
+        (click)="openSuggestionsPanel()"
+        [attr.aria-label]="'Open ' + suggestions.length + ' active optimization suggestions'">
+        <div class="crm-suggestions-launcher-top">
+          <span class="crm-card-icon crm-card-icon-amber"><i class="ri-lightbulb-flash-line"></i></span>
+          <span class="crm-live-indicator"><i></i> Live</span>
         </div>
 
-        <ng-template #noSuggestions>
-          <div class="crm-empty-state">
-            <i class="ri-checkbox-circle-line"></i>
-            <p>No optimization suggestions right now.</p>
+        <div class="crm-suggestions-launcher-count">
+          <strong>{{ suggestions.length }}</strong>
+          <div>
+            <h2>Active suggestions</h2>
+            <p>Generated continuously from stable sensor evidence.</p>
           </div>
-        </ng-template>
-      </section>
+        </div>
+
+        <div class="crm-suggestion-severity-summary">
+          <span class="is-critical"><b>{{ getSuggestionSeverityCount('critical') }}</b> Critical</span>
+          <span class="is-warning"><b>{{ getSuggestionSeverityCount('warning') }}</b> Warning</span>
+          <span class="is-info"><b>{{ getSuggestionSeverityCount('info') + getSuggestionSeverityCount('opportunity') }}</b> Other</span>
+        </div>
+
+        <div class="crm-suggestions-launcher-action">
+          <span>{{ suggestions.length ? 'Review live recommendations' : 'Open optimization details' }}</span>
+          <i class="ri-arrow-right-line"></i>
+        </div>
+      </button>
     </section>
+
+    <div class="crm-suggestion-drawer-backdrop" *ngIf="isSuggestionsPanelOpen" (click)="closeSuggestionsPanel()"></div>
+    <aside class="crm-suggestion-drawer" [class.is-open]="isSuggestionsPanelOpen" aria-label="Active optimization suggestions">
+      <header class="crm-suggestion-drawer-header">
+        <div>
+          <span class="crm-drawer-eyebrow"><i></i> Live optimization</span>
+          <h2>Active suggestions <b>{{ suggestions.length }}</b></h2>
+          <p>Recommendations update automatically as confirmed sensor conditions change.</p>
+        </div>
+        <button type="button" class="crm-drawer-close" (click)="closeSuggestionsPanel()" aria-label="Close suggestions">
+          <i class="ri-close-line"></i>
+        </button>
+      </header>
+
+      <div class="crm-suggestion-drawer-summary">
+        <span class="is-critical"><b>{{ getSuggestionSeverityCount('critical') }}</b><small>Critical</small></span>
+        <span class="is-warning"><b>{{ getSuggestionSeverityCount('warning') }}</b><small>Warning</small></span>
+        <span class="is-info"><b>{{ getSuggestionSeverityCount('info') + getSuggestionSeverityCount('opportunity') }}</b><small>Other</small></span>
+      </div>
+
+      <div class="crm-suggestion-drawer-body" *ngIf="suggestions.length; else noLiveSuggestions">
+        <article
+          class="crm-suggestion-drawer-item"
+          *ngFor="let suggestion of suggestions"
+          [class.is-critical]="(suggestion.severity || '').toLowerCase() === 'critical'"
+          [class.is-warning]="(suggestion.severity || '').toLowerCase() === 'warning'">
+          <span class="crm-suggestion-icon"><i [class]="getSuggestionIcon(suggestion)"></i></span>
+          <div class="crm-suggestion-copy">
+            <div class="crm-suggestion-title-row">
+              <strong>{{ suggestion.title }}</strong>
+              <span>{{ suggestion.severity || 'info' }}</span>
+            </div>
+            <p>{{ suggestion.message }}</p>
+            <div class="crm-suggestion-context" *ngIf="suggestion.applianceName || suggestion.officeName || suggestion.utilityName">
+              <span *ngIf="suggestion.applianceName"><i class="ri-plug-line"></i> {{ suggestion.applianceName }}</span>
+              <span *ngIf="suggestion.officeName"><i class="ri-map-pin-line"></i> {{ suggestion.officeName }}</span>
+              <span *ngIf="suggestion.utilityName"><i class="ri-flashlight-line"></i> {{ suggestion.utilityName }}</span>
+            </div>
+            <div class="crm-suggestion-action" *ngIf="suggestion.action">
+              <i class="ri-checkbox-circle-line"></i>
+              <span>{{ suggestion.action }}</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <ng-template #noLiveSuggestions>
+        <div class="crm-drawer-empty">
+          <i class="ri-checkbox-circle-line"></i>
+          <strong>No active optimization suggestions</strong>
+          <p>The worker will add recommendations here when a stable condition is confirmed.</p>
+        </div>
+      </ng-template>
+    </aside>
   </div>
 </main>

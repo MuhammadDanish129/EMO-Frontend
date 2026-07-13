@@ -212,7 +212,6 @@ export interface DeepDiveConfigurationStatus {
   hasValidTimezone: boolean;
   hasDemandSettings: boolean;
   hasDemandLimit: boolean;
-  hasMonthlyEnergyTarget: boolean;
   hasOfficeSchedules: boolean;
   hasApplianceAssignments: boolean;
   hasApplianceThresholds: boolean;
@@ -229,7 +228,6 @@ export interface DeepDiveFeatureAvailability {
   peakOffPeakAnalysis: boolean;
   demandAnalysis: boolean;
   demandThresholdAnalysis: boolean;
-  monthlyTargetAnalysis: boolean;
   optimizationSuggestions: boolean;
   savingsCostAnalysis: boolean;
 }
@@ -245,8 +243,6 @@ export interface DeepDiveSummary {
   peakDemandAt: string | null;
   savingOpportunityKwh: number;
   savingOpportunityCost: number | null;
-  monthlyEnergyTargetKwh: number | null;
-  targetUsagePercent: number | null;
 }
 
 export interface DeepDiveChild {
@@ -267,6 +263,7 @@ export interface DeepDiveChild {
 
 export interface DeepDiveTrendPoint {
   bucket: string;
+  label: string;
   energyKwh: number;
   previousEnergyKwh: number;
   demandKw: number;

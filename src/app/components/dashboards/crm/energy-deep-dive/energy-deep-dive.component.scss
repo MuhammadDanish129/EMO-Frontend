@@ -19,9 +19,15 @@
 }
 
 /* The Deep Dive main analysis chart must remain full width. */
-.deep-crm-grid {
+.crm-primary-grid.deep-crm-grid {
   grid-template-columns: minmax(0, 1fr);
+  width: 100%;
   margin-bottom: 1rem;
+}
+
+.crm-primary-grid.deep-crm-grid > .crm-peak-card {
+  grid-column: 1 / -1;
+  width: 100%;
 }
 
 .deep-crm-secondary-grid {
@@ -438,6 +444,89 @@
   .crm-mix-list {
     max-height: none;
     padding-inline: 0.75rem;
+  }
+}
+
+/* Keep every chart's controls, metrics, plot and legend in one visual card. */
+.deep-crm-grid .crm-chart-selector-row {
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--explorer-border);
+}
+
+.deep-crm-grid .crm-inline-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 1rem 1rem 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--explorer-border);
+  border-radius: 0.75rem;
+  background: var(--explorer-card);
+}
+
+.deep-crm-grid .crm-inline-metrics > div,
+.deep-crm-grid .crm-inline-metrics > div:nth-child(2),
+.deep-crm-grid .crm-inline-metrics > div:nth-child(3) {
+  min-height: 5rem;
+  padding: 0.8rem 0.85rem 0.8rem 1.45rem;
+  border: 0;
+  border-inline-end: 1px solid var(--explorer-border);
+  border-radius: 0;
+  background: var(--explorer-card);
+}
+
+.deep-crm-grid .crm-inline-metrics > div:last-child {
+  border-inline-end: 0;
+}
+
+.deep-crm-grid .crm-line-chart-shell {
+  margin-top: 0.35rem;
+  border-top: 0;
+  background: var(--explorer-card);
+}
+
+.crm-mix-content {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--explorer-card);
+}
+
+.crm-mix-content .monthly-device-report-chart,
+.crm-mix-content .crm-mix-list {
+  background: var(--explorer-card);
+}
+
+.crm-mix-content .crm-mix-list {
+  padding: 0 1rem 1rem;
+}
+
+.crm-mix-content .crm-mix-list > div {
+  border: 0;
+  border-bottom: 1px solid var(--explorer-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.crm-mix-content .crm-mix-list > div:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 767.98px) {
+  .deep-crm-grid .crm-inline-metrics {
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0.75rem 0.75rem 0;
+  }
+
+  .deep-crm-grid .crm-inline-metrics > div,
+  .deep-crm-grid .crm-inline-metrics > div:nth-child(2),
+  .deep-crm-grid .crm-inline-metrics > div:nth-child(3) {
+    border-inline-end: 0;
+    border-bottom: 1px solid var(--explorer-border);
+  }
+
+  .deep-crm-grid .crm-inline-metrics > div:last-child {
+    border-bottom: 0;
   }
 }
 
@@ -2652,6 +2741,142 @@ tbody tr:last-child td {
   }
 }
 
+/* Focused Peak/Non-Peak and Utility Mix card polish. */
+.deep-crm-grid .crm-chart-selector-row {
+  overflow: visible;
+  align-items: flex-end;
+  padding: 0.9rem 1rem 0.25rem;
+  border-bottom: 0;
+  background: var(--explorer-card);
+}
+
+.crm-chart-selector {
+  position: relative;
+  z-index: 8;
+  width: min(100%, 18rem);
+}
+
+:host ::ng-deep .crm-chart-selector .yx-label {
+  color: var(--explorer-muted);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+:host ::ng-deep .crm-chart-selector .yx-select-trigger {
+  min-height: 2.65rem;
+  padding: 0 0.85rem;
+  border: 1px solid rgba(132, 90, 223, 0.32);
+  border-radius: 0.7rem;
+  background: var(--explorer-card);
+  box-shadow: 0 0.18rem 0.55rem rgba(22, 32, 51, 0.06);
+  color: var(--explorer-text);
+}
+
+:host ::ng-deep .crm-chart-selector .yx-select-trigger:hover {
+  border-color: rgba(132, 90, 223, 0.58);
+}
+
+:host ::ng-deep .crm-chart-selector .yx-select-panel {
+  z-index: 30;
+  border: 1px solid var(--explorer-border);
+  border-radius: 0.7rem;
+  box-shadow: 0 0.75rem 1.75rem rgba(22, 32, 51, 0.14);
+}
+
+.deep-crm-grid .crm-inline-metrics {
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  background: var(--explorer-card);
+}
+
+.deep-crm-grid .crm-inline-metrics > div {
+  min-height: 5.1rem;
+  align-content: center;
+  padding: 0.8rem 0.85rem 0.8rem 1.45rem;
+  border-color: rgba(132, 90, 223, 0.16);
+  background: linear-gradient(135deg, rgba(132, 90, 223, 0.07), var(--explorer-card));
+}
+
+.deep-crm-grid .crm-inline-metrics > div:nth-child(2) {
+  border-color: rgba(35, 183, 229, 0.18);
+  background: linear-gradient(135deg, rgba(35, 183, 229, 0.07), var(--explorer-card));
+}
+
+.deep-crm-grid .crm-inline-metrics > div:nth-child(3) {
+  border-color: rgba(38, 191, 148, 0.18);
+  background: linear-gradient(135deg, rgba(38, 191, 148, 0.07), var(--explorer-card));
+}
+
+.deep-crm-grid .crm-inline-metrics strong {
+  margin-block: 0.15rem;
+  font-size: 0.88rem;
+}
+
+.deep-crm-grid .crm-line-chart-shell {
+  overflow: visible;
+  border-top: 1px solid var(--explorer-border);
+  padding-top: 0.8rem;
+}
+
+:host ::ng-deep .deep-crm-grid .apexcharts-toolbar {
+  z-index: 6 !important;
+  top: 0.35rem !important;
+  right: 0.65rem !important;
+  padding: 0.25rem !important;
+  border: 1px solid var(--explorer-border);
+  border-radius: 0.55rem;
+  background: var(--explorer-card);
+  box-shadow: 0 0.25rem 0.7rem rgba(22, 32, 51, 0.08);
+}
+
+.deep-crm-secondary-grid .crm-mix-card {
+  overflow: hidden;
+}
+
+.crm-mix-content {
+  display: flex;
+  min-height: 0;
+  flex: 1 1 auto;
+  flex-direction: column;
+  margin: 0.85rem;
+  overflow: hidden;
+  border: 1px solid var(--explorer-border);
+  border-radius: 0.85rem;
+  background: var(--explorer-surface);
+}
+
+.crm-mix-content .monthly-device-report-chart {
+  margin: 0;
+  border: 0;
+  background: transparent;
+}
+
+.crm-mix-content .crm-mix-list {
+  margin: 0;
+  padding: 0.2rem 0.7rem 0.75rem;
+  background: transparent;
+}
+
+.crm-mix-content .crm-mix-list > div {
+  border-color: rgba(132, 90, 223, 0.12);
+  background: var(--explorer-card);
+}
+
+@media (max-width: 767.98px) {
+  .crm-chart-selector {
+    width: 100%;
+  }
+
+  .deep-crm-grid .crm-inline-metrics {
+    padding: 0.75rem;
+  }
+
+  .crm-mix-content {
+    margin: 0.7rem;
+  }
+}
+
 .analysis-kpi-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -3219,9 +3444,15 @@ tbody tr:last-child td {
 }
 
 /* Consolidated Analysis + Live Readings additions */
-.deep-crm-grid {
+.crm-primary-grid.deep-crm-grid {
   grid-template-columns: minmax(0, 1fr);
+  width: 100%;
   margin-bottom: 1rem;
+}
+
+.crm-primary-grid.deep-crm-grid > .crm-peak-card {
+  grid-column: 1 / -1;
+  width: 100%;
 }
 
 .deep-crm-secondary-grid {
@@ -3535,5 +3766,1163 @@ tbody tr:last-child td {
   .aggregate-state {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* ========================================================================== */
+/* Final unified CRM analysis card layouts                                    */
+/* ========================================================================== */
+
+/* Main Peak/Non-Peak, Energy Consumption and High Demand card. */
+.deep-crm-grid .crm-peak-card {
+  overflow: visible;
+  background: var(--explorer-card);
+}
+
+.deep-crm-grid .crm-peak-card > .crm-card-header {
+  border-bottom: 0;
+  background: transparent;
+}
+
+.crm-analysis-card-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+  width: 100%;
+  background: var(--explorer-card);
+}
+
+.crm-chart-main {
+  min-width: 0;
+  width: 100%;
+  background: transparent;
+}
+
+.deep-crm-grid .crm-chart-main .crm-line-chart-shell {
+  min-height: 27rem;
+  width: 100%;
+  margin: 0;
+  padding: 0.8rem 0.35rem 0.75rem 0.55rem;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+}
+
+.deep-crm-grid .crm-chart-main .crm-line-chart-shell apx-chart {
+  display: block;
+  width: 100%;
+  max-width: none;
+}
+
+.crm-analysis-side {
+  display: flex;
+  order: -1;
+  min-width: 0;
+  flex-direction: column;
+  padding: 0.9rem 1rem 0;
+  border-bottom: 1px solid var(--explorer-border);
+  background: transparent;
+}
+
+.deep-crm-grid .crm-analysis-side .crm-chart-selector-row,
+.deep-crm-grid .crm-analysis-side .crm-analysis-filter-bar {
+  display: block;
+  margin: 0;
+  padding: 0 0 1rem;
+  overflow: visible;
+  border: 0;
+  background: transparent;
+}
+
+.deep-crm-grid .crm-analysis-side .crm-chart-selector {
+  width: 100%;
+}
+
+.deep-crm-grid .crm-analysis-side .crm-inline-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  overflow: visible;
+  border: 0;
+  border-top: 1px solid var(--explorer-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.deep-crm-grid .crm-analysis-side .crm-inline-metrics > div,
+.deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:nth-child(2),
+.deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:nth-child(3) {
+  min-height: 6rem;
+  align-content: center;
+  padding: 0.8rem 0.75rem 0.8rem 1.25rem;
+  border: 0;
+  border-inline-end: 1px solid var(--explorer-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:last-child {
+  border-inline-end: 0;
+}
+
+.deep-crm-grid .crm-analysis-side .crm-inline-metrics p,
+.deep-crm-grid .crm-analysis-side .crm-inline-metrics small,
+.deep-crm-grid .crm-analysis-side .crm-inline-metrics strong {
+  white-space: normal;
+}
+
+.deep-crm-grid .crm-analysis-side .crm-inline-metrics strong {
+  margin: 0.16rem 0;
+  font-size: 0.9rem;
+}
+
+.deep-crm-grid .crm-analysis-side .crm-metric-dot {
+  inset-inline-start: 0;
+  inset-block-start: 1.25rem;
+}
+
+/* Utility trend and Utility Mix receive balanced space. */
+.deep-crm-secondary-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.deep-crm-secondary-grid > .crm-card {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+}
+
+.deep-crm-secondary-grid .crm-consumption-card .crm-bar-chart-shell {
+  min-height: 0;
+  flex: 1 1 auto;
+}
+
+.deep-crm-secondary-grid .crm-mix-card {
+  overflow: hidden;
+  background: var(--explorer-card);
+}
+
+.deep-crm-secondary-grid .crm-mix-card > .crm-card-header {
+  border-bottom: 0;
+  background: transparent;
+}
+
+.deep-crm-secondary-grid .crm-mix-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 22.5rem;
+  flex: 1 1 auto;
+  gap: 0;
+  align-items: start;
+  margin: 0;
+  padding: 0.45rem 1rem 1rem;
+  overflow: visible;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.deep-crm-secondary-grid .crm-mix-content .monthly-device-report-chart {
+  min-height: 17.5rem;
+  height: auto;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.crm-mix-details {
+  display: flex;
+  min-width: 0;
+  width: 100%;
+  height: auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 0.85rem 0 0;
+  border-inline-start: 0;
+  border-top: 1px solid var(--explorer-border);
+  background: transparent;
+}
+
+.crm-mix-total {
+  display: grid;
+  gap: 0.12rem;
+  padding: 0 0.25rem 0.8rem;
+  border-bottom: 1px solid var(--explorer-border);
+}
+
+.crm-mix-total span,
+.crm-mix-total small {
+  color: var(--explorer-muted);
+  font-size: 0.55rem;
+}
+
+.crm-mix-total strong {
+  color: var(--explorer-text);
+  font-size: 1rem;
+  font-weight: 780;
+}
+
+.deep-crm-secondary-grid .crm-mix-content .crm-mix-list {
+  display: grid;
+  max-height: none;
+  gap: 0;
+  margin: 0;
+  padding: 0.45rem 0 0;
+  overflow: visible;
+  background: transparent;
+}
+
+.deep-crm-secondary-grid .crm-mix-content .crm-mix-list > div {
+  padding: 0.58rem 0.25rem;
+  border: 0;
+  border-bottom: 1px solid var(--explorer-border);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.deep-crm-secondary-grid .crm-mix-content .crm-mix-list > div:last-child {
+  border-bottom: 0;
+}
+
+@media (max-width: 1199.98px) {
+  .deep-crm-secondary-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .deep-crm-secondary-grid .crm-mix-content {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .crm-analysis-card-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .crm-analysis-side {
+    order: -1;
+    padding: 0.9rem 1rem 0;
+    border-inline-start: 0;
+    border-bottom: 1px solid var(--explorer-border);
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div,
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:nth-child(2),
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:nth-child(3) {
+    min-height: 5.25rem;
+    padding: 0.8rem 0.75rem 0.8rem 1.25rem;
+    border-bottom: 0;
+    border-inline-end: 1px solid var(--explorer-border);
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:last-child {
+    border-inline-end: 0;
+  }
+
+  .deep-crm-grid .crm-chart-main .crm-line-chart-shell {
+    min-height: 23rem;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div,
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:nth-child(2),
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:nth-child(3) {
+    min-height: 4.7rem;
+    border-inline-end: 0;
+    border-bottom: 1px solid var(--explorer-border);
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:last-child {
+    border-bottom: 0;
+  }
+
+  .deep-crm-secondary-grid .crm-mix-content {
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 0;
+    padding: 0.5rem 0.75rem 0.85rem;
+  }
+
+  .deep-crm-secondary-grid .crm-mix-content .monthly-device-report-chart {
+    min-height: 16rem;
+    padding: 0;
+  }
+
+  .crm-mix-details {
+    height: auto;
+    padding: 0.8rem 0 0;
+    border-inline-start: 0;
+    border-top: 1px solid var(--explorer-border);
+  }
+
+  .crm-mix-total {
+    padding: 0 0.2rem 0.8rem;
+  }
+
+  .deep-crm-secondary-grid .crm-mix-content .crm-mix-list {
+    max-height: none;
+  }
+}
+
+
+
+/* Strong, readable utility legend keys below the donut chart. */
+.deep-crm-secondary-grid .crm-mix-list .crm-mix-marker {
+  width: 0.78rem;
+  min-width: 0.78rem;
+  height: 0.78rem;
+  border: 2px solid var(--explorer-card);
+  border-radius: 0.24rem;
+  box-shadow: 0 0 0 1px var(--explorer-border);
+}
+
+.deep-crm-secondary-grid .crm-mix-list > div {
+  grid-template-columns: 0.9rem minmax(0, 1fr) auto;
+  column-gap: 0.65rem;
+}
+
+/* Ensure ApexCharts does not retain a narrower calculated canvas. */
+:host ::ng-deep .deep-crm-grid .crm-chart-main .apexcharts-canvas,
+:host ::ng-deep .deep-crm-grid .crm-chart-main .apexcharts-svg {
+  width: 100% !important;
+  max-width: none !important;
+}
+/* Confirmed reporting timezone and historical export entry point. */
+.explorer-header-actions {
+  gap: 0.75rem;
+}
+
+.explorer-history-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 2.4rem;
+  padding: 0 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 0.65rem;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.explorer-history-link:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.reporting-timezone-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(calc(100% - 2.5rem), 97.5rem);
+  margin: 0.85rem auto;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid rgba(245, 184, 73, 0.45);
+  border-radius: 0.75rem;
+  background: rgba(245, 184, 73, 0.08);
+}
+
+.reporting-timezone-bar.is-confirmed {
+  border-color: rgba(38, 191, 148, 0.32);
+  background: rgba(38, 191, 148, 0.07);
+}
+
+.reporting-timezone-bar > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.reporting-timezone-bar > div:first-child > i {
+  color: rgb(197, 133, 22);
+  font-size: 1.1rem;
+}
+
+.reporting-timezone-bar.is-confirmed > div:first-child > i {
+  color: rgb(28, 151, 112);
+}
+
+.reporting-timezone-bar span {
+  display: grid;
+  min-width: 0;
+}
+
+.reporting-timezone-bar strong {
+  color: var(--explorer-text);
+  font-size: 0.74rem;
+}
+
+.reporting-timezone-bar small {
+  color: var(--explorer-muted);
+  font-size: 0.65rem;
+}
+
+.reporting-timezone-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex: none;
+}
+
+.reporting-timezone-actions select,
+.reporting-timezone-actions button {
+  min-height: 2.15rem;
+  border: 1px solid var(--explorer-border);
+  border-radius: 0.55rem;
+  font-size: 0.68rem;
+}
+
+.reporting-timezone-actions select {
+  min-width: 13rem;
+  padding: 0 0.65rem;
+  background: var(--explorer-card);
+  color: var(--explorer-text);
+}
+
+.reporting-timezone-actions button {
+  padding: 0 0.75rem;
+  border-color: rgb(var(--primary));
+  background: rgb(var(--primary));
+  color: #fff;
+  font-weight: 700;
+}
+
+.reporting-timezone-actions button.secondary {
+  border-color: var(--explorer-border);
+  background: var(--explorer-card);
+  color: var(--explorer-text);
+}
+
+@media (max-width: 767.98px) {
+  .explorer-header-actions,
+  .reporting-timezone-bar,
+  .reporting-timezone-actions {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .explorer-history-link,
+  .range-select,
+  .reporting-timezone-actions select {
+    width: 100%;
+  }
+
+  .reporting-timezone-bar {
+    align-items: flex-start;
+  }
+}
+/* Mobile-first Energy Deep Dive composition. */
+@media (max-width: 767.98px) {
+  .explorer-page-header-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 0.9rem 0.75rem 0.8rem;
+  }
+
+  .explorer-page-header h1 {
+    font-size: 1.08rem;
+    line-height: 1.25;
+  }
+
+  .explorer-page-header p {
+    max-width: 34rem;
+    margin-top: 0.2rem;
+    font-size: 0.68rem;
+    line-height: 1.45;
+  }
+
+  .explorer-header-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .explorer-history-link,
+  .range-select {
+    min-width: 0;
+    min-height: 2.15rem;
+    font-size: 0.64rem;
+  }
+
+  .reporting-timezone-bar {
+    width: calc(100% - 1.5rem);
+    margin: 0.65rem auto;
+    gap: 0.65rem;
+    padding: 0.65rem;
+    border-radius: 0.6rem;
+  }
+
+  .reporting-timezone-bar > div:first-child {
+    align-items: flex-start;
+  }
+
+  .reporting-timezone-bar > div:first-child > i {
+    font-size: 0.9rem;
+  }
+
+  .reporting-timezone-bar strong {
+    font-size: 0.66rem;
+  }
+
+  .reporting-timezone-bar small {
+    font-size: 0.58rem;
+    line-height: 1.4;
+  }
+
+  .reporting-timezone-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 0.4rem;
+  }
+
+  .reporting-timezone-actions select,
+  .reporting-timezone-actions button {
+    width: auto;
+    min-width: 0;
+    min-height: 2rem;
+    padding-inline: 0.55rem;
+    font-size: 0.6rem;
+  }
+
+  .hierarchy-breadcrumb {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.45rem;
+    padding: 0.55rem 0.75rem;
+  }
+
+  .hierarchy-breadcrumb ol {
+    width: 100%;
+    padding-bottom: 0.1rem;
+  }
+
+  .hierarchy-breadcrumb button > span,
+  .current-breadcrumb > span {
+    font-size: 0.56rem;
+  }
+
+  .breadcrumb-back-button {
+    align-self: flex-start;
+    min-height: 1.9rem;
+    padding: 0 0.55rem;
+    font-size: 0.58rem;
+  }
+
+  .explorer-content {
+    padding: 0 0.65rem 1rem;
+  }
+
+  .view-switch {
+    display: grid;
+    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.22rem;
+    margin: 0 auto 0.75rem;
+    padding: 0.22rem;
+    border-radius: 0.65rem;
+  }
+
+  .view-switch button {
+    min-width: 0;
+    min-height: 2rem;
+    gap: 0.25rem;
+    padding: 0 0.25rem;
+    border-radius: 0.45rem;
+    font-size: 0.56rem;
+    white-space: nowrap;
+  }
+
+  .view-switch button i {
+    font-size: 0.78rem;
+  }
+
+  .hierarchy-section,
+  .analysis-kpi-grid,
+  .crm-primary-grid.deep-crm-grid,
+  .deep-crm-secondary-grid,
+  .analysis-grid {
+    margin-bottom: 0.7rem;
+  }
+
+  .section-head {
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 0.55rem;
+  }
+
+  .section-label {
+    font-size: 0.5rem;
+  }
+
+  .section-head h2,
+  .panel-head h2,
+  .analysis-summary h2 {
+    font-size: 0.72rem;
+  }
+
+  .section-head > span,
+  .panel-head > span {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.52rem;
+  }
+
+  .child-grid,
+  .sensor-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.6rem;
+  }
+
+  .child-card,
+  .sensor-card {
+    min-height: 0;
+    padding: 0.75rem;
+    border-radius: 0.68rem;
+  }
+
+  .child-card::before,
+  .sensor-card::before {
+    width: 4.5rem;
+    height: 4.5rem;
+    inset-block-start: -2.8rem;
+  }
+
+  .location-icon,
+  .sensor-icon {
+    width: 1.9rem;
+    min-width: 1.9rem;
+    height: 1.9rem;
+    border-radius: 0.52rem;
+    font-size: 0.82rem;
+  }
+
+  .alert-pill,
+  .sensor-status {
+    padding: 0.2rem 0.4rem;
+    font-size: 0.52rem;
+  }
+
+  .child-card-title {
+    margin-top: 0.65rem;
+  }
+
+  .child-card-title > span {
+    font-size: 0.48rem;
+  }
+
+  .child-card h3,
+  .sensor-card h3 {
+    font-size: 0.76rem;
+  }
+
+  .card-energy {
+    margin-top: 0.65rem;
+    padding: 0.55rem 0;
+  }
+
+  .card-energy strong {
+    font-size: 1rem;
+  }
+
+  .child-stats,
+  .sensor-values {
+    gap: 0.4rem;
+  }
+
+  .open-card {
+    margin-top: 0.65rem;
+    font-size: 0.54rem;
+  }
+
+  .analysis-kpi-grid,
+  .analysis-kpi-grid--top {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+  }
+
+  .analysis-kpi-grid > article,
+  .analysis-kpi-grid--top > article {
+    min-height: 4.9rem;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.65rem;
+    border-radius: 0.65rem;
+  }
+
+  .analysis-kpi-grid--top > article::after {
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+
+  .kpi-icon {
+    width: 1.8rem;
+    min-width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 0.5rem;
+    font-size: 0.78rem;
+  }
+
+  .analysis-kpi-grid small {
+    font-size: 0.5rem;
+    letter-spacing: 0.02em;
+  }
+
+  .analysis-kpi-grid strong {
+    margin-top: 0.12rem;
+    font-size: 0.76rem;
+    line-height: 1.25;
+  }
+
+  .analysis-kpi-grid em {
+    margin-top: 0.12rem;
+    font-size: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .crm-card,
+  .panel {
+    border-radius: 0.68rem;
+    box-shadow: 0 0.18rem 0.6rem rgba(22, 32, 51, 0.045);
+  }
+
+  .crm-card-header {
+    min-height: 3.6rem;
+    gap: 0.5rem;
+    padding: 0.65rem;
+  }
+
+  .crm-card-heading {
+    gap: 0.5rem;
+  }
+
+  .crm-card-heading h2 {
+    font-size: 0.72rem;
+    white-space: normal;
+  }
+
+  .crm-card-heading p {
+    margin-top: 0.1rem;
+    font-size: 0.52rem;
+    line-height: 1.35;
+  }
+
+  .crm-card-icon {
+    width: 1.85rem;
+    min-width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 0.5rem;
+    font-size: 0.78rem;
+  }
+
+  .crm-icon-button {
+    width: 1.85rem;
+    min-width: 1.85rem;
+    height: 1.85rem;
+    border-radius: 0.48rem;
+    font-size: 0.76rem;
+  }
+
+  .crm-analysis-card-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .crm-analysis-side {
+    order: -1;
+    padding: 0.55rem 0.65rem 0;
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-chart-selector-row,
+  .deep-crm-grid .crm-analysis-side .crm-analysis-filter-bar {
+    padding: 0.5rem;
+    border-radius: 0.55rem;
+  }
+
+  .crm-select,
+  .crm-filter-bar input {
+    min-height: 2rem;
+    padding-inline: 0.55rem;
+    font-size: 0.58rem;
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div,
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:nth-child(2),
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:nth-child(3) {
+    min-height: 3.7rem;
+    padding: 0.55rem 0.45rem 0.55rem 0.9rem;
+    border-inline-end: 1px solid var(--explorer-border);
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:nth-child(even) {
+    border-inline-end: 0;
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics > div:last-child {
+    grid-column: 1 / -1;
+    border-top: 1px solid var(--explorer-border);
+    border-bottom: 0;
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics strong {
+    font-size: 0.72rem;
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics p,
+  .deep-crm-grid .crm-analysis-side .crm-inline-metrics small {
+    font-size: 0.48rem;
+  }
+
+  .deep-crm-grid .crm-analysis-side .crm-metric-dot {
+    width: 0.38rem;
+    height: 0.38rem;
+    inset-inline-start: 0.38rem;
+  }
+
+  .crm-chart-main {
+    padding: 0.35rem 0.25rem 0.5rem;
+  }
+
+  .deep-crm-grid .crm-chart-main .crm-line-chart-shell,
+  .deep-crm-secondary-grid .crm-consumption-card .crm-bar-chart-shell {
+    min-height: 18rem;
+    padding: 0.2rem 0;
+  }
+
+  .deep-crm-secondary-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.7rem;
+  }
+
+  .deep-crm-secondary-grid > .crm-card {
+    min-height: 0;
+  }
+
+  .deep-crm-secondary-grid .crm-mix-content {
+    gap: 0.4rem;
+    padding: 0.35rem 0.55rem 0.65rem;
+  }
+
+  .deep-crm-secondary-grid .crm-mix-content .monthly-device-report-chart {
+    min-height: 13.5rem;
+  }
+
+  .crm-mix-details {
+    padding-top: 0.55rem;
+  }
+
+  .crm-mix-total {
+    padding: 0 0.1rem 0.55rem;
+  }
+
+  .crm-mix-total strong {
+    font-size: 0.9rem;
+  }
+
+  .deep-crm-secondary-grid .crm-mix-content .crm-mix-list > div {
+    min-height: 2rem;
+    padding: 0.35rem 0.2rem;
+    font-size: 0.56rem;
+  }
+
+  .analysis-grid,
+  .crm-analysis-graph-grid,
+  .sensor-analysis-graph-grid,
+  .analysis-breakdown-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.7rem;
+  }
+
+  .crm-analysis-graph-card > .panel-head {
+    min-height: 3.5rem;
+    padding: 0.65rem 0.65rem 0.65rem 3rem;
+  }
+
+  .crm-analysis-graph-card > .panel-head::before {
+    width: 1.75rem;
+    height: 1.75rem;
+    inset-inline-start: 0.65rem;
+  }
+
+  .crm-analysis-graph-card .chart-wrap,
+  .crm-analysis-graph-card .breakdown-trend {
+    min-height: 15.5rem;
+  }
+
+  .panel-head-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.4rem;
+  }
+
+  .analysis-segmented {
+    width: 100%;
+    padding: 0.18rem;
+  }
+
+  .analysis-segmented button {
+    min-height: 1.9rem;
+    padding: 0.3rem 0.48rem;
+    font-size: 0.56rem;
+  }
+
+  .chart-context-line {
+    gap: 0.3rem;
+    padding: 0.45rem 0.65rem 0;
+    font-size: 0.54rem;
+  }
+
+  .error-state,
+  .data-availability,
+  .analysis-reading-warning {
+    gap: 0.55rem;
+    padding: 0.65rem;
+    border-radius: 0.6rem;
+    font-size: 0.6rem;
+  }
+
+  :host ::ng-deep .apexcharts-legend-text,
+  :host ::ng-deep .apexcharts-xaxis-label,
+  :host ::ng-deep .apexcharts-yaxis-label {
+    font-size: 9px !important;
+  }
+}
+
+@media (max-width: 420px) {
+  .explorer-header-actions,
+  .analysis-kpi-grid,
+  .analysis-kpi-grid--top {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .reporting-timezone-actions {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .reporting-timezone-actions select {
+    grid-column: 1 / -1;
+  }
+
+  .view-switch button {
+    flex-direction: column;
+    gap: 0.08rem;
+    min-height: 2.4rem;
+    font-size: 0.5rem;
+  }
+}
+/* Compact mobile metric cards, icon tabs and chart axes. */
+@media (max-width: 767.98px) {
+  .view-switch {
+    width: max-content;
+    grid-template-columns: repeat(3, 2.65rem);
+    gap: 0.25rem;
+    padding: 0.25rem;
+  }
+
+  .view-switch button {
+    width: 2.65rem;
+    min-width: 2.65rem;
+    min-height: 2.15rem;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .view-switch button i {
+    margin: 0;
+    font-size: 0.92rem;
+  }
+
+  .demand-summary-row,
+  .demand-summary-extended,
+  .peak-split-values,
+  .crm-analysis-graph-card .demand-summary-row,
+  .crm-analysis-graph-card .peak-split-values {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(5.25rem, 1fr));
+    gap: 0.38rem;
+    margin: 0 0.55rem 0.6rem;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .demand-summary-row span,
+  .demand-summary-extended span,
+  .peak-split-values span,
+  .crm-analysis-graph-card .demand-summary-row > span,
+  .crm-analysis-graph-card .peak-split-values > span {
+    display: flex;
+    min-width: 0;
+    min-height: 3.25rem;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+    padding: 0.42rem 0.5rem;
+    border: 1px solid var(--explorer-border);
+    border-radius: 0.5rem;
+    background: var(--explorer-surface);
+    text-align: start;
+  }
+
+  .demand-summary-row small,
+  .peak-split-values small {
+    overflow: hidden;
+    width: 100%;
+    color: var(--explorer-muted);
+    font-size: 0.47rem;
+    font-weight: 720;
+    letter-spacing: 0.025em;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .demand-summary-row strong,
+  .peak-split-values strong {
+    overflow-wrap: anywhere;
+    margin-top: 0.12rem;
+    color: var(--explorer-text);
+    font-size: 0.66rem;
+    line-height: 1.2;
+  }
+
+  .hierarchy-analysis-table .table-wrap {
+    overflow: visible;
+    padding: 0.55rem;
+  }
+
+  .hierarchy-analysis-table table,
+  .hierarchy-analysis-table tbody,
+  .hierarchy-analysis-table tr,
+  .hierarchy-analysis-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .hierarchy-analysis-table thead {
+    display: none;
+  }
+
+  .hierarchy-analysis-table tbody {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .hierarchy-analysis-table tbody tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid var(--explorer-border);
+    border-radius: 0.58rem;
+    background: var(--explorer-card);
+    box-shadow: 0 0.15rem 0.5rem rgba(22, 32, 51, 0.04);
+  }
+
+  .hierarchy-analysis-table tbody td {
+    display: grid;
+    min-width: 0;
+    min-height: 2.75rem;
+    align-content: center;
+    gap: 0.12rem;
+    padding: 0.42rem 0.5rem;
+    border: 0;
+    border-bottom: 1px solid var(--explorer-border);
+    color: var(--explorer-text);
+    font-size: 0.58rem;
+  }
+
+  .hierarchy-analysis-table tbody td:nth-child(odd) {
+    border-inline-end: 1px solid var(--explorer-border);
+  }
+
+  .hierarchy-analysis-table tbody td:first-child {
+    grid-column: 1 / -1;
+    min-height: 3rem;
+    border-inline-end: 0;
+    background: var(--explorer-surface);
+  }
+
+  .hierarchy-analysis-table tbody td:last-child {
+    border-bottom: 0;
+  }
+
+  .hierarchy-analysis-table tbody td::before {
+    color: var(--explorer-muted);
+    font-size: 0.43rem;
+    font-weight: 760;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+
+  .hierarchy-analysis-table tbody td::before {
+    content: attr(data-label);
+  }
+
+
+  .hierarchy-analysis-table tbody td strong {
+    overflow: hidden;
+    font-size: 0.68rem;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .hierarchy-analysis-table tbody td small {
+    font-size: 0.48rem;
+  }
+
+  :host ::ng-deep .apexcharts-xaxis-texts-g text {
+    transform: rotate(-90deg);
+    transform-box: fill-box;
+    transform-origin: center;
+    text-anchor: end;
+  }
+
+  :host ::ng-deep .apexcharts-xaxis-texts-g text tspan {
+    font-size: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .view-switch button {
+    flex-direction: row;
+    min-height: 2.15rem;
+    font-size: 0;
+  }
+
+  .demand-summary-row,
+  .demand-summary-extended,
+  .peak-split-values,
+  .crm-analysis-graph-card .demand-summary-row,
+  .crm-analysis-graph-card .peak-split-values {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

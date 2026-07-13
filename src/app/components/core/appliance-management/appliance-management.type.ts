@@ -13,17 +13,9 @@ export interface ApplianceRequestDTO {
   normalPowerFactor: number;
   description: string;
 
-  // Optimization metadata used by dashboard suggestions.
-  isShiftable: boolean;
+  // Optimization classification used to prioritize safe dashboard suggestions.
   isCritical: boolean;
   priorityLevel: string;
-  normalOperatingHours: string;
-  canAutoControl: boolean;
-  allowedShiftStartTime: string;
-  allowedShiftEndTime: string;
-  allowOptimizationSuggestions: boolean;
-  minimumOnDurationMinutes: number;
-  minimumOffDurationMinutes: number;
 
   isDefault: boolean;
   isCustom: boolean;
@@ -48,16 +40,8 @@ export interface ApplianceResponseDTO {
   normalPowerFactor: number;
   description: string;
 
-  isShiftable: boolean;
   isCritical: boolean;
   priorityLevel: string;
-  normalOperatingHours: string;
-  canAutoControl: boolean;
-  allowedShiftStartTime: string;
-  allowedShiftEndTime: string;
-  allowOptimizationSuggestions: boolean;
-  minimumOnDurationMinutes: number;
-  minimumOffDurationMinutes: number;
 
   isDefault: boolean;
   isCustom: boolean;
@@ -102,16 +86,8 @@ export interface SensorApplianceResponseDTO {
   maxPower: number;
   standbyPower: number;
   normalPowerFactor: number;
-  isShiftable: boolean;
   isCritical: boolean;
   priorityLevel: string;
-  normalOperatingHours: string;
-  canAutoControl: boolean;
-  allowedShiftStartTime: string;
-  allowedShiftEndTime: string;
-  allowOptimizationSuggestions: boolean;
-  minimumOnDurationMinutes: number;
-  minimumOffDurationMinutes: number;
   remarks: string;
   assignedAt: string;
   createdAt: string;

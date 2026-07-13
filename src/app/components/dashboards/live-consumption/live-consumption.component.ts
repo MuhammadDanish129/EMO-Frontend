@@ -146,6 +146,7 @@ private subscribedRooms = new Set<string>();
     'liveData',
     'deviceUpdates'
   ];
+  private readonly socketEventHandlers = new Map<string, (data: any) => void>();
 
   constructor(
     private facilityService: FacilityService,
@@ -210,14 +211,13 @@ private subscribedRooms = new Set<string>();
 
     if (this.subscribedRoom) {
       this.unsubscribeRoom(this.subscribedRoom);
+      this.subscribedRoom = null;
     }
 
-    this.socketEvents.forEach(event => this.socketService.off(event));
+    this.socketEventHandlers.forEach((handler, event) => this.socketService.off(event, handler));
+    this.socketEventHandlers.clear();
 
     // If your SocketService forwards native Socket.IO events, this will clean them too.
-    this.socketService.off('connect');
-    this.socketService.off('reconnect');
-    this.socketService.off('disconnect');
   }
 
   get isSocketConnected(): boolean {
@@ -291,11 +291,7 @@ private subscribeToTenantOffices(): void {
 private unsubscribeAllRooms(): void {
   this.subscribedRooms.forEach(room => this.unsubscribeRoom(room));
   this.subscribedRooms.clear();
-
-  if (this.subscribedRoom) {
-    this.unsubscribeRoom(this.subscribedRoom);
-    this.subscribedRoom = null;
-  }
+  this.subscribedRoom = null;
 }
   loadFacilities(): void {
     this.isLoading = true;
@@ -487,7 +483,7 @@ private subscribeToScope(type: ScopeType, id: string): void {
   this.sensors = [];
   this.filteredSensors = [];
 
-  this.emitSocket(`subscribe-${type}`, cleanId);
+  this.subscribeSocketScope(type, cleanId);
 
   console.log('✅ Subscribed:', `subscribe-${type}`, cleanId);
 }
@@ -495,23 +491,22 @@ private subscribeToScope(type: ScopeType, id: string): void {
     const [type, id] = room.split(':');
     if (!type || !id) return;
 
-    this.emitSocket(`unsubscribe-${type}`, id);
+    this.unsubscribeSocketScope(type as ScopeType, id);
     console.log('🛑 Unsubscribed:', `unsubscribe-${type}`, id);
   }
 
   private registerSocketListeners(): void {
-    this.socketEvents.forEach(event => this.socketService.off(event));
-
     this.socketEvents.forEach(event => {
-      this.socketService.on(event, (data: any) => {
+      const handler = (data: any) => {
         console.log(`========== ${event} RECEIVED ==========`);
         console.log(data);
         this.handleSocketData(data);
-      });
+      };
+      this.socketEventHandlers.set(event, handler);
+      this.socketService.on(event, handler);
     });
 
     // Re-subscribe after reconnect. This prevents silent no-data issue after refresh/reconnect.
-    this.socketService.off('connect');
     this.socketService.on('connect', () => {
       console.log('✅ Socket connected');
 
@@ -522,7 +517,6 @@ private subscribeToScope(type: ScopeType, id: string): void {
       }
     });
 
-    this.socketService.off('reconnect');
     this.socketService.on('reconnect', () => {
       console.log('✅ Socket reconnected');
 
@@ -533,10 +527,33 @@ private subscribeToScope(type: ScopeType, id: string): void {
       }
     });
 
-    this.socketService.off('disconnect');
     this.socketService.on('disconnect', (reason: any) => {
       console.warn('🛑 Socket disconnected:', reason);
     });
+  }
+
+  private subscribeSocketScope(type: ScopeType, id: string): void {
+    switch (type) {
+      case 'business': this.socketService.subscribeBusiness(id); break;
+      case 'facility': this.socketService.subscribeFacility(id); break;
+      case 'building': this.socketService.subscribeBuilding(id); break;
+      case 'floor': this.socketService.subscribeFloor(id); break;
+      case 'section': this.socketService.subscribeSection(id); break;
+      case 'office': this.socketService.subscribeOffice(id); break;
+      case 'device': this.socketService.subscribeDevice(id); break;
+    }
+  }
+
+  private unsubscribeSocketScope(type: ScopeType, id: string): void {
+    switch (type) {
+      case 'business': this.socketService.unsubscribeBusiness(id); break;
+      case 'facility': this.socketService.unsubscribeFacility(id); break;
+      case 'building': this.socketService.unsubscribeBuilding(id); break;
+      case 'floor': this.socketService.unsubscribeFloor(id); break;
+      case 'section': this.socketService.unsubscribeSection(id); break;
+      case 'office': this.socketService.unsubscribeOffice(id); break;
+      case 'device': this.socketService.unsubscribeDevice(id); break;
+    }
   }
 
   private handleSocketData(data: any): void {

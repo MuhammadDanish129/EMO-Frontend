@@ -13,11 +13,15 @@ export class LiveAlertsService {
   private readonly seenAlertKeys = new Set<string>(this.loadSeenAlertKeys());
   private readonly alertsSubject = new BehaviorSubject<LiveOperationAlertDTO[]>([]);
   private readonly sensorCardsSubject = new BehaviorSubject<any[]>([]);
+  private readonly allSensorCardsSubject = new BehaviorSubject<any[]>([]);
   private readonly unreadAlertCountSubject = new BehaviorSubject<number>(0);
 
   readonly alerts$ = this.alertsSubject.asObservable();
-  readonly idleAlerts$ = this.alerts$.pipe(map(alerts => alerts.filter(alert => alert.type === 'idle')));
+  readonly idleAlerts$ = this.alerts$.pipe(
+    map(alerts => alerts.filter(alert => alert.type === 'idle'))
+  );
   readonly sensorCards$ = this.sensorCardsSubject.asObservable();
+  readonly allSensorCards$ = this.allSensorCardsSubject.asObservable();
   readonly unreadAlertCount$ = this.unreadAlertCountSubject.asObservable();
 
   private businessId = '';
@@ -34,6 +38,10 @@ export class LiveAlertsService {
 
   get unreadAlertCount(): number {
     return this.unreadAlertCountSubject.value;
+  }
+
+  get isSocketConnected(): boolean {
+    return this.socketService.isConnected();
   }
 
   start(businessId?: string | null): void {
@@ -68,6 +76,7 @@ export class LiveAlertsService {
     if (clearAlerts) {
       this.alertsSubject.next([]);
       this.sensorCardsSubject.next([]);
+      this.allSensorCardsSubject.next([]);
       this.unreadAlertCountSubject.next(0);
     }
   }
@@ -206,7 +215,7 @@ export class LiveAlertsService {
 
     this.reconcileAlertsForReading(reading);
 
-    const cards = [...this.sensorCardsSubject.value];
+    const cards = [...this.allSensorCardsSubject.value];
     const index = cards.findIndex(item => item.sensorId === reading.sensorId);
     const card = {
       sensorId: reading.sensorId,
@@ -214,6 +223,7 @@ export class LiveAlertsService {
       applianceName: reading.applianceName || reading.chain?.applianceName || '',
       utilityName: reading.utilityName || reading.chain?.utilityName || '',
       activePower: reading.activePower ?? reading.sensor?.activePower ?? 0,
+      activeEnergy: reading.activeEnergy ?? reading.sensor?.energyKwh ?? reading.sensor?.activeEnergy ?? 0,
       voltage: reading.voltage ?? reading.sensor?.voltage ?? 0,
       current: reading.current ?? reading.sensor?.current ?? 0,
       powerFactor: reading.powerFactor ?? reading.sensor?.pf ?? 0,
@@ -231,11 +241,11 @@ export class LiveAlertsService {
       cards.unshift(card);
     }
 
-    this.sensorCardsSubject.next(
-      cards
-        .sort((first, second) => Number(second.activePower || 0) - Number(first.activePower || 0))
-        .slice(0, 12)
-    );
+    const sortedCards = cards
+      .sort((first, second) => Number(second.activePower || 0) - Number(first.activePower || 0));
+
+    this.allSensorCardsSubject.next(sortedCards);
+    this.sensorCardsSubject.next(sortedCards.slice(0, 12));
   };
 
   private reconcileAlertsForReading(reading: any): void {

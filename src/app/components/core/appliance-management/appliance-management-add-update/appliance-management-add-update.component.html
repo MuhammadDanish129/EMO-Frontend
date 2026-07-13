@@ -113,37 +113,11 @@
     <div class="rounded-lg p-5 space-y-4 border border-[rgb(var(--gray-200))]">
       <div>
         <p class="text-[rgb(var(--primary))] font-semibold uppercase tracking-wide text-muted">
-          Optimization Settings
+          Optimization Classification
         </p>
         <p class="mt-1 text-xs text-muted">
-          These settings help the dashboard avoid unsafe or incorrect energy saving suggestions.
+          Use priority and critical status to rank dashboard recommendations safely.
         </p>
-      </div>
-
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center gap-3">
-          <div>
-            <p class="text-sm text-[rgb(var(--primary))] font-medium">Can be shifted</p>
-            <p class="text-xs text-muted">Suggest moving usage to non-peak time.</p>
-          </div>
-          <mat-slide-toggle [(ngModel)]="model.isShiftable" color="primary"></mat-slide-toggle>
-        </div>
-
-        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center gap-3">
-          <div>
-            <p class="text-sm text-[rgb(var(--primary))] font-medium">Critical appliance</p>
-            <p class="text-xs text-muted">Critical appliances will not be suggested for shifting or auto-off.</p>
-          </div>
-          <mat-slide-toggle [(ngModel)]="model.isCritical" color="primary"></mat-slide-toggle>
-        </div>
-
-        <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center gap-3">
-          <div>
-            <p class="text-sm text-[rgb(var(--primary))] font-medium">Allow suggestions</p>
-            <p class="text-xs text-muted">Enable dashboard optimization hints.</p>
-          </div>
-          <mat-slide-toggle [(ngModel)]="model.allowOptimizationSuggestions" color="primary"></mat-slide-toggle>
-        </div>
       </div>
 
       <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -158,52 +132,11 @@
 
         <div class="rounded-lg border border-[rgb(var(--gray-200))] p-4 flex justify-between items-center gap-3">
           <div>
-            <p class="text-sm text-[rgb(var(--primary))] font-medium">Allow remote control</p>
-            <p class="text-xs text-muted">Only enable this for appliances safe to control.</p>
+            <p class="text-sm text-[rgb(var(--primary))] font-medium">Critical appliance</p>
+            <p class="text-xs text-muted">Critical appliances are excluded from interruption-based recommendations.</p>
           </div>
-          <mat-slide-toggle [(ngModel)]="model.canAutoControl" color="primary"></mat-slide-toggle>
+          <mat-slide-toggle [(ngModel)]="model.isCritical" color="primary"></mat-slide-toggle>
         </div>
-      </div>
-
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="yx-field">
-          <label class="yx-label">Allowed Shift Start Time</label>
-          <input
-            type="time"
-            class="yx-input w-full"
-            [(ngModel)]="model.allowedShiftStartTime"
-            [disabled]="!model.isShiftable" />
-        </div>
-
-        <div class="yx-field">
-          <label class="yx-label">Allowed Shift End Time</label>
-          <input
-            type="time"
-            class="yx-input w-full"
-            [(ngModel)]="model.allowedShiftEndTime"
-            [disabled]="!model.isShiftable" />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div class="yx-field">
-          <label class="yx-label">Minimum ON Duration (minutes)</label>
-          <input type="number" min="0" class="yx-input w-full" [(ngModel)]="model.minimumOnDurationMinutes" />
-        </div>
-
-        <div class="yx-field">
-          <label class="yx-label">Minimum OFF Duration (minutes)</label>
-          <input type="number" min="0" class="yx-input w-full" [(ngModel)]="model.minimumOffDurationMinutes" />
-        </div>
-      </div>
-
-      <div class="yx-field">
-        <label class="yx-label">Normal Operating Hours / Notes</label>
-        <input
-          type="text"
-          class="yx-input w-full"
-          placeholder="Example: 09:00-17:00 weekdays"
-          [(ngModel)]="model.normalOperatingHours" />
       </div>
     </div>
 

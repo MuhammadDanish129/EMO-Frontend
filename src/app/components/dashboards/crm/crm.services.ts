@@ -7,6 +7,7 @@ import {
   CrmAnalysisChartType,
   CrmChartRange,
   CrmDashboardChartResponseDTO,
+  CrmDashboardLiveOverviewResponseDTO,
   CrmDashboardSummaryResponseDTO,
   CrmDashboardSuggestionResponseDTO,
   EnergyConsumptionByDeviceTypeResponseDTO,
@@ -28,6 +29,21 @@ export class EnergyDashboardService {
     return this.http.get<ResponseModel<CrmDashboardSummaryResponseDTO>>(
       `${this.baseUrl}/crm/${scope.scope}/summary`,
       { params: scope.params }
+    );
+  }
+
+  getDashboardLiveOverview(
+    user: User | null,
+    forceRefresh = false,
+  ): Observable<ResponseModel<CrmDashboardLiveOverviewResponseDTO>> {
+    const scope = this.resolveScope(user);
+    const params = scope.params
+      .set('forceRefresh', String(forceRefresh))
+      .set('_ts', String(Date.now()));
+
+    return this.http.get<ResponseModel<CrmDashboardLiveOverviewResponseDTO>>(
+      `${this.baseUrl}/crm/${scope.scope}/live-overview`,
+      { params }
     );
   }
 
@@ -59,7 +75,7 @@ export class EnergyDashboardService {
     const scope = this.resolveScope(user);
     return this.http.get<ResponseModel<CrmDashboardSuggestionResponseDTO[]>>(
       `${this.baseUrl}/crm/${scope.scope}/suggestions`,
-      { params: scope.params }
+      { params: scope.params.set('_ts', String(Date.now())) }
     );
   }
 

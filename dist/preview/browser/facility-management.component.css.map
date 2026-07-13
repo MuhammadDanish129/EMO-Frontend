@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["src/app/components/core/facility-management/facility-management.component.scss"],
+  "sourcesContent": [".facility-details-popup {\n  border-radius: 0.75rem !important;\n  overflow: hidden;\n  transform: translateZ(0);\n}\n\n.facility-details-popup-header {\n  border-top-left-radius: 0.75rem;\n  border-top-right-radius: 0.75rem;\n}\n\n.facility-details-popup-body {\n  border-bottom-left-radius: 0.75rem;\n  border-bottom-right-radius: 0.75rem;\n}\n"],
+  "mappings": ";AAAA,CAAA;AACE,iBAAA;AACA,YAAA;AACA,aAAA,WAAA;;AAGF,CAAA;AACE,0BAAA;AACA,2BAAA;;AAGF,CAAA;AACE,6BAAA;AACA,8BAAA;;",
+  "names": []
+}

@@ -58,11 +58,7 @@
         <label><span>Peak rate / kWh</span><input class="yx-input" type="number" min="0" [(ngModel)]="model.tariffPlan.peakRatePerKwh"></label>
         <label><span>Off-peak rate / kWh</span><input class="yx-input" type="number" min="0" [(ngModel)]="model.tariffPlan.offPeakRatePerKwh"></label>
         <label><span>Demand charge / kW</span><input class="yx-input" type="number" min="0" [(ngModel)]="model.tariffPlan.demandChargePerKw"></label>
-        <label><span>Effective from</span><input class="yx-input" type="date" [(ngModel)]="model.tariffPlan.effectiveFrom"></label>
-        <label><span>Effective to</span><input class="yx-input" type="date" [(ngModel)]="model.tariffPlan.effectiveTo"></label>
-        <label class="form-grid__wide"><span>Business timezone</span><select class="yx-input" [(ngModel)]="model.tariffPlan.timezone"><option *ngFor="let timezone of timezones" [value]="timezone">{{ timezone }}</option></select></label>
       </div>
-      <div class="info-note"><i class="ri-information-line"></i><span>Historical cost uses the tariff plan effective on the reading date.</span></div>
     </section>
 
     <section class="settings-card" *ngIf="activeTab === 'schedule'">
@@ -89,7 +85,6 @@
       <div class="section-heading"><span class="section-icon"><i class="ri-dashboard-3-line"></i></span><div><h2>Demand Management</h2><p>Set demand thresholds and decide how the system responds to consumption peaks.</p></div></div>
       <div class="form-grid">
         <label><span>Demand limit (kW)</span><input class="yx-input" type="number" min="0.01" [(ngModel)]="model.demandManagement.demandLimitKw"></label>
-        <label><span>Monthly energy target (kWh)</span><input class="yx-input" type="number" min="0.01" step="0.01" [(ngModel)]="model.demandManagement.monthlyEnergyTargetKwh" placeholder="Optional"></label>
         <label><span>Warning threshold (%)</span><input class="yx-input" type="number" min="1" max="100" [(ngModel)]="model.demandManagement.warningThresholdPercent"></label>
         <label><span>Recovery threshold (kW)</span><input class="yx-input" type="number" min="0" [(ngModel)]="model.demandManagement.recoveryThresholdKw"></label>
         <label><span>Demand interval (minutes)</span><input class="yx-input" type="number" min="1" max="60" [(ngModel)]="model.demandManagement.demandIntervalMinutes"></label>
@@ -110,7 +105,6 @@
         <div class="summary-item"><span class="summary-icon"><i class="ri-timer-flash-line"></i></span><div><small>Peak-hour trigger</small><strong [class.enabled]="model.demandManagement.enablePeakHourControl">{{ model.demandManagement.enablePeakHourControl ? 'Enabled' : 'Disabled' }}</strong></div></div>
         <div class="summary-item"><span class="summary-icon"><i class="ri-line-chart-line"></i></span><div><small>Demand trigger</small><strong [class.enabled]="model.demandManagement.enableDemandThresholdControl">{{ model.demandManagement.enableDemandThresholdControl ? 'Enabled' : 'Disabled' }}</strong></div></div>
         <div class="summary-item"><span class="summary-icon"><i class="ri-flashlight-line"></i></span><div><small>Demand limit</small><strong>{{ model.demandManagement.demandLimitKw }} kW</strong></div></div>
-        <div class="summary-item"><span class="summary-icon"><i class="ri-focus-3-line"></i></span><div><small>Monthly target</small><strong>{{ model.demandManagement.monthlyEnergyTargetKwh ? (model.demandManagement.monthlyEnergyTargetKwh + ' kWh') : 'Not configured' }}</strong></div></div>
       </div>
     </section>
   </main>

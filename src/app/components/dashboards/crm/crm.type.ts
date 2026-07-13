@@ -42,6 +42,54 @@ export interface CrmDashboardSummaryResponseDTO {
   toDate: string;
 }
 
+export interface CrmLiveUtilityLoadResponseDTO {
+  utilityName: string;
+  currentLoadW: number;
+  percentage: number;
+  onlineSensors: number;
+}
+
+export interface CrmLiveConsumerResponseDTO {
+  sensorId: string;
+  sensorName: string;
+  applianceName: string;
+  utilityName: string;
+  officeName: string;
+  floorName: string;
+  currentLoadW: number;
+  voltage: number;
+  powerFactor: number;
+  relayState: string;
+  receivedAtUtc: string;
+}
+
+export interface CrmDashboardLiveOverviewResponseDTO {
+  energyTodayKwh: number;
+  estimatedCostToday?: number | null;
+  costConfigured: boolean;
+  currentLoadW: number;
+  peakDemandTodayW: number;
+  totalSensors: number;
+  onlineSensors: number;
+  delayedSensors: number;
+  offlineSensors: number;
+  neverConnectedSensors: number;
+  averageVoltage: number;
+  averagePowerFactor: number;
+  assignedSensors: number;
+  configuredOptimizationSensors: number;
+  optimizationReadinessPercent: number;
+  tariffConfigured: boolean;
+  demandLimitConfigured: boolean;
+  demandLimitKw?: number | null;
+  onlineThresholdSeconds: number;
+  delayedThresholdSeconds: number;
+  liveUpdatedAtUtc: string;
+  aggregateUpdatedAtUtc: string;
+  utilityLoads: CrmLiveUtilityLoadResponseDTO[];
+  topConsumers: CrmLiveConsumerResponseDTO[];
+}
+
 export interface CrmDashboardChartSeriesDTO {
   name: string;
   data: number[];
@@ -97,3 +145,33 @@ export interface CrmDashboardSuggestionResponseDTO {
 
 export type CrmAnalysisChartType = 'energyconsumption' | 'peaknonpeak' | 'peakdemand';
 export type CrmChartRange = '24h' | '7d' | '30d' | 'custom';
+
+export interface OptimizationSuggestionSocketItemDTO {
+  reasonCode: string;
+  sensorId?: string | null;
+  officeId?: string | null;
+  applianceId?: string | null;
+  type: string;
+  severity: string;
+  priority?: string;
+  title: string;
+  description: string;
+  recommendation: string;
+  affectedAppliance?: string;
+  affectedUtility?: string;
+  affectedOffice?: string;
+  confidence?: string;
+  estimatedSavingKwh?: number | null;
+  estimatedSavingCost?: number | null;
+  conflictsWithPeakHour?: boolean;
+  canApplyAction?: boolean;
+  detectedAtUtc?: string;
+  expiresAtUtc?: string;
+}
+
+export interface OptimizationSuggestionsSocketPayloadDTO {
+  businessId: string;
+  generatedAtUtc: string;
+  isSnapshot?: boolean;
+  suggestions: OptimizationSuggestionSocketItemDTO[];
+}

@@ -18,9 +18,6 @@ export interface EnergyTariffPlan {
   peakRatePerKwh: number;
   offPeakRatePerKwh: number;
   demandChargePerKw?: number | null;
-  effectiveFrom: string;
-  effectiveTo?: string | null;
-  timezone: string;
   isActive: boolean;
   timePeriods: TariffTimePeriod[];
 }
@@ -28,7 +25,6 @@ export interface DemandManagementSetting {
   demandManagementSettingId?: string;
   fkBusiness: string;
   demandLimitKw: number;
-  monthlyEnergyTargetKwh?: number | null;
   warningThresholdPercent: number;
   recoveryThresholdKw: number;
   demandIntervalMinutes: number;
