@@ -129,23 +129,10 @@ private subscribedRooms = new Set<string>();
   private initialized = false;
   private subscribedRoom: string | null = null;
 
-  private readonly socketEvents = [
-    // Events emitted by your current Node socket server
-    'sensorUpdate',
-    'businessUpdate',
-    'facilityUpdate',
-    'buildingUpdate',
-    'floorUpdate',
-    'sectionUpdate',
-    'officeUpdate',
-    'deviceUpdate',
-
-    // Backward compatibility / old names
-    'sensorUpdates',
-    'scopeUpdate',
-    'liveData',
-    'deviceUpdates'
-  ];
+  // The authenticated socket server routes one enriched sensorUpdate per
+  // authorized hierarchy room. Broad legacy/device events are intentionally not
+  // consumed here because they are not tenant-scoped.
+  private readonly socketEvents = ['sensorUpdate'];
   private readonly socketEventHandlers = new Map<string, (data: any) => void>();
 
   constructor(
@@ -184,7 +171,9 @@ private subscribedRooms = new Set<string>();
         this.toaster.warning('Business id not found. Live readings cannot be subscribed.');
       }
 
-      this.loadFacilities();
+      if (!this.isTenantUser()) {
+        this.loadFacilities();
+      }
     }
 
     this.refreshTimer = setInterval(() => {
@@ -282,7 +271,7 @@ private subscribeToTenantOffices(): void {
   this.tenantOfficeIds.forEach(officeId => {
     const room = `office:${officeId}`;
     this.subscribedRooms.add(room);
-    this.emitSocket('subscribe-office', officeId);
+    this.socketService.subscribeOffice(officeId);
   });
 
   console.log('✅ Tenant subscribed offices:', this.tenantOfficeIds);
@@ -937,20 +926,17 @@ clearFilters(): void {
   this.sensors = [];
   this.filteredSensors = [];
 
-  // Return to business scope
+  if (this.isTenantUser()) {
+    this.subscribeToTenantOffices();
+    console.log('🔄 Reset to assigned tenant offices');
+    return;
+  }
+
+  // Business users return to their business scope.
   this.selectedScopeType = 'business';
   this.selectedScopeId = this.getBusinessId();
-
-  // Subscribe again
-  this.subscribeToScope(
-    'business',
-    this.selectedScopeId
-  );
-
-  console.log(
-    '🔄 Reset to Business Scope:',
-    this.selectedScopeId
-  );
+  this.subscribeToScope('business', this.selectedScopeId);
+  console.log('🔄 Reset to Business Scope:', this.selectedScopeId);
 }
   
   private toNumber(value: any): number {

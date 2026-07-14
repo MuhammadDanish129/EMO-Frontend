@@ -78,6 +78,7 @@ export class AuthService {
 // }
 
 login(username: string, password: string): Observable<any> {
+  this.clearLocalSession();
   return this.http
     .post<any>(this.authUrl, { username, password })
     .pipe(
@@ -85,13 +86,15 @@ login(username: string, password: string): Observable<any> {
 
         // ❌ If backend failed → return immediately
         if (!response?.success) {
+          this.clearLocalSession();
           return of(response);
         }
 
+        const normalizedUsername = response.data.userName || response.data.username || username;
         const securePayload = {
           userId: response.data.userId,
           name: response.data.name,
-          username: response.data.username,
+          username: normalizedUsername,
           userToken: response.data.userToken,
           fkSubUserType: response.data.fkSubUserType,
           subUserTypeLevel: response.data.subUserTypeLevel,
@@ -114,6 +117,7 @@ login(username: string, password: string): Observable<any> {
         return from(this.cryptoService.encrypt(securePayload)).pipe(
           tap((encryptedData) => {
             this.accessToken = response.data.userToken;
+            localStorage.setItem('socket_username', normalizedUsername);
             localStorage.setItem(this.sessionKey, encryptedData);
 
             setTimeout(() => {
@@ -125,6 +129,7 @@ login(username: string, password: string): Observable<any> {
       }),
       catchError((err) => {
         console.error('Login failed', err);
+        this.clearLocalSession();
 
         return of({
           success: false,
@@ -134,19 +139,22 @@ login(username: string, password: string): Observable<any> {
     );
 }
   signOutLocal(): Observable<any> {
-    // Remove the access token from the local storage
-    localStorage.removeItem(this.sessionKey);
-    localStorage.removeItem('otherInfo');
+    this.clearLocalSession();
     this.router.navigate(['/sign-in']);
-
-    this.navService.resetMenu();   // ⭐ CLEAR NAV
-    // Return the observable
+    this.navService.resetMenu();
     return of(true);
   }
 
   logout(): void {
-    localStorage.removeItem(this.sessionKey);
+    this.clearLocalSession();
     this.router.navigate(['/sign-in']);
+  }
+
+  private clearLocalSession(): void {
+    localStorage.removeItem(this.sessionKey);
+    localStorage.removeItem('otherInfo');
+    localStorage.removeItem('socket_username');
+    window.dispatchEvent(new Event('auth-session-cleared'));
   }
 
   isAuthenticated(): boolean {

@@ -89,6 +89,7 @@ export class EnergyDeepDiveComponent implements OnInit {
   breadcrumbs: BreadcrumbDto[] = [];
   childCards: ChildCardDto[] = [];
   currentUser: User | null = null;
+  isTenantUser = false;
   reportingTimeZone = 'UTC';
   detectedTimeZone = 'UTC';
   timezoneConfirmed = false;
@@ -137,6 +138,7 @@ export class EnergyDeepDiveComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.currentUser = await this.userService.user$;
+    this.isTenantUser = Number(this.currentUser?.userTypeLevel) === 2;
     this.detectedTimeZone = this.reportingTimezoneService.detectedTimezone;
     this.reportingTimeZone = this.reportingTimezoneService.appliedTimezone;
     this.timezoneConfirmed = this.reportingTimezoneService.isConfirmed;
@@ -158,7 +160,7 @@ export class EnergyDeepDiveComponent implements OnInit {
     this.errorMessage = '';
 
     this.dashboardService
-      .getDashboard(this.level, this.currentId, this.range)
+      .getDashboard(this.level, this.currentId, this.range, this.isTenantUser)
       .subscribe({
         next: (response) => {
           this.data = response;
@@ -189,6 +191,7 @@ export class EnergyDeepDiveComponent implements OnInit {
         this.range,
         this.reportingTimeZone,
         true,
+        this.isTenantUser,
       )
       .subscribe({
         next: (response) => {
@@ -212,14 +215,14 @@ export class EnergyDeepDiveComponent implements OnInit {
       this.breadcrumbs = [
         {
           id: this.currentId,
-          name: this.data?.businessName || 'Business',
+          name: this.data?.businessName || (this.isTenantUser ? 'My assigned offices' : 'Business'),
           level: 'business',
         },
       ];
       return;
     }
 
-    this.dashboardService.getBreadcrumb(this.level, this.currentId).subscribe({
+    this.dashboardService.getBreadcrumb(this.level, this.currentId, this.isTenantUser).subscribe({
       next: (response) => (this.breadcrumbs = response),
       error: () => (this.breadcrumbs = []),
     });

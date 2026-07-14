@@ -345,31 +345,46 @@
         </header>
 
         <div class="crm-idle-card-body">
-          <div class="crm-idle-evidence-banner" *ngIf="idleAlerts.length > 0">
+          <!-- <div class="crm-idle-evidence-banner" *ngIf="idleAlerts.length > 0">
             <i class="ri-shield-check-line"></i>
-            <span>Use the controls to send an ON or OFF command directly to an appliance.</span>
-          </div>
+      
+          </div> -->
 
-          <div class="crm-device-list crm-idle-device-list" *ngIf="idleAlerts.length > 0; else noIdleAppliances">
-            <article class="crm-device-row crm-confirmed-idle-row" *ngFor="let item of idleAlerts">
-              <span class="crm-device-icon crm-device-blue"><i class="ri-remote-control-2-line"></i></span>
-              <div class="crm-idle-device-copy">
-                <div class="crm-idle-title-line">
-                  <strong>{{ item.applianceName || item.sensorName || 'Idle appliance' }}</strong>
-                  <span class="crm-confirmed-pill"><i class="ri-check-double-line"></i> Idle</span>
-                </div>
-                <small>{{ item.message || item.action || 'Stable standby usage detected' }}</small>
-                <div class="crm-idle-evidence">
-                  <span><i class="ri-pulse-line"></i> {{ getIdleEvidenceLabel(item) }}</span>
-                  <span *ngIf="item.coveragePercent"><i class="ri-signal-wifi-line"></i> {{ item.coveragePercent | number:'1.0-0' }}% coverage</span>
-                </div>
-              </div>
-              <div class="crm-idle-command-actions" *ngIf="canControlIdleAppliance(item); else idleOnlyStatus">
-                <button type="button" class="is-on" [disabled]="isIdleApplianceCommanding(item)" (click)="sendIdleApplianceCommand(item, 'ON')"><i class="ri-play-circle-line"></i> On</button>
-                <button type="button" class="is-off" [disabled]="isIdleApplianceCommanding(item)" (click)="sendIdleApplianceCommand(item, 'OFF')"><i class="ri-shut-down-line"></i> {{ isIdleApplianceCommanding(item) ? 'Sending' : 'Off' }}</button>
-              </div>
-              <ng-template #idleOnlyStatus><span class="crm-status-pill">Idle</span></ng-template>
-            </article>
+          <div class="crm-idle-table-wrap" *ngIf="idleAlerts.length > 0; else noIdleAppliances">
+            <table class="crm-idle-table">
+              <thead>
+                <tr>
+                  <th>Appliance</th>
+                  <th>Sensor</th>
+                  <th class="crm-idle-control-column">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of idleAlerts">
+                  <td>
+                    <div class="crm-idle-table-appliance">
+                      <span class="crm-device-icon crm-device-blue"><i class="ri-remote-control-2-line"></i></span>
+                      <div>
+                        <strong>{{ item.applianceName || item.sensorName || 'Idle appliance' }}</strong>
+                        <small>{{ item.message || item.action || 'Standby usage detected' }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <strong>{{ item.sensorName || 'Unnamed sensor' }}</strong>
+                    <small>{{ item.utilityName || 'Utility not assigned' }}</small>
+                  </td>
+                  <td class="crm-idle-control-column">
+                    <div class="crm-idle-command-actions" *ngIf="!isIdleApplianceCommanding(item); else sendingIdleCommand">
+                      <button type="button" class="is-off" [disabled]="!canControlIdleAppliance(item)" (click)="sendIdleApplianceCommand(item, 'OFF')"><i class="ri-shut-down-line"></i> Turn off</button>
+                    </div>
+                    <ng-template #sendingIdleCommand>
+                      <span class="crm-idle-command-sending"><i class="ri-loader-4-line"></i> Sending</span>
+                    </ng-template>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
           <ng-template #noIdleAppliances>
@@ -390,7 +405,7 @@
         (click)="openSuggestionsPanel()"
         [attr.aria-label]="'Open ' + suggestions.length + ' active optimization suggestions'">
         <div class="crm-suggestions-launcher-top">
-          <span class="crm-card-icon crm-card-icon-amber"><i class="ri-lightbulb-flash-line"></i></span>
+          <span class="crm-card-icon crm-card-icon-primary"><i class="ri-lightbulb-flash-line"></i></span>
           <span class="crm-live-indicator"><i></i> Live</span>
         </div>
 
@@ -455,6 +470,11 @@
             <div class="crm-suggestion-action" *ngIf="suggestion.action">
               <i class="ri-checkbox-circle-line"></i>
               <span>{{ suggestion.action }}</span>
+            </div>
+            <div class="crm-suggestion-drawer-meta">
+              <span *ngIf="suggestion.timeBucket"><i class="ri-time-line"></i>{{ suggestion.timeBucket | date: 'short' }}</span>
+              <span *ngIf="suggestion.estimatedSavingKwh !== null"><i class="ri-leaf-line"></i>{{ suggestion.estimatedSavingKwh | number: '1.0-2' }} kWh</span>
+              <span *ngIf="suggestion.reasonCode"><i class="ri-fingerprint-line"></i>{{ suggestion.reasonCode }}</span>
             </div>
           </div>
         </article>

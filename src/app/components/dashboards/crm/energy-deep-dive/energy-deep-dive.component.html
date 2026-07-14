@@ -138,9 +138,6 @@
             (click)="openLevel(child.level, child.id)">
             <div class="child-card-head">
               <span class="location-icon"><i [class]="getLevelIcon(child.level)"></i></span>
-              <span class="alert-pill" [class.has-alert]="child.alertCount > 0">
-                <i [class]="child.alertCount > 0 ? 'ri-alarm-warning-line' : 'ri-checkbox-circle-line'"></i>{{ child.alertCount > 0 ? child.alertCount + ' alerts' : 'Healthy' }}
-              </span>
             </div>
             <div class="child-card-title"><span>{{ child.level | titlecase }}</span><h3>{{ child.name }}</h3></div>
             <div class="card-energy"><small>Total energy</small><strong>{{ child.totalActiveEnergyKwh | number: '1.0-2' }} <b>kWh</b></strong></div>
@@ -159,7 +156,6 @@
           <button type="button" class="sensor-card" *ngFor="let sensor of dashboard.sensors" (click)="openSensorAnalysis(sensor.sensorId)">
             <div class="sensor-card-head">
               <span class="sensor-icon"><i [class]="getLevelIcon('sensor')"></i></span>
-              <span class="sensor-status" [class.has-alert]="sensor.hasAlert"><i [class]="sensor.hasAlert ? 'ri-alarm-warning-line' : 'ri-checkbox-circle-line'"></i>{{ sensor.hasAlert ? 'Alert' : 'Normal' }}</span>
             </div>
             <div class="child-card-title"><span>Energy sensor</span><h3>{{ sensor.sensorName }}</h3></div>
             <div class="card-energy sensor-energy"><small>Active power</small><strong>{{ sensor.latestActivePower | number: '1.0-1' }} <b>W</b></strong></div>
@@ -614,11 +610,18 @@
 
           <article class="panel analysis-suggestions-panel">
             <header class="panel-head"><div><p class="section-label">Actionable analysis</p><h2>Optimization suggestions</h2></div><span>{{ analysis.suggestions.length }}</span></header>
-            <div class="suggestion-list" *ngIf="analysis.features.optimizationSuggestions && analysis.suggestions.length; else suggestionsUnavailable">
-              <article *ngFor="let suggestion of analysis.suggestions">
-                <span class="suggestion-priority">{{ suggestion.priority }}</span>
-                <div><strong>{{ suggestion.title }}</strong><p>{{ suggestion.recommendation }}</p><small *ngIf="suggestion.estimatedSavingKwh !== null">Potential saving: {{ suggestion.estimatedSavingKwh | number: '1.0-2' }} kWh<ng-container *ngIf="suggestion.estimatedSavingCost !== null"> · {{ analysis.currency }} {{ suggestion.estimatedSavingCost | number: '1.0-2' }}</ng-container></small></div>
-              </article>
+            <div class="analysis-suggestion-table-wrap" *ngIf="analysis.features.optimizationSuggestions && analysis.suggestions.length; else suggestionsUnavailable">
+              <table class="analysis-suggestion-table">
+                <thead><tr><th>Priority</th><th>Suggestion</th><th>Recommended action</th><th>Potential saving</th></tr></thead>
+                <tbody>
+                  <tr *ngFor="let suggestion of analysis.suggestions">
+                    <td><span class="suggestion-priority">{{ suggestion.priority }}</span></td>
+                    <td><strong>{{ suggestion.title }}</strong><small>{{ suggestion.reasonCode }}</small></td>
+                    <td><p>{{ suggestion.recommendation }}</p></td>
+                    <td><span *ngIf="suggestion.estimatedSavingKwh !== null; else savingUnavailable">{{ suggestion.estimatedSavingKwh | number: '1.0-2' }} kWh<ng-container *ngIf="suggestion.estimatedSavingCost !== null"><br>{{ analysis.currency }} {{ suggestion.estimatedSavingCost | number: '1.0-2' }}</ng-container></span><ng-template #savingUnavailable><span class="muted-value">—</span></ng-template></td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <ng-template #suggestionsUnavailable>
               <div class="empty-state config-empty"><i class="ri-settings-3-line"></i><p>{{ analysis.features.optimizationSuggestions ? 'No suggestions were generated for this period.' : 'Optimization suggestions require sensor-appliance assignments and configured appliance limits.' }}</p><a *ngIf="!analysis.features.optimizationSuggestions" routerLink="/core/sensor-management">Configure sensor appliances</a></div>
@@ -638,10 +641,7 @@
             <article class="panel crm-analysis-graph-card"><header class="panel-head"><div><p class="section-label">Demand</p><h2>Hourly sensor demand</h2></div><span>Avg W</span></header><div class="chart-wrap" *ngIf="hourlyDemandChart; else noChartRecords"><apx-chart [series]="hourlyDemandChart.series" [chart]="hourlyDemandChart.chart" [xaxis]="hourlyDemandChart.xaxis" [stroke]="hourlyDemandChart.stroke" [dataLabels]="hourlyDemandChart.dataLabels" [tooltip]="hourlyDemandChart.tooltip" [fill]="hourlyDemandChart.fill" [colors]="hourlyDemandChart.colors"></apx-chart></div></article>
           </section>
 
-          <section class="analysis-grid data-grid">
-            <article class="panel"><header class="panel-head"><div><p class="section-label">Sensor events</p><h2>Recent alerts</h2></div><span>{{ dashboard.alerts?.length || 0 }}</span></header><div class="alert-list" *ngIf="dashboard.alerts?.length; else noSensorAlerts"><div *ngFor="let alert of dashboard.alerts"><span [class]="'alert-dot ' + alert.type"></span><div><strong>{{ alert.message }}</strong><small>{{ alert.timestamp | date: 'medium' }}</small></div></div></div><ng-template #noSensorAlerts><div class="empty-state"><i class="ri-checkbox-circle-line"></i><p>No sensor alerts found.</p></div></ng-template></article>
-            <article class="panel"><header class="panel-head"><div><p class="section-label">Telemetry</p><h2>Recent readings</h2></div><span>{{ dashboard.recentReadings?.length || 0 }}</span></header><div class="table-wrap"><table><thead><tr><th>Time</th><th>V</th><th>A</th><th>W</th><th>PF</th><th>Hz</th></tr></thead><tbody><tr *ngFor="let reading of dashboard.recentReadings"><td>{{ reading.createdAt | date: 'shortTime' }}</td><td>{{ reading.volt | number: '1.0-1' }}</td><td>{{ reading.current | number: '1.0-2' }}</td><td>{{ reading.activePower | number: '1.0-1' }}</td><td>{{ reading.powerFactor | number: '1.0-3' }}</td><td>{{ reading.frequency | number: '1.0-2' }}</td></tr></tbody></table><div class="empty-state" *ngIf="!dashboard.recentReadings?.length"><i class="ri-database-2-line"></i><p>No recent readings found.</p></div></div></article>
-          </section>
+
         </ng-container>
       </ng-container>
     </ng-container>

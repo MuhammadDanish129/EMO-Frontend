@@ -264,25 +264,33 @@ toggleOfficeSelection(office: any) {
   /* ================= NAVIGATION ================= */
 
   goToAssignTenant() {
-
-    if (!this.canAssignTenant) return;
-
-    this.router.navigate(
-      ['/core/assign-tenant'],
-      { state: { officeIds: this.selectedOfficeIds } }
-    );
-
+    this.navigateToAssignTenant(this.selectedOfficeIds);
   }
+
   assignTenantForOffice(office: any) {
+    this.selectedOfficeIds = [office.officeId];
+    this.navigateToAssignTenant(this.selectedOfficeIds);
+  }
 
-  this.selectedOfficeIds = [office.officeId];
+  private navigateToAssignTenant(officeIds: string[]): void {
+    const validOfficeIds = (officeIds || [])
+      .map(id => String(id || '').trim())
+      .filter(Boolean);
 
-  this.router.navigate(
-    ['/core/assign-tenant'],
-    { state: { officeIds: this.selectedOfficeIds } }
-  );
+    if (!validOfficeIds.length) {
+      this.toaster.warning('Select at least one office before assigning a tenant');
+      return;
+    }
 
-}
+    this.router.navigate(['/core/assign-tenant'], {
+      state: { officeIds: validOfficeIds },
+      queryParams: { officeIds: validOfficeIds.join(',') }
+    }).then(navigated => {
+      if (!navigated) {
+        this.toaster.error('Unable to open tenant assignment');
+      }
+    }).catch(() => this.toaster.error('Unable to open tenant assignment'));
+  }
 
   /* ================= HELPERS ================= */
 

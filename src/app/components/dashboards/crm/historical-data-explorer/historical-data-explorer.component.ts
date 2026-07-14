@@ -31,6 +31,7 @@ export class HistoricalDataExplorerComponent implements OnInit {
   loading = false;
   exporting = false;
   preview?: HistoricalDataResponse;
+  isTenant = false;
 
   readonly intervals: Array<{ value: HistoricalInterval; label: string; description: string }> = [
     { value: '15minute', label: 'Every 15 minutes', description: 'Maximum 31 days' },
@@ -49,6 +50,7 @@ export class HistoricalDataExplorerComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     const user = await this.users.user$;
+    this.isTenant = Number(user?.userTypeLevel) === 2;
     const requestedLevel = this.route.snapshot.queryParamMap.get('level') as DashboardLevel | null;
     this.level = this.isLevel(requestedLevel) ? requestedLevel : 'business';
     this.entityId = this.route.snapshot.queryParamMap.get('id') || user?.fkBusiness || '';
@@ -87,7 +89,15 @@ export class HistoricalDataExplorerComponent implements OnInit {
     if (!this.validate()) return;
     this.loading = true;
     const range = this.buildRange();
-    this.api.preview(this.level, this.entityId, range.from, range.to, this.interval, this.timezone).subscribe({
+    this.api.preview(
+      this.level,
+      this.entityId,
+      range.from,
+      range.to,
+      this.interval,
+      this.timezone,
+      this.isTenant,
+    ).subscribe({
       next: (response) => {
         this.preview = response;
         this.entityName = response.entityName || this.entityName;
@@ -105,7 +115,15 @@ export class HistoricalDataExplorerComponent implements OnInit {
     if (!this.validate()) return;
     this.exporting = true;
     const range = this.buildRange();
-    this.api.exportCsv(this.level, this.entityId, range.from, range.to, this.interval, this.timezone).subscribe({
+    this.api.exportCsv(
+      this.level,
+      this.entityId,
+      range.from,
+      range.to,
+      this.interval,
+      this.timezone,
+      this.isTenant,
+    ).subscribe({
       next: (response) => {
         const blob = response.body;
         if (!blob) {

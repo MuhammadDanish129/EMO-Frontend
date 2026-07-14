@@ -18,8 +18,10 @@ export class HistoricalDataExplorerService {
     to: string,
     interval: HistoricalInterval,
     timeZone: string,
+    isTenant = false,
   ): Observable<HistoricalDataResponse> {
-    return this.http.get<HistoricalDataResponse>(`${this.baseUrl}/${level}/${id}`, {
+    const scope = isTenant ? 'tenant/' : '';
+    return this.http.get<HistoricalDataResponse>(`${this.baseUrl}/${scope}${level}/${id}`, {
       params: this.params(from, to, interval, timeZone),
     });
   }
@@ -31,8 +33,10 @@ export class HistoricalDataExplorerService {
     to: string,
     interval: HistoricalInterval,
     timeZone: string,
+    isTenant = false,
   ): Observable<HttpResponse<Blob>> {
-    return this.http.get(`${this.baseUrl}/${level}/${id}/export`, {
+    const scope = isTenant ? 'tenant/' : '';
+    return this.http.get(`${this.baseUrl}/${scope}${level}/${id}/export`, {
       params: this.params(from, to, interval, timeZone),
       observe: 'response',
       responseType: 'blob',

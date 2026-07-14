@@ -153,7 +153,7 @@
 
 
         <!-- Header Live Alerts -->
-        <div class="header-element header-live-alerts md:px-[0.65rem] px-2">
+        <div *ngIf="showLiveAlerts" class="header-element header-live-alerts md:px-[0.65rem] px-2">
           <button
             type="button"
             class="header-alert-toggle"

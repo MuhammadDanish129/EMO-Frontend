@@ -14,6 +14,7 @@ export class LiveOptimizationSuggestionsService {
   private readonly suggestionsSubject = new BehaviorSubject<CrmDashboardSuggestionResponseDTO[]>([]);
   private businessId = '';
   private hasSocketSnapshot = false;
+  private isTenant = false;
 
   readonly suggestions$ = this.suggestionsSubject.asObservable();
   readonly count$ = this.suggestions$.pipe(map(items => items.length));
@@ -24,7 +25,7 @@ export class LiveOptimizationSuggestionsService {
     return this.suggestionsSubject.value;
   }
 
-  start(businessId?: string | null): void {
+  start(businessId?: string | null, isTenant = false): void {
     const cleanBusinessId = String(businessId || '').trim();
     if (!cleanBusinessId || this.businessId === cleanBusinessId) {
       return;
@@ -32,19 +33,21 @@ export class LiveOptimizationSuggestionsService {
 
     this.stop();
     this.businessId = cleanBusinessId;
+    this.isTenant = isTenant;
     this.hasSocketSnapshot = false;
     this.socketService.connect();
     this.socketService.on('optimization-suggestions', this.handleSuggestions);
-    this.socketService.subscribeBusiness(cleanBusinessId);
+    if (!isTenant) this.socketService.subscribeBusiness(cleanBusinessId);
   }
 
   stop(clearSuggestions = true): void {
-    if (this.businessId) {
+    if (this.businessId && !this.isTenant) {
       this.socketService.unsubscribeBusiness(this.businessId);
     }
 
     this.socketService.off('optimization-suggestions', this.handleSuggestions);
     this.businessId = '';
+    this.isTenant = false;
     this.hasSocketSnapshot = false;
 
     if (clearSuggestions) {

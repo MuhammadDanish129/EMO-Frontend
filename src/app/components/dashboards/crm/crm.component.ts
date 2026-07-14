@@ -60,13 +60,14 @@ export class CrmComponent implements OnInit, OnDestroy {
   liveSessionEnergyKwh = 0;
   lastSocketPacketAt = '';
 
-  liveLoadChart: LiveLoadChartOptions = this.createLiveLoadChart([], []);
+  liveLoadChart: LiveLoadChartOptions = this.createLiveLoadChart();
 
   private readonly subscriptions = new Subscription();
   private readonly energyBaselines = new Map<string, number>();
   private readonly latestEnergyValues = new Map<string, number>();
-  private readonly liveLoadLabels: string[] = [];
+  private readonly liveLoadTimes: number[] = [];
   private readonly liveLoadValues: number[] = [];
+  private readonly liveLoadPointLimit = 15;
   private readonly commandingIdleSensors = new Set<string>();
   private refreshTimer?: ReturnType<typeof setInterval>;
 
@@ -81,8 +82,9 @@ export class CrmComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.currentUser = await this.userService.user$;
-    this.liveAlertsService.start(this.currentUser?.fkBusiness);
-    this.liveOptimizationSuggestionsService.start(this.currentUser?.fkBusiness);
+    const isTenant = Number(this.currentUser?.userTypeLevel) === 2;
+    this.liveAlertsService.start(this.currentUser?.fkBusiness, isTenant);
+    this.liveOptimizationSuggestionsService.start(this.currentUser?.fkBusiness, isTenant);
     this.subscriptions.add(
       this.liveOptimizationSuggestionsService.suggestions$.subscribe(items => {
         this.suggestions = items;
@@ -339,35 +341,51 @@ export class CrmComponent implements OnInit, OnDestroy {
     }
 
     const now = new Date();
-    this.liveLoadLabels.push(
-      now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    );
+    this.liveLoadTimes.push(now.getTime());
     this.liveLoadValues.push(Number((this.liveOverview.currentLoadW / 1000).toFixed(3)));
 
-    if (this.liveLoadLabels.length > 20) {
-      this.liveLoadLabels.shift();
+    while (this.liveLoadTimes.length > this.liveLoadPointLimit) {
+      this.liveLoadTimes.shift();
       this.liveLoadValues.shift();
     }
 
-    this.liveLoadChart = this.createLiveLoadChart(
-      [...this.liveLoadLabels],
-      [...this.liveLoadValues]
-    );
+    this.liveLoadChart.series = [{
+      name: 'Live load',
+      data: this.liveLoadTimes.map((time, index) => ({
+        x: time,
+        y: this.liveLoadValues[index]
+      }))
+    }];
   }
 
-  private createLiveLoadChart(categories: string[], values: number[]): LiveLoadChartOptions {
+  private formatLiveChartTime(value: Date): string {
+    const hours = value.getHours().toString().padStart(2, '0');
+    const minutes = value.getMinutes().toString().padStart(2, '0');
+    const seconds = value.getSeconds().toString().padStart(2, '0');
+    return `${hours}:${minutes}:${seconds}`;
+  }
+
+  private createLiveLoadChart(): LiveLoadChartOptions {
     return {
-      series: [{ name: 'Live load', data: values }],
+      series: [{ name: 'Live load', data: [] }],
       chart: {
         type: 'area',
         height: 260,
         toolbar: { show: false },
-        animations: { enabled: true, speed: 350 },
+        animations: { enabled: false },
         zoom: { enabled: false }
       },
       xaxis: {
-        categories,
-        labels: { show: categories.length > 1, rotate: 0 },
+        type: 'numeric',
+        tickAmount: 4,
+        labels: {
+          show: true,
+          rotate: 0,
+          datetimeUTC: false,
+          hideOverlappingLabels: true,
+          formatter: (_value: string, timestamp?: number) =>
+            timestamp ? this.formatLiveChartTime(new Date(timestamp)) : ''
+        },
         axisBorder: { show: false },
         axisTicks: { show: false }
       },
@@ -380,6 +398,9 @@ export class CrmComponent implements OnInit, OnDestroy {
       stroke: { curve: 'smooth', width: 3 },
       dataLabels: { enabled: false },
       tooltip: {
+        x: {
+          formatter: (value: number) => this.formatLiveChartTime(new Date(value))
+        },
         y: { formatter: (value: number) => `${value.toFixed(3)} kW` }
       },
       fill: {

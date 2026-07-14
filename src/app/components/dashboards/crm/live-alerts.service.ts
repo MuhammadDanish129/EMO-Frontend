@@ -25,6 +25,7 @@ export class LiveAlertsService {
   readonly unreadAlertCount$ = this.unreadAlertCountSubject.asObservable();
 
   private businessId = '';
+  private isTenant = false;
 
   constructor(private socketService: SocketService) {}
 
@@ -44,7 +45,7 @@ export class LiveAlertsService {
     return this.socketService.isConnected();
   }
 
-  start(businessId?: string | null): void {
+  start(businessId?: string | null, isTenant = false): void {
     if (!businessId) {
       return;
     }
@@ -55,16 +56,17 @@ export class LiveAlertsService {
 
     this.stop();
     this.businessId = businessId;
+    this.isTenant = isTenant;
 
     this.socketService.connect();
-    this.socketService.subscribeBusiness(businessId);
+    if (!isTenant) this.socketService.subscribeBusiness(businessId);
     this.socketService.on('live-alerts', this.handleLiveAlerts);
     this.socketService.on('businessUpdate', this.handleLiveReading);
     this.socketService.on('sensorUpdate', this.handleLiveReading);
   }
 
   stop(clearAlerts = true): void {
-    if (this.businessId) {
+    if (this.businessId && !this.isTenant) {
       this.socketService.unsubscribeBusiness(this.businessId);
     }
 
@@ -72,6 +74,7 @@ export class LiveAlertsService {
     this.socketService.off('businessUpdate', this.handleLiveReading);
     this.socketService.off('sensorUpdate', this.handleLiveReading);
     this.businessId = '';
+    this.isTenant = false;
 
     if (clearAlerts) {
       this.alertsSubject.next([]);
@@ -179,7 +182,14 @@ export class LiveAlertsService {
     const resolvedAlertIds = new Set((payload?.resolvedAlertIds ?? []).filter(Boolean));
 
     if (payload?.isSnapshot) {
-      this.setAlerts(this.sortAlerts(incoming));
+      if (this.isTenant && payload.scopeLevel !== 'tenant') {
+        const merged = new Map<string, LiveOperationAlertDTO>();
+        this.alerts.forEach(alert => merged.set(this.getAlertKey(alert), alert));
+        incoming.forEach(alert => merged.set(this.getAlertKey(alert), alert));
+        this.setAlerts(this.sortAlerts(Array.from(merged.values())));
+      } else {
+        this.setAlerts(this.sortAlerts(incoming));
+      }
       return;
     }
 

@@ -9,7 +9,7 @@ import {
   ColorPickerModule,
   ColorPickerService,
   ContentLayoutComponent
-} from "./chunk-LHFGODON.js";
+} from "./chunk-WXP2OXZD.js";
 import {
   AuthService
 } from "./chunk-7CRJAVD7.js";
@@ -4234,7 +4234,7 @@ var App_Route = [
     children: [
       {
         path: "dashboard",
-        loadChildren: () => import("./chunk-DYJD6BYK.js").then((m) => m.admin)
+        loadChildren: () => import("./chunk-FLDAVODB.js").then((m) => m.admin)
         // canLoad: [AuthGuard],         // Ensures lazy-loaded module is protected
       }
     ]
@@ -4273,7 +4273,7 @@ var App_Route = [
     children: [
       {
         path: "",
-        loadChildren: () => import("./chunk-ILVL2JIJ.js").then((m) => m.core)
+        loadChildren: () => import("./chunk-2UO5TLE7.js").then((m) => m.core)
         // canLoad: [AuthGuard],         // Ensures lazy-loaded module is protected
       }
     ]

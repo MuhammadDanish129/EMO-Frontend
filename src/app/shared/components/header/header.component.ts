@@ -27,6 +27,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   avatar: string = ''
   liveAlerts: LiveOperationAlertDTO[] = [];
   unreadAlertCount = 0;
+  showLiveAlerts = false;
   selectedAlertSeverityFilter: 'all' | 'critical' | 'warning' | 'info' = 'all';
   isAlertPanelOpen = false;
   public isCollapsed = true;
@@ -147,13 +148,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     this.currentUser = await this._userService.user$;
     this.avatar = this._userService.avatar$;
-    this.liveAlertsService.start(this.currentUser?.fkBusiness);
-    this.liveAlertsSubscription = this.liveAlertsService.alerts$.subscribe(alerts => {
-      this.liveAlerts = alerts;
-    });
-    this.unreadAlertCountSubscription = this.liveAlertsService.unreadAlertCount$.subscribe(count => {
-      this.unreadAlertCount = count;
-    });
+    this.showLiveAlerts = Number(this.currentUser?.userTypeLevel) !== 0;
+
+    if (this.showLiveAlerts) {
+      this.liveAlertsService.start(
+        this.currentUser?.fkBusiness,
+        Number(this.currentUser?.userTypeLevel) === 2
+      );
+      this.liveAlertsSubscription = this.liveAlertsService.alerts$.subscribe(alerts => {
+        this.liveAlerts = alerts;
+      });
+      this.unreadAlertCountSubscription = this.liveAlertsService.unreadAlertCount$.subscribe(count => {
+        this.unreadAlertCount = count;
+      });
+    }
     // console.log(this.avatar);
   }
 

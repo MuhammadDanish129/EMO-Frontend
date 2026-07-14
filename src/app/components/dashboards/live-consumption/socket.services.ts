@@ -18,16 +18,29 @@ export class SocketService {
   private readonly listeners = new Map<string, Set<SocketCallback>>();
   private readonly activeSubscriptions = new Map<string, number>();
 
+  constructor() {
+    window.addEventListener('auth-session-cleared', () => this.disconnect());
+  }
+
   connect(): void {
+    const auth = this.getSocketAuth();
+    if (!this.hasLocalSession() || !auth.username || !auth.token) {
+      this.disconnect();
+      console.warn('Socket connection skipped because the authenticated session is missing.');
+      return;
+    }
+
     if (this.socket?.connected) return;
 
     if (this.socket) {
+      this.socket.auth = auth;
       this.socket.connect();
       return;
     }
 
     this.socket = io(this.SOCKET_URL, {
       transports: ['websocket'],
+      auth,
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
@@ -35,6 +48,9 @@ export class SocketService {
     });
 
     this.restoreListeners();
+    this.socket.io.on('reconnect_attempt', () => {
+      if (this.socket) this.socket.auth = this.getSocketAuth();
+    });
     this.socket.on('connect', () => this.restoreSubscriptions());
 
     this.socket.on('connect', () => {
@@ -47,6 +63,32 @@ export class SocketService {
 
     this.socket.on('connect_error', (err) => {
       console.error('❌ Socket connection error:', err.message);
+      const message = String(err?.message || '').toLowerCase();
+      const authenticationRejected = message.includes('unauthorized')
+        || message.includes('token')
+        || message.includes('inactive')
+        || message.includes('agreement')
+        || message.includes('access');
+
+      if (authenticationRejected) {
+        // Do not keep an old/stale socket alive or retry forever after the server
+        // has rejected the current login credentials.
+        if (this.socket) this.socket.io.opts.reconnection = false;
+        this.disconnect();
+      }
+    });
+
+    this.socket.on('access-revoked', (payload: { message?: string }) => {
+      console.warn('Socket access revoked:', payload?.message || 'Agreement or user access is no longer active.');
+      localStorage.removeItem('auth_user');
+      localStorage.removeItem('otherInfo');
+      localStorage.removeItem('socket_username');
+      localStorage.removeItem('userAvatar');
+      window.location.assign('/auth/login');
+    });
+
+    this.socket.on('access-scope-updated', (payload: { changed?: boolean }) => {
+      if (payload?.changed) window.location.reload();
     });
   }
 
@@ -98,6 +140,17 @@ export class SocketService {
 
     this.listeners.delete(event);
     this.socket?.off(event);
+  }
+
+  private hasLocalSession(): boolean {
+    return Boolean(localStorage.getItem('auth_user') && localStorage.getItem('otherInfo'));
+  }
+
+  private getSocketAuth(): { username: string; token: string } {
+    return {
+      username: localStorage.getItem('socket_username') || '',
+      token: localStorage.getItem('otherInfo') || ''
+    };
   }
 
   private restoreListeners(): void {

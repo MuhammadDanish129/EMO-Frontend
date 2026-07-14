@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormGroup, FormControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FlatpickrModule, FlatpickrDefaults } from 'angularx-flatpickr';
@@ -124,6 +124,7 @@ goToNextStep() {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private userService: UserService,
     private tenantService: TenantService,
     private managementService: ManagementService,
@@ -132,7 +133,15 @@ goToNextStep() {
 
   async ngOnInit(): Promise<void> {
 
-    this.officeIds = history.state?.officeIds || [];
+    const stateOfficeIds = Array.isArray(history.state?.officeIds)
+      ? history.state.officeIds
+      : [];
+    const queryOfficeIds = (this.route.snapshot.queryParamMap.get('officeIds') || '')
+      .split(',')
+      .map(id => id.trim())
+      .filter(Boolean);
+
+    this.officeIds = stateOfficeIds.length ? stateOfficeIds : queryOfficeIds;
 
     if (!this.officeIds.length) {
       this.router.navigate(['/core/tenant-office-assignment']);
