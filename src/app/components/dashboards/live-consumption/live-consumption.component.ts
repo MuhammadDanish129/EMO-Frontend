@@ -9,6 +9,7 @@ import {
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
@@ -26,6 +27,7 @@ import { DeviceService } from '../../core/device-management/device-management.se
 import { SocketService } from './socket.services';
 import { SensorCommandService } from '../crm/sensor-command.service';
 import { LiveAlertsService } from '../crm/live-alerts.service';
+import { ConfirmDialogComponent } from '../../../shared/confirmation-dialouge/confirmation-dialog.component';
 
 type ScopeType =
   | 'business'
@@ -147,6 +149,7 @@ private subscribedRooms = new Set<string>();
     private toaster: ToastrService,
     private socketService: SocketService,
     private sensorCommandService: SensorCommandService,
+    private dialog: MatDialog,
     private liveAlertsService: LiveAlertsService
   ) {}
 
@@ -769,12 +772,35 @@ private subscribeToScope(type: ScopeType, id: string): void {
     const command: 'ON' | 'OFF' = this.isRelayOn(sensor) ? 'OFF' : 'ON';
     const action = command === 'ON' ? 'turn on' : 'turn off';
     const applianceName = this.getApplianceLabel(sensor);
-    const confirmed = window.confirm(`Do you want to ${action} ${applianceName}?`);
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      maxWidth: '92vw',
+      disableClose: true,
+      data: {
+        title: `${command === 'ON' ? 'Turn on' : 'Turn off'} appliance?`,
+        message: `You are about to ${action} ${applianceName}. The relay command will be sent immediately.`,
+        confirmText: command === 'ON' ? 'Turn on' : 'Turn off',
+        cancelText: 'Cancel',
+        variant: command === 'ON' ? 'info' : 'warning',
+        showActions: true
+      }
+    });
 
-    if (!confirmed) {
-      return;
-    }
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed || sensor.isCommanding) {
+        return;
+      }
 
+      this.executeRelayCommand(sensor, command, applianceName, action);
+    });
+  }
+
+  private executeRelayCommand(
+    sensor: LiveSensorCard,
+    command: 'ON' | 'OFF',
+    applianceName: string,
+    action: string
+  ): void {
     sensor.isCommanding = true;
 
     this.sensorCommandService.sendRelayCommand({

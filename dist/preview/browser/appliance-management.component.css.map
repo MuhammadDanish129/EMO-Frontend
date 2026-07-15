@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/core/appliance-management/appliance-management.component.scss"],
-  "sourcesContent": [".appliance-row-selected,\n.appliance-card-selected {\n  background: rgb(var(--primary-100));\n}\n\n.appliance-row-assigned,\n.appliance-card-assigned {\n  box-shadow: inset 3px 0 0 rgb(var(--primary));\n}\n\n.appliance-card-selected {\n  border-color: rgb(var(--primary));\n}\n\n.appliance-details-popup {\n  border-radius: 0.75rem !important;\n  overflow: hidden;\n  transform: translateZ(0);\n}\n\n.appliance-details-popup-header {\n  border-top-left-radius: 0.75rem;\n  border-top-right-radius: 0.75rem;\n}\n\n.appliance-details-popup-body {\n  border-bottom-left-radius: 0.75rem;\n  border-bottom-right-radius: 0.75rem;\n  overscroll-behavior: contain;\n  scrollbar-gutter: stable;\n}\n\n.appliance-details-popup-body::-webkit-scrollbar {\n  width: 0.45rem;\n}\n\n.appliance-details-popup-body::-webkit-scrollbar-thumb {\n  border-radius: 999px;\n  background: rgb(var(--gray-300));\n}\n"],
-  "mappings": ";AAAA,CAAA;AAAA,CAAA;AAEE,cAAA,IAAA,IAAA;;AAGF,CAAA;AAAA,CAAA;AAEE,cAAA,MAAA,IAAA,EAAA,EAAA,IAAA,IAAA;;AAGF,CAVA;AAWE,gBAAA,IAAA,IAAA;;AAGF,CAAA;AACE,iBAAA;AACA,YAAA;AACA,aAAA,WAAA;;AAGF,CAAA;AACE,0BAAA;AACA,2BAAA;;AAGF,CAAA;AACE,6BAAA;AACA,8BAAA;AACA,uBAAA;AACA,oBAAA;;AAGF,CAPA,4BAOA;AACE,SAAA;;AAGF,CAXA,4BAWA;AACE,iBAAA;AACA,cAAA,IAAA,IAAA;;",
-  "names": []
-}

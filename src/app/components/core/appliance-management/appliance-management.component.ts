@@ -12,6 +12,10 @@ import { ApplianceResponseDTO, SensorApplianceResponseDTO } from './appliance-ma
 
 type ApplianceSearchField = 'applianceName' | 'companyName' | 'modelNumber' | 'description';
 
+
+import { readHierarchyContext, saveHierarchyContext } from '../../../shared/utils/hierarchy-context';
+
+
 @Component({
   selector: 'app-appliance-management',
   standalone: true,
@@ -65,7 +69,7 @@ export class ApplianceManagementComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    const nav = history.state || {};
+    const nav = readHierarchyContext();
 
     this.fkFloor = nav.fkFloor;
     this.fkBuilding = nav.fkBuilding;
@@ -78,6 +82,20 @@ export class ApplianceManagementComponent implements OnInit {
     this.fkUtility = nav.fkUtility || nav.fkutility;
     this.sensorName = nav.sensorName || 'Selected Sensor';
     this.utilityName = nav.utilityName || '';
+
+    saveHierarchyContext({
+      fkBusiness: this.fkBusiness,
+      fkFacility: this.fkFacility,
+      fkBuilding: this.fkBuilding,
+      fkFloor: this.fkFloor,
+      fkSection: this.fkSection,
+      fkOffice: this.fkOffice,
+      fkDevice: this.fkDevice,
+      fkSensor: this.fkSensor,
+      fkUtility: this.fkUtility,
+      sensorName: this.sensorName,
+      utilityName: this.utilityName,
+    });
 
     if (!this.fkSensor) {
       this.pageError = 'Sensor information was not provided. Please open appliance management from Sensor Management.';

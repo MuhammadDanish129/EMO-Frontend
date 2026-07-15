@@ -87,9 +87,11 @@ export class SocketService {
       window.location.assign('/auth/login');
     });
 
-    this.socket.on('access-scope-updated', (payload: { changed?: boolean }) => {
-      if (payload?.changed) window.location.reload();
-    });
+   this.socket.on('access-scope-updated', (payload: { changed?: boolean }) => {
+  if (payload?.changed) {
+    console.log('Access scope updated; page reload skipped.');
+  }
+});
   }
 
   disconnect(): void {

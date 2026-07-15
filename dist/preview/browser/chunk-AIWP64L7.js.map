@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/dashboards/crm/sensor-command.service.ts"],
-  "sourcesContent": ["import { Injectable } from '@angular/core';\nimport { HttpClient } from '@angular/common/http';\nimport { Observable } from 'rxjs';\nimport { environment } from '../../../../environments/environment';\nimport { ResponseModel } from '../../../shared/response.model';\n\nexport interface SensorRelayCommandRequestDTO {\n  sensorId: string;\n  command: 'ON' | 'OFF';\n  reason: string;\n}\n\nexport interface SensorRelayCommandResponseDTO {\n  sensorId: string;\n  macAddress: string;\n  topic: string;\n  command: string;\n  reason: string;\n  sentAtUtc: string;\n}\n\n@Injectable({ providedIn: 'root' })\nexport class SensorCommandService {\n  private baseUrl = environment.baseUrl + '/SensorCommand';\n\n  constructor(private http: HttpClient) {}\n\n  sendRelayCommand(model: SensorRelayCommandRequestDTO): Observable<ResponseModel<SensorRelayCommandResponseDTO>> {\n    return this.http.post<ResponseModel<SensorRelayCommandResponseDTO>>(`${this.baseUrl}/Relay`, model);\n  }\n}\n"],
-  "mappings": ";;;;;;;;;;AAsBM,IAAO,uBAAP,MAAO,sBAAoB;EAG/B,YAAoB,MAAgB;AAAhB,SAAA,OAAA;AAFZ,SAAA,UAAU,YAAY,UAAU;EAED;EAEvC,iBAAiB,OAAmC;AAClD,WAAO,KAAK,KAAK,KAAmD,GAAG,KAAK,OAAO,UAAU,KAAK;EACpG;;;uBAPW,uBAAoB,mBAAA,UAAA,CAAA;IAAA;EAAA;;4EAApB,uBAAoB,SAApB,sBAAoB,WAAA,YADP,OAAM,CAAA;EAAA;;",
-  "names": []
-}

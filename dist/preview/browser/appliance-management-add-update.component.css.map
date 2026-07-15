@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/core/appliance-management/appliance-management-add-update/appliance-management-add-update.component.scss"],
-  "sourcesContent": [".appliance-dialog-body {\n  overscroll-behavior: contain;\n  scrollbar-gutter: stable;\n}\n\n.appliance-dialog-body::-webkit-scrollbar {\n  width: 0.45rem;\n}\n\n.appliance-dialog-body::-webkit-scrollbar-thumb {\n  border-radius: 999px;\n  background: rgb(var(--gray-300));\n}\n\ntextarea.yx-input {\n  resize: vertical;\n}\n\n@media (max-height: 700px) {\n  .appliance-dialog-body {\n    padding-top: 1rem;\n    padding-bottom: 1rem;\n  }\n}\n"],
-  "mappings": ";AAAA,CAAA;AACE,uBAAA;AACA,oBAAA;;AAGF,CALA,qBAKA;AACE,SAAA;;AAGF,CATA,qBASA;AACE,iBAAA;AACA,cAAA,IAAA,IAAA;;AAGF,QAAA,CAAA;AACE,UAAA;;AAGF,OAAA,CAAA,UAAA,EAAA;AACE,GAnBF;AAoBI,iBAAA;AACA,oBAAA;;;",
-  "names": []
-}

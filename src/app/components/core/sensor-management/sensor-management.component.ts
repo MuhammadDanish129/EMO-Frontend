@@ -13,6 +13,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
 import { MaterialModuleModule } from '../../../material-module/material-module.module';
 
+
+import { readHierarchyContext, saveHierarchyContext } from '../../../shared/utils/hierarchy-context';
+
+
 @Component({
   selector: 'app-sensor-management',
   standalone: true,
@@ -49,7 +53,7 @@ fkDevice!: string;
   ) { }
 
   async ngOnInit(): Promise<void> {
-     const nav = history.state;
+     const nav = readHierarchyContext();
     this.fkFloor = nav.fkFloor || nav.fkFloor;
   this.fkBuilding = nav.fkBuilding;
   this.fkFacility = nav.fkFacility;
@@ -57,6 +61,16 @@ fkDevice!: string;
   this.fkSection = nav.fkSection;
   this.fkOffice = nav.fkOffice;
   this.fkDevice = nav.fkDevice;
+
+    saveHierarchyContext({
+      fkBusiness: this.fkBusiness,
+      fkFacility: this.fkFacility,
+      fkBuilding: this.fkBuilding,
+      fkFloor: this.fkFloor,
+      fkSection: this.fkSection,
+      fkOffice: this.fkOffice,
+      fkDevice: this.fkDevice,
+    });
 
     this.currentUser = await this._userService.user$;
     this.loadSensors(this.currentUser.fkBusiness);

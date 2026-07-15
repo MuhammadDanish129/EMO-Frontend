@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/settings/settings.routes.ts"],
-  "sourcesContent": ["import { Routes } from '@angular/router';\nexport const settings: Routes=[{path:'energy',loadComponent:()=>import('./energy-configuration/energy-configuration.component').then(m=>m.EnergyConfigurationComponent)}];\n"],
-  "mappings": ";;;AACO,IAAM,WAAiB,CAAC,EAAC,MAAK,UAAS,eAAc,MAAI,OAAO,qBAAuD,EAAE,KAAK,OAAG,EAAE,4BAA4B,EAAC,CAAC;",
-  "names": []
-}

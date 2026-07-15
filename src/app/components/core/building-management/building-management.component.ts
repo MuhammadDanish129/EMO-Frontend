@@ -11,6 +11,10 @@ import { BuildingService } from './building-management.service';
 import { ConfirmDialogComponent } from '../../../shared/confirmation-dialouge/confirmation-dialog.component';
 import { BuildingManagementAddUpdateComponent } from './building-management-add-update/building-management-add-update.component';
 
+
+import { readHierarchyContext, saveHierarchyContext } from '../../../shared/utils/hierarchy-context';
+
+
 @Component({
   selector: 'app-building-management',
   standalone: true,
@@ -25,7 +29,7 @@ export class BuildingManagementComponent implements OnInit {
 
 
   // ngOnInit() {
-  //   const nav = history.state;
+  //   const nav = readHierarchyContext();
   //   this.facilityId = nav.facilityId;
 
   //   console.log('Facility ID:', this.facilityId);
@@ -53,10 +57,15 @@ export class BuildingManagementComponent implements OnInit {
    * INIT
    * ============================= */
   async ngOnInit(): Promise<void> {
-    const nav = history.state;
+    const nav = readHierarchyContext();
     console.log('breadcrumb 2', nav)
     this.fkFacility = nav.fkFacility;
      this.fkBusiness = nav.fkBusiness;
+    saveHierarchyContext({
+      fkBusiness: this.fkBusiness,
+      fkFacility: this.fkFacility,
+    });
+
     this.currentUser = await this._userService.user$;
     
     this.loadBuildings(this.fkFacility);

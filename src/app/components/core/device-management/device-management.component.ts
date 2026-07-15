@@ -12,6 +12,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
 import { MaterialModuleModule } from '../../../material-module/material-module.module';
 
+
+import { readHierarchyContext, saveHierarchyContext } from '../../../shared/utils/hierarchy-context';
+
+
 @Component({
   selector: 'app-device-management',
   standalone: true,
@@ -49,13 +53,22 @@ fkOffice!: string;
    * INIT
    * ============================= */
   async ngOnInit(): Promise<void> {
-    const nav = history.state;
+    const nav = readHierarchyContext();
     this.fkFloor = nav.fkFloor || nav.fkFloor;
   this.fkBuilding = nav.fkBuilding;
   this.fkFacility = nav.fkFacility;
   this.fkBusiness = nav.fkBusiness;
   this.fkSection = nav.fkSection;
   this.fkOffice = nav.fkOffice;
+    saveHierarchyContext({
+      fkBusiness: this.fkBusiness,
+      fkFacility: this.fkFacility,
+      fkBuilding: this.fkBuilding,
+      fkFloor: this.fkFloor,
+      fkSection: this.fkSection,
+      fkOffice: this.fkOffice,
+    });
+
     this.currentUser = await this._userService.user$;
     this.loadDevices(this.fkOffice);
   }
@@ -168,7 +181,7 @@ fkOffice!: string;
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'saved') {
-        this.loadDevices(this.currentUser.fkBusiness);
+        this.loadDevices(this.fkOffice);
       }
     });
   }
