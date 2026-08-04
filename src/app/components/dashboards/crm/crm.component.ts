@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { RouterModule } from '@angular/router';
 import {
   ApexAxisChartSeries,
@@ -28,6 +29,7 @@ import { LiveAlertsService } from './live-alerts.service';
 import { LiveOptimizationSuggestionsService } from './live-optimization-suggestions.service';
 import { SensorCommandService } from './sensor-command.service';
 import { LiveOperationAlertDTO } from './energy-deep-dive/optimization-insights/optimization-dashboard.type';
+import { ConfirmDialogComponent } from '../../../shared/confirmation-dialouge/confirmation-dialog.component';
 
 type LiveLoadChartOptions = {
   series: ApexAxisChartSeries;
@@ -77,6 +79,7 @@ export class CrmComponent implements OnInit, OnDestroy {
     public readonly liveAlertsService: LiveAlertsService,
     public readonly liveOptimizationSuggestionsService: LiveOptimizationSuggestionsService,
     private readonly sensorCommandService: SensorCommandService,
+    private readonly dialog: MatDialog,
     private readonly toaster: ToastrService
   ) {}
 
@@ -172,11 +175,36 @@ export class CrmComponent implements OnInit, OnDestroy {
 
     const applianceName = alert.applianceName || alert.sensorName || 'this appliance';
     const action = command === 'ON' ? 'turn on' : 'turn off';
-    const confirmed = window.confirm(`Do you want to ${action} ${applianceName}?`);
-    if (!confirmed) {
-      return;
-    }
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      maxWidth: '92vw',
+      disableClose: true,
+      data: {
+        title: `${command === 'ON' ? 'Turn on' : 'Turn off'} appliance?`,
+        message: `You are about to ${action} ${applianceName}. The relay command will be sent immediately.`,
+        confirmText: command === 'ON' ? 'Turn on' : 'Turn off',
+        cancelText: 'Cancel',
+        variant: command === 'ON' ? 'info' : 'warning',
+        showActions: true
+      }
+    });
 
+    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
+      if (!confirmed || this.commandingIdleSensors.has(sensorId)) {
+        return;
+      }
+
+      this.executeIdleApplianceCommand(alert, command, sensorId, applianceName, action);
+    });
+  }
+
+  private executeIdleApplianceCommand(
+    alert: LiveOperationAlertDTO,
+    command: 'ON' | 'OFF',
+    sensorId: string,
+    applianceName: string,
+    action: string
+  ): void {
     this.commandingIdleSensors.add(sensorId);
     this.sensorCommandService.sendRelayCommand({
       sensorId,

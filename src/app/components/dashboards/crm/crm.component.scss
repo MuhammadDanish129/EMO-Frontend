@@ -3626,3 +3626,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+/* Keep the final dashboard row clear of the shared footer at every breakpoint. */
+.crm-dashboard {
+  padding-block-end: clamp(2.5rem, 4vw, 4rem);
+}

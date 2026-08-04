@@ -614,8 +614,9 @@ export class EnergyDeepDiveComponent implements OnInit {
       plotOptions: { bar: { columnWidth: '72%', borderRadius: 1 } },
       xaxis: {
         categories: utilityMonthLabels,
+        tickAmount: this.getChartTickAmount(6),
         tickPlacement: 'on',
-        labels: { rotate: 0, trim: false, hideOverlappingLabels: false },
+        labels: { rotate: 0, rotateAlways: false, trim: false, hideOverlappingLabels: true, maxHeight: 42 },
       },
       yaxis: { labels: { formatter: (value: number) => `${value.toFixed(0)} kWh` } },
       legend: { position: 'top' },
@@ -682,15 +683,21 @@ export class EnergyDeepDiveComponent implements OnInit {
       xaxis: hasDatetimePoints
         ? {
             type: 'datetime',
-            tickAmount: this.range === '1y' ? 12 : undefined,
+            tickAmount: this.getChartTickAmount(),
             labels: {
               rotate: 0,
+              rotateAlways: false,
               hideOverlappingLabels: true,
+              maxHeight: 42,
               datetimeUTC: true,
               formatter: (_value: string, timestamp?: number) => this.formatChartTimestamp(timestamp),
             },
           }
-        : { categories: source.categories, labels: { rotate: -35, trim: false, hideOverlappingLabels: true } },
+        : {
+            categories: source.categories,
+            tickAmount: this.getChartTickAmount(),
+            labels: { rotate: 0, rotateAlways: false, trim: true, hideOverlappingLabels: true, maxHeight: 42 },
+          },
       yaxis: { labels: { formatter: (value: number) => `${value.toFixed(0)} ${source.unit}` } },
       stroke: { curve: 'smooth', width: 2.5 },
       dataLabels: { enabled: false },
@@ -934,10 +941,13 @@ export class EnergyDeepDiveComponent implements OnInit {
       dataLabels: { enabled: false },
       xaxis: {
         type: 'datetime',
-        tickAmount: this.range === '1y' ? 12 : undefined,
+        tickAmount: this.getChartTickAmount(),
         labels: {
           datetimeUTC: true,
+          rotate: 0,
+          rotateAlways: false,
           hideOverlappingLabels: true,
+          maxHeight: 42,
           style: { fontSize: '10px' },
           formatter: (_value: string, timestamp?: number) => this.formatChartTimestamp(timestamp),
         },
@@ -986,8 +996,39 @@ export class EnergyDeepDiveComponent implements OnInit {
       return yearChanged ? `’${String(year).slice(-2)}` : monthNames[monthIndex];
     });
   }
+  private getChartTickAmount(mobileMaximum = 5): number | undefined {
+    if (!this.isMobileChartViewport()) {
+      return this.range === '1y' ? 12 : undefined;
+    }
+
+    const rangeTicks: Record<DashboardRange, number> = {
+      '24h': 4,
+      '7d': 4,
+      '30d': 5,
+      '90d': 5,
+      '1y': 6,
+    };
+
+    return Math.min(rangeTicks[this.range], mobileMaximum);
+  }
+
+  private isMobileChartViewport(): boolean {
+    return typeof window !== 'undefined' && window.innerWidth <= 767;
+  }
+
   private formatChartTimestamp(timestamp?: number): string {
     if (!timestamp || !Number.isFinite(timestamp)) return '';
+
+    if (this.isMobileChartViewport()) {
+      if (this.range === '24h') {
+        return this.reportingTimezoneService.formatTimestamp(timestamp,
+          { day: undefined, month: undefined, year: undefined, hour: '2-digit', minute: '2-digit' });
+      }
+
+      return this.reportingTimezoneService.formatTimestamp(timestamp,
+        { day: this.range === '1y' ? undefined : '2-digit', month: 'short', year: this.range === '1y' ? '2-digit' : undefined, hour: undefined, minute: undefined });
+    }
+
     const isLongRange = this.range === '90d' || this.range === '1y';
     return this.reportingTimezoneService.formatTimestamp(timestamp, isLongRange
       ? { day: '2-digit', month: 'short', year: this.range === '1y' ? '2-digit' : undefined, hour: undefined, minute: undefined }

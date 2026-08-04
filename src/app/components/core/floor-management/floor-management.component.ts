@@ -11,6 +11,10 @@ import { FloorService } from './floor-management.service';
 import { ConfirmDialogComponent } from '../../../shared/confirmation-dialouge/confirmation-dialog.component';
 import { FloorManagementAddUpdateComponent } from './floor-management-add-update/floor-management-add-update.component';
 
+
+import { readHierarchyContext, saveHierarchyContext } from '../../../shared/utils/hierarchy-context';
+
+
 @Component({
   selector: 'app-floor-management',
   standalone: true,
@@ -45,11 +49,17 @@ export class FloorManagementComponent implements OnInit {
    * INIT
    * ============================= */
   async ngOnInit(): Promise<void> {
-    const nav = history.state;
+    const nav = readHierarchyContext();
     console.log('breadcrumb 3', nav)
    this.fkBuilding = nav.fkBuilding || nav.fkBuilding;
   this.fkFacility = nav.fkFacility;
   this.fkBusiness = nav.fkBusiness;
+    saveHierarchyContext({
+      fkBusiness: this.fkBusiness,
+      fkFacility: this.fkFacility,
+      fkBuilding: this.fkBuilding,
+    });
+
     this.currentUser = await this._userService.user$;
     this.loadFloors(this.fkBuilding);
   }

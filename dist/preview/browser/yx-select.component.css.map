@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/shared/yx-select/yx-select.component.scss"],
-  "sourcesContent": [".yx-select-trigger {\n  box-sizing: border-box;\n  height: 2.625rem;\n  min-height: 2.625rem;\n}\n\n.yx-select-trigger > span {\n  min-width: 0;\n  overflow: hidden;\n  line-height: 1.25rem;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.yx-select-trigger > i {\n  flex: none;\n}\n\n.yx-select-search-input {\n  flex: 1 1 auto;\n  min-width: 0;\n  width: 100%;\n  height: 1.25rem;\n  padding: 0;\n  border: 0;\n  outline: 0;\n  background: transparent;\n  color: rgb(var(--default-text-color));\n  font: inherit;\n  line-height: 1.25rem;\n}\n\n.yx-select-search-input::placeholder {\n  color: rgb(var(--text-muted));\n}\n\n.yx-select-up .yx-select-panel {\n  top: auto;\n  bottom: calc(100% + 6px);\n  margin-top: 0;\n  margin-bottom: 6px;\n}\n\n.yx-select-up .yx-select-option {\n  scroll-margin-bottom: 0.5rem;\n}\n\n.yx-select-empty {\n  padding: 0.75rem 1rem;\n  color: rgb(var(--text-muted));\n  font-size: 0.875rem;\n}\n"],
-  "mappings": ";AAAA,CAAA;AACE,cAAA;AACA,UAAA;AACA,cAAA;;AAGF,CANA,kBAMA,EAAA;AACE,aAAA;AACA,YAAA;AACA,eAAA;AACA,iBAAA;AACA,eAAA;;AAGF,CAdA,kBAcA,EAAA;AACE,QAAA;;AAGF,CAAA;AACE,QAAA,EAAA,EAAA;AACA,aAAA;AACA,SAAA;AACA,UAAA;AACA,WAAA;AACA,UAAA;AACA,WAAA;AACA,cAAA;AACA,SAAA,IAAA,IAAA;AACA,QAAA;AACA,eAAA;;AAGF,CAdA,sBAcA;AACE,SAAA,IAAA,IAAA;;AAGF,CAAA,aAAA,CAAA;AACE,OAAA;AACA,UAAA,KAAA,KAAA,EAAA;AACA,cAAA;AACA,iBAAA;;AAGF,CAPA,aAOA,CAAA;AACE,wBAAA;;AAGF,CAAA;AACE,WAAA,QAAA;AACA,SAAA,IAAA,IAAA;AACA,aAAA;;",
-  "names": []
-}

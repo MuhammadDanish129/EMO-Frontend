@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/dashboards/live-consumption/live-consumption.component.scss"],
-  "sourcesContent": [".live-relay-action {\n  display: inline-flex;\n  align-items: center;\n  gap: 0.25rem;\n  min-height: 1.35rem;\n  border: 1px solid rgba(var(--primary), 0.35);\n  border-radius: 999px;\n  background: rgba(var(--primary), 0.08);\n  color: rgb(var(--primary));\n  font-size: 0.56rem;\n  font-weight: 700;\n  line-height: 1;\n  padding: 0.25rem 0.5rem;\n  transition: opacity 160ms ease, transform 160ms ease, background 160ms ease;\n}\n\n.live-relay-action:hover:not(:disabled) {\n  transform: translateY(-1px);\n  background: rgba(var(--primary), 0.14);\n}\n\n.live-relay-action.is-on {\n  border-color: rgba(var(--danger), 0.35);\n  background: rgba(var(--danger), 0.08);\n  color: rgb(var(--danger));\n}\n\n.live-relay-action:disabled {\n  cursor: not-allowed;\n  opacity: 0.58;\n}\n"],
-  "mappings": ";AAAA,CAAA;AACE,WAAA;AACA,eAAA;AACA,OAAA;AACA,cAAA;AACA,UAAA,IAAA,MAAA,KAAA,IAAA,UAAA,EAAA;AACA,iBAAA;AACA,cAAA,KAAA,IAAA,UAAA,EAAA;AACA,SAAA,IAAA,IAAA;AACA,aAAA;AACA,eAAA;AACA,eAAA;AACA,WAAA,QAAA;AACA;IAAA,QAAA,MAAA,IAAA;IAAA,UAAA,MAAA,IAAA;IAAA,WAAA,MAAA;;AAGF,CAhBA,iBAgBA,MAAA,KAAA;AACE,aAAA,WAAA;AACA,cAAA,KAAA,IAAA,UAAA,EAAA;;AAGF,CArBA,iBAqBA,CAAA;AACE,gBAAA,KAAA,IAAA,SAAA,EAAA;AACA,cAAA,KAAA,IAAA,SAAA,EAAA;AACA,SAAA,IAAA,IAAA;;AAGF,CA3BA,iBA2BA;AACE,UAAA;AACA,WAAA;;",
-  "names": []
-}

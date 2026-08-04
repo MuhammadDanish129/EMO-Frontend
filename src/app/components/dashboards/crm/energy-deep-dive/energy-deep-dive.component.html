@@ -523,7 +523,7 @@
             <a *ngIf="!analysis.demand.hasConfiguredLimit" class="panel-config-link" routerLink="/settings/energy"><i class="ri-settings-3-line"></i>Configure demand limit and warning threshold</a>
           </article>
           <ng-template #demandUnavailable>
-            <article class="panel unavailable-panel"><span><i class="ri-speed-up-line"></i></span><h2>Demand analysis unavailable</h2><p>{{ analysis.demand.unavailableReason }}</p></article>
+            <article class="panel unavailable-panel"><span><i class="ri-speed-line"></i></span><h2>Demand analysis unavailable</h2><p>{{ analysis.demand.unavailableReason }}</p></article>
           </ng-template>
 
           <article class="panel crm-analysis-graph-card" *ngIf="analysis.peakOffPeak.isAvailable && analysisPeakChart; else peakUnavailable">
@@ -616,7 +616,7 @@
                 <tbody>
                   <tr *ngFor="let suggestion of analysis.suggestions">
                     <td><span class="suggestion-priority">{{ suggestion.priority }}</span></td>
-                    <td><strong>{{ suggestion.title }}</strong><small>{{ suggestion.reasonCode }}</small></td>
+                    <td><strong>{{ suggestion.title }}</strong></td>
                     <td><p>{{ suggestion.recommendation }}</p></td>
                     <td><span *ngIf="suggestion.estimatedSavingKwh !== null; else savingUnavailable">{{ suggestion.estimatedSavingKwh | number: '1.0-2' }} kWh<ng-container *ngIf="suggestion.estimatedSavingCost !== null"><br>{{ analysis.currency }} {{ suggestion.estimatedSavingCost | number: '1.0-2' }}</ng-container></span><ng-template #savingUnavailable><span class="muted-value">—</span></ng-template></td>
                   </tr>

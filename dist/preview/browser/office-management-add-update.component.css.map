@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/components/core/office-management/office-management-add-update/office-management-add-update.component.scss"],
-  "sourcesContent": [".office-dialog-body {\n  overscroll-behavior: contain;\n  scrollbar-gutter: stable;\n}\n\n.office-dialog-body::-webkit-scrollbar {\n  width: 0.45rem;\n}\n\n.office-dialog-body::-webkit-scrollbar-thumb {\n  border-radius: 999px;\n  background: rgb(var(--gray-300));\n}\n\n@media (max-height: 700px) {\n  .office-dialog-body {\n    padding-top: 1rem;\n    padding-bottom: 1rem;\n  }\n}\n"],
-  "mappings": ";AAAA,CAAA;AACE,uBAAA;AACA,oBAAA;;AAGF,CALA,kBAKA;AACE,SAAA;;AAGF,CATA,kBASA;AACE,iBAAA;AACA,cAAA,IAAA,IAAA;;AAGF,OAAA,CAAA,UAAA,EAAA;AACE,GAfF;AAgBI,iBAAA;AACA,oBAAA;;;",
-  "names": []
-}

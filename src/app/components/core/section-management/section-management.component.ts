@@ -14,6 +14,10 @@ import { UserService } from '../../../shared/services/user/user.service';
 import { ConfirmDialogComponent } from '../../../shared/confirmation-dialouge/confirmation-dialog.component';
 import { SectionManagementAddUpdateComponent } from './section-management-add-update/section-management-add-update.component';
 
+
+import { readHierarchyContext, saveHierarchyContext } from '../../../shared/utils/hierarchy-context';
+
+
 @Component({
   selector: 'app-section-management',
   standalone: true,
@@ -49,12 +53,19 @@ fkBusiness!: string;
   /* ================= INIT ================= */
   async ngOnInit(): Promise<void> {
 
-    const nav = history.state;
+    const nav = readHierarchyContext();
     console.log('breadcrumb 4', nav)
    this.fkFloor = nav.fkFloor || nav.fkFloor;
   this.fkBuilding = nav.fkBuilding;
   this.fkFacility = nav.fkFacility;
   this.fkBusiness = nav.fkBusiness;
+
+    saveHierarchyContext({
+      fkBusiness: this.fkBusiness,
+      fkFacility: this.fkFacility,
+      fkBuilding: this.fkBuilding,
+      fkFloor: this.fkFloor,
+    });
 
     this.currentUser = await this._userService.user$;
 

@@ -12,6 +12,10 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router, RouterLink } from '@angular/router';
 import { MaterialModuleModule } from '../../../material-module/material-module.module';
 
+
+import { readHierarchyContext, saveHierarchyContext } from '../../../shared/utils/hierarchy-context';
+
+
 @Component({
   selector: 'app-facility-management',
   standalone: true,
@@ -46,7 +50,7 @@ export class FacilityManagementComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.currentUser = await this._userService.user$;
     this.loadFacilities(this.currentUser.fkFacilities);
-    const nav = history.state;
+    const nav = readHierarchyContext();
     console.log('breadcrumb 1', nav)
   }
 
